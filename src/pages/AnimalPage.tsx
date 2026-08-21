@@ -1,0 +1,166 @@
+import { Navigate, useParams, Link } from 'react-router-dom'
+import { animals, getAnimal } from '../data/animals'
+import FlipFact from '../components/FlipFact'
+import Quiz from '../components/Quiz'
+import NotFoundPage from './NotFoundPage'
+import { ArrowRightIcon, PawIcon } from '../components/icons'
+
+export default function AnimalPage() {
+  const { slug } = useParams<{ slug: string }>()
+  const animal = slug ? getAnimal(slug) : undefined
+
+  if (slug && !animal) return <NotFoundPage />
+  if (!animal) return <Navigate to="/" replace />
+
+  const others = animals.filter((a) => a.slug !== animal.slug)
+
+  return (
+    <main>
+      {/* Hero de la infografía */}
+      <section
+        className="w-full"
+        style={{ backgroundColor: animal.accentSoftHex }}
+      >
+        <div className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
+          <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-10">
+            <span
+              className="grid size-24 shrink-0 place-items-center rounded-3xl text-white shadow-sm"
+              style={{ backgroundColor: animal.accentHex }}
+              aria-hidden="true"
+            >
+              <PawIcon className="size-12" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: animal.accentHex }}>
+                Infografía interactiva
+              </p>
+              <h1 className="mt-1 font-heading text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+                {animal.name}
+              </h1>
+              <p className="mt-2 font-body text-lg italic text-muted-foreground">
+                {animal.scientificName}
+              </p>
+              <span
+                className="mt-4 inline-block rounded-full bg-card px-4 py-1.5 text-xs font-semibold"
+                style={{ color: animal.accentHex }}
+              >
+                Estado de conservación: {animal.conservationStatus}
+              </span>
+            </div>
+          </div>
+          <p className="mt-8 max-w-2xl font-body leading-relaxed text-muted-foreground">
+            {animal.description}
+          </p>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-5xl space-y-16 px-6 py-16">
+        {/* Estadísticas clave */}
+        <section aria-labelledby="stats-heading">
+          <h2 id="stats-heading" className="font-heading text-2xl font-semibold text-foreground">
+            Datos clave
+          </h2>
+          <dl className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {animal.stats.map((stat) => (
+              <div key={stat.label} className="rounded-3xl border border-border bg-card p-6 text-center">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {stat.label}
+                </dt>
+                <dd
+                  className="mt-2 font-heading text-xl font-bold sm:text-2xl"
+                  style={{ color: animal.accentHex }}
+                >
+                  {stat.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        {/* Hábitat y dieta */}
+        <section
+          aria-labelledby="habitat-diet-heading"
+          className="grid gap-4 sm:grid-cols-2"
+        >
+          <div className="rounded-3xl border border-border bg-card p-8">
+            <h2 id="habitat-diet-heading" className="font-heading text-lg font-semibold text-foreground">
+              Hábitat
+            </h2>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {animal.habitat.map((item) => (
+                <li
+                  key={item}
+                  className="rounded-full px-4 py-1.5 text-sm font-medium"
+                  style={{ backgroundColor: animal.accentSoftHex, color: '#1c241e' }}
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-3xl border border-border bg-card p-8">
+            <h3 className="font-heading text-lg font-semibold text-foreground">Alimentación</h3>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {animal.diet.map((item) => (
+                <li
+                  key={item}
+                  className="rounded-full px-4 py-1.5 text-sm font-medium"
+                  style={{ backgroundColor: animal.accentSoftHex, color: '#1c241e' }}
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* Datos curiosos interactivos */}
+        <section aria-labelledby="facts-heading">
+          <h2 id="facts-heading" className="font-heading text-2xl font-semibold text-foreground">
+            ¿Sabías que…?
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Toca cada tarjeta para descubrir el dato completo.
+          </p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            {animal.facts.map((fact, i) => (
+              <FlipFact key={fact.title} fact={fact} accentHex={animal.accentHex} index={i} />
+            ))}
+          </div>
+        </section>
+
+        {/* Quiz */}
+        <section aria-labelledby="quiz-heading">
+          <h2 id="quiz-heading" className="font-heading text-2xl font-semibold text-foreground">
+            Pon a prueba lo aprendido
+          </h2>
+          <p className="mb-6 mt-2 text-sm text-muted-foreground">
+            Responde {animal.quiz.length} preguntas sobre el {animal.name.toLowerCase()}.
+          </p>
+          <Quiz questions={animal.quiz} accentHex={animal.accentHex} />
+        </section>
+
+        {/* Otros animales */}
+        <section aria-labelledby="others-heading">
+          <h2 id="others-heading" className="font-heading text-2xl font-semibold text-foreground">
+            Sigue explorando
+          </h2>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            {others.map((other) => (
+              <Link
+                to={`/animales/${other.slug}`}
+                className="flex items-center justify-between rounded-3xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <span>
+                  <span className="block font-heading text-lg font-semibold text-foreground">{other.name}</span>
+                  <span className="text-sm italic text-muted-foreground">{other.tagline}</span>
+                </span>
+                <ArrowRightIcon className="size-5 shrink-0" />
+              </Link>
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
+  )
+}

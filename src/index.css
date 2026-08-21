@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary: #166534;
+  --color-primary-soft: #dcfce7;
+  --color-on-primary: #ffffff;
+  --color-accent: #d97706;
+  --color-background: #fafaf7;
+  --color-foreground: #1c241e;
+  --color-card: #ffffff;
+  --color-muted: #f0f2ec;
+  --color-muted-foreground: #5b675e;
+  --color-border: #e4e8df;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
