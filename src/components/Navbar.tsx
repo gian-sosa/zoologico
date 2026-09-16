@@ -1,16 +1,26 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { PawIcon } from './icons'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../features/auth/auth.context'
 
 const links = [
   { to: '/', label: 'Inicio', match: (p: string) => p === '/' },
   { to: '/animales', label: 'Animales', match: (p: string) => p.startsWith('/animales') },
-  { to: '/#fotos', label: 'Comparte tu foto', match: () => false },
+  { to: '/entradas', label: 'Entradas', match: (p: string) => p.startsWith('/entradas') },
+  { to: '/comunidad', label: 'Comunidad', match: (p: string) => p.startsWith('/comunidad') },
 ]
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const { role, logout } = useAuth()
+  const isAdmin = role === 'administrador'
+
+  function handleLogout() {
+    logout()
+    setOpen(false)
+    navigate('/', { replace: true })
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
@@ -19,10 +29,10 @@ export default function Navbar() {
         className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4"
       >
         <Link to="/" className="flex items-center gap-2 font-heading text-lg font-semibold text-foreground">
-          <span className="grid size-9 place-items-center rounded-full bg-primary text-on-primary">
-            <PawIcon />
+          <span className="grid size-9 place-items-center rounded-full text-on-primary">
+            <img src="/logo-zoo.png" alt="Logo del zoológico" />
           </span>
-          Parque Zoológico Totorilla
+          Parque Zoológico La Totorilla
           <span className="hidden text-sm font-normal text-muted-foreground sm:inline">· Ayacucho</span>
         </Link>
 
@@ -43,6 +53,32 @@ export default function Navbar() {
               </li>
             )
           })}
+          {isAdmin && (
+            <>
+              <li>
+                <Link
+                  to="/administracion/panel"
+                  aria-current={pathname.startsWith('/administracion') ? 'page' : undefined}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-muted ${
+                    pathname.startsWith('/administracion')
+                      ? 'bg-primary-soft text-primary'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  Panel
+                </Link>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="cursor-pointer rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors duration-200 hover:bg-muted"
+                >
+                  Salir
+                </button>
+              </li>
+            </>
+          )}
         </ul>
 
         <button
@@ -88,6 +124,28 @@ export default function Navbar() {
               </li>
             )
           })}
+          {isAdmin && (
+            <>
+              <li>
+                <Link
+                  to="/administracion/panel"
+                  onClick={() => setOpen(false)}
+                  className="block rounded-xl px-3 py-3 text-sm font-medium text-primary transition-colors hover:bg-muted"
+                >
+                  Panel de administración
+                </Link>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="block w-full cursor-pointer rounded-xl px-3 py-3 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
+                >
+                  Cerrar sesión
+                </button>
+              </li>
+            </>
+          )}
         </ul>
       )}
     </header>

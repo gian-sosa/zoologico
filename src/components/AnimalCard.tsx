@@ -1,8 +1,9 @@
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import type { Animal } from '../data/animals'
 import { ArrowRightIcon, PawIcon } from './icons'
 
-export default function AnimalCard({ animal }: { animal: Animal }) {
+function AnimalCard({ animal }: { animal: Animal }) {
   return (
     <Link
       to={`/animales/${animal.slug}`}
@@ -31,3 +32,5 @@ export default function AnimalCard({ animal }: { animal: Animal }) {
     </Link>
   )
 }
+
+export default memo(AnimalCard)

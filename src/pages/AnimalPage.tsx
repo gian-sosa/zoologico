@@ -1,5 +1,5 @@
 import { Navigate, useParams, Link } from 'react-router-dom'
-import { animals, getAnimal } from '../data/animals'
+import { getAnimalBySlug, getOtherAnimals } from '../features/animals/animals.service'
 import FlipFact from '../components/FlipFact'
 import Quiz from '../components/Quiz'
 import NotFoundPage from './NotFoundPage'
@@ -7,12 +7,12 @@ import { ArrowRightIcon, PawIcon } from '../components/icons'
 
 export default function AnimalPage() {
   const { slug } = useParams<{ slug: string }>()
-  const animal = slug ? getAnimal(slug) : undefined
+  const animal = slug ? getAnimalBySlug(slug) : undefined
 
   if (slug && !animal) return <NotFoundPage />
   if (!animal) return <Navigate to="/" replace />
 
-  const others = animals.filter((a) => a.slug !== animal.slug)
+  const others = getOtherAnimals(animal.slug)
 
   return (
     <main>

@@ -1,88 +1,17 @@
 import { useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
+import { useVisitorPhotos } from '../features/community/useVisitorPhotos'
 import { XIcon } from './icons'
 
-interface VisitorPhoto {
-  id: string
-  author: string
-  dataUrl: string
-}
-
-const STORAGE_KEY = 'totorilla-visitor-photos'
-
-function loadPhotos(): VisitorPhoto[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? (JSON.parse(raw) as VisitorPhoto[]) : []
-  } catch {
-    return []
-  }
-}
-
-function savePhotos(photos: VisitorPhoto[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(photos))
-  } catch {
-    // Cuota excedida: las fotos se mantienen solo en esta sesión
-  }
-}
-
-async function fileToCompressedDataUrl(file: File): Promise<string> {
-  const bitmap = await createImageBitmap(file)
-  const maxSide = 720
-  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height))
-  const canvas = document.createElement('canvas')
-  canvas.width = Math.round(bitmap.width * scale)
-  canvas.height = Math.round(bitmap.height * scale)
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('Canvas no disponible')
-  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
-  return canvas.toDataURL('image/jpeg', 0.72)
-}
-
 export default function PhotoWall() {
-  const [photos, setPhotos] = useState<VisitorPhoto[]>(loadPhotos)
+  const { photos, uploading, error, addFiles, removePhoto } = useVisitorPhotos()
   const [author, setAuthor] = useState('')
-  const [uploading, setUploading] = useState(false)
-  const [error, setError] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
   async function handleFiles(event: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? []).filter((f) => f.type.startsWith('image/'))
-    if (files.length === 0) return
-
-    setUploading(true)
-    setError('')
-
-    try {
-      const added: VisitorPhoto[] = []
-      for (const file of files.slice(0, 6)) {
-        const dataUrl = await fileToCompressedDataUrl(file)
-        added.push({
-          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          author: author.trim() || 'Visitante anónimo',
-          dataUrl,
-        })
-      }
-      setPhotos((prev) => {
-        const next = [...added, ...prev]
-        savePhotos(next)
-        return next
-      })
-    } catch {
-      setError('No se pudo procesar la imagen. Intenta con otro archivo.')
-    } finally {
-      setUploading(false)
-      if (inputRef.current) inputRef.current.value = ''
-    }
-  }
-
-  function removePhoto(id: string) {
-    setPhotos((prev) => {
-      const next = prev.filter((p) => p.id !== id)
-      savePhotos(next)
-      return next
-    })
+    const files = Array.from(event.target.files ?? [])
+    await addFiles(files, author)
+    if (inputRef.current) inputRef.current.value = ''
   }
 
   return (
@@ -145,7 +74,7 @@ export default function PhotoWall() {
         <ul className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {photos.map((photo) => (
             <li key={photo.id} className="group relative overflow-hidden rounded-3xl border border-border bg-card">
-              <img src={photo.dataUrl} alt={`Foto de ${photo.author}`} className="aspect-square w-full object-cover" />
+              <img src={photo.dataUrl} alt={`Foto de ${photo.author}`} loading="lazy" className="aspect-square w-full object-cover" />
               <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-3 text-xs font-medium text-white">
                 {photo.author}
               </span>

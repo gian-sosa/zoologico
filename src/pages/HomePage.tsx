@@ -1,135 +1,236 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { animals } from '../data/animals'
-import AnimalCard from '../components/AnimalCard'
-import PhotoWall from '../components/PhotoWall'
-import { ArrowRightIcon, LeafIcon, MapPinIcon } from '../components/icons'
+import { ArrowRightIcon, LeafIcon, MapPinIcon, TicketIcon } from '../components/icons'
+import { PawIcon } from '../components/icons'
+import { getTicketTypes } from '../features/tickets/prices.store'
+import { SITE } from '../shared/config/site'
 
-const infoHighlights = [
+const pillars = [
   {
-    title: 'Nuestra misión',
-    text: 'Proteger la fauna peruana mediante rescate, rehabilitación y educación ambiental para las familias de Ayacucho.',
+    title: 'Rescate y rehabilitación',
+    text: 'Acogemos animales víctimas del tráfico ilegal y les brindamos cuidado veterinario hasta su recuperación.',
   },
   {
-    title: 'Más de 30 especies',
-    text: 'Desde felinos y primates hasta aves andinas: conviven especies locales e internacionales en hábitats cuidados.',
+    title: 'Educación ambiental',
+    text: 'Visitas guiadas para colegios, talleres y material educativo para formar una Ayacucho más consciente.',
   },
   {
-    title: 'Educación para todos',
-    text: 'Programas guiados para colegios, talleres de conservación e infografías interactivas como esta página web.',
+    title: 'Conservación local',
+    text: 'Protegemos fauna andina y amazónica, promoviendo la convivencia respetuosa entre comunidad y naturaleza.',
+  },
+]
+
+const visitInfo = [
+  { label: 'Horario', value: SITE.hours },
+  { label: 'Ubicación', value: SITE.addressShort },
+]
+
+const rules = [
+  'No alimentes a los animales: cada especie tiene una dieta supervisada por veterinarios.',
+  'Mantén la distancia de las rejas y no toques a los animales.',
+  'No uses flash en recintos cerrados ni hagas ruidos fuertes.',
+  'Deposita la basura en los tachos y cuida las áreas verdes.',
+]
+
+const exploreCards = [
+  {
+    to: '/animales',
+    icon: <PawIcon />,
+    title: 'Nuestros animales',
+    text: 'Fichas interactivas de cada especie: datos, curiosidades y quiz.',
+    cta: 'Ver animales',
+  },
+  {
+    to: '/entradas',
+    icon: <TicketIcon className="size-5" />,
+    title: 'Compra tus entradas',
+    text: 'Evita la cola en boletería. Elige la fecha 100% online.',
+    cta: 'Comprar entradas',
+  },
+  {
+    to: '/comunidad',
+    icon: <LeafIcon className="size-5" />,
+    title: 'Comunidad',
+    text: 'Comparte tus fotos de visita en el muro de la comunidad Totorilla.',
+    cta: 'Compartir mi foto',
   },
 ]
 
 export default function HomePage() {
+  const tariffs = useMemo(getTicketTypes, [])
+
   return (
     <main>
+      {/* Hero institucional */}
       <section className="mx-auto max-w-5xl px-6 pb-16 pt-20 text-center sm:pt-28">
         <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <LeafIcon className="size-4 text-primary" />
-          Educación · Conservación · Naturaleza
+          Ayacucho · Perú · Desde 2004
         </p>
         <h1 className="mx-auto mt-6 max-w-3xl font-heading text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-6xl">
-          Conoce a los animales del{' '}
-          <span className="text-primary">Zoológico de Totorilla</span>
+          Parque Zoológico <span className="text-primary">La Totorilla</span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
-          Un refugio de vida silvestre en Ayacucho, Perú. Explora infografías interactivas,
-          aprende sobre cada especie y comparte tus fotos de visita.
+          Un centro de rescate y educación ambiental a pocos minutos del centro de Huamanga.
+          Cada visita apoya el cuidado de la fauna peruana.
         </p>
 
         <div className="mt-8 flex flex-col items-center justify-center gap-3 pt-4 sm:flex-row">
-          <button
-            type="button"
-            onClick={() => document.getElementById('animales')?.scrollIntoView({ behavior: 'smooth' })}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-on-primary transition-opacity duration-200 hover:opacity-90"
+          <Link
+            to="/entradas"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-on-primary transition-opacity duration-200 hover:opacity-90"
           >
-            Ver animales
+            Comprar entradas
             <ArrowRightIcon />
-          </button>
-          <button
-            type="button"
-            onClick={() => document.getElementById('fotos')?.scrollIntoView({ behavior: 'smooth' })}
-            className="cursor-pointer rounded-full border border-border bg-card px-7 py-3.5 text-sm font-semibold text-foreground transition-colors duration-200 hover:bg-muted"
+          </Link>
+          <Link
+            to="/animales"
+            className="rounded-full border border-border bg-card px-7 py-3.5 text-sm font-semibold text-foreground transition-colors duration-200 hover:bg-muted"
           >
-            Comparte tu foto
-          </button>
+            Conoce a los animales
+          </Link>
         </div>
       </section>
 
-      {/* Sobre el zoológico */}
+      {/* Quiénes somos */}
       <section aria-labelledby="about-heading" className="border-y border-border bg-muted/60">
         <div className="mx-auto max-w-5xl px-6 py-16">
           <h2 id="about-heading" className="text-center font-heading text-2xl font-semibold text-foreground sm:text-3xl">
-            Sobre el Zoológico de Totorilla
+            Un refugio de vida silvestre en los Andes
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-center leading-relaxed text-muted-foreground">
-            Ubicado a pocos minutos de la ciudad de Huamanga, el zoológico de Totorilla nació
-            como un centro de acogida para animales rescatados del tráfico ilegal de fauna.
-            Hoy es un espacio de encuentro entre la comunidad ayacuchana y la naturaleza:
-            un lugar donde cada visita apoya la conservación.
+            El Parque Zoológico La Totorilla nació como centro de acogida para animales rescatados
+            del tráfico ilegal de fauna. Hoy es un espacio de encuentro entre la comunidad
+            ayacuchana y la naturaleza: más de 30 especies conviven en hábitats cuidados
+            mientras inspiramos a nuevas generaciones.
           </p>
 
           <div className="mt-10 grid gap-4 md:grid-cols-3">
-            {infoHighlights.map((item) => (
+            {pillars.map((item) => (
               <article key={item.title} className="rounded-3xl border border-border bg-card p-8">
                 <h3 className="font-heading text-lg font-semibold text-primary">{item.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.text}</p>
               </article>
             ))}
           </div>
-
-          <dl className="mx-auto mt-10 grid max-w-3xl gap-4 text-center sm:grid-cols-3">
-            <div className="rounded-3xl border border-border bg-card p-6">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Horario</dt>
-              <dd className="mt-1 font-heading font-semibold text-foreground">Mar – Dom · 9:00–17:00</dd>
-            </div>
-            <div className="rounded-3xl border border-border bg-card p-6">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Entrada general</dt>
-              <dd className="mt-1 font-heading font-semibold text-foreground">S/ 5 · niños S/ 2</dd>
-            </div>
-            <div className="rounded-3xl border border-border bg-card p-6">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Cómo llegar</dt>
-              <dd className="mt-1 inline-flex items-center gap-1 font-heading font-semibold text-foreground">
-                <MapPinIcon className="size-4 text-primary" />
-                Totorilla, Huamanga
-              </dd>
-            </div>
-          </dl>
         </div>
       </section>
 
-      {/* Animales */}
-      <section id="animales" aria-labelledby="animals-heading" className="scroll-mt-24">
+      {/* Información de visita */}
+      <section aria-labelledby="visit-heading">
         <div className="mx-auto max-w-5xl px-6 py-16">
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+          <h2 id="visit-heading" className="text-center font-heading text-2xl font-semibold text-foreground sm:text-3xl">
+            Planifica tu visita
+          </h2>
+         
+          {/* Horario + ubicación */}
+          <dl className="mx-auto mt-10 grid max-w-3xl gap-4 text-center sm:grid-cols-2">
+            {visitInfo.map((info) => (
+              <div key={info.label} className="rounded-3xl border border-border bg-card p-6">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{info.label}</dt>
+                <dd className="mt-1 inline-flex items-center justify-center gap-1 font-heading font-semibold text-foreground">
+                  {info.label === 'Ubicación' && <MapPinIcon className="size-4 shrink-0 text-primary" />}
+                  {info.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+
+          {/* Tarifario */}
+          <div className="mx-auto mt-4 max-w-3xl rounded-3xl border border-border bg-card p-8">
+            <h3 className="text-center font-heading text-base font-semibold text-foreground">Tarifas de ingreso</h3>
+            <ul className="mt-4 divide-y divide-border">
+              {tariffs.map((t) => (
+                <li key={t.id} className="flex items-center justify-between gap-4 py-3">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{t.description}</p>
+                  </div>
+                  <span className="shrink-0 font-heading text-lg font-bold text-primary">
+                    S/ {t.price.toFixed(2)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 text-center">
+              <Link
+                to="/entradas"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-transform duration-200 hover:translate-x-0.5"
+              >
+                Comprar entradas online
+                <ArrowRightIcon />
+              </Link>
+            </div>
+          </div>
+
+          <div className="mx-auto mt-4 grid max-w-3xl gap-4 rounded-3xl border border-border bg-card p-8 sm:grid-cols-2">
             <div>
-              <h2 id="animals-heading" className="font-heading text-2xl font-semibold text-foreground sm:text-3xl">
-                Nuestras especies destacadas
-              </h2>
-              <p className="mt-2 max-w-lg leading-relaxed text-muted-foreground">
-                Entra a la ficha de cada animal y descubre su infografía interactiva.
+              <h3 className="font-heading text-base font-semibold text-foreground">Cómo llegar</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Estamos en {SITE.address}. Las combis y colectivos que salen del mercado Nery García
+                pasan por la Vía Evitamiento cada 20 minutos. También puedes llegar en taxi
+                (S/ 12 aprox.) o en auto particular con cochera gratuita.
               </p>
             </div>
-            <Link
-              to="/animales"
-              className="hidden shrink-0 items-center gap-1.5 text-sm font-semibold text-primary transition-transform duration-200 hover:translate-x-0.5 sm:inline-flex"
-            >
-              Ver todos
-              <ArrowRightIcon />
-            </Link>
-          </div>
-
-          <div className="mt-8 grid gap-6 sm:grid-cols-3">
-            {animals.map((animal) => (
-              <AnimalCard key={animal.slug} animal={animal} />
-            ))}
+            <div>
+              <h3 className="font-heading text-base font-semibold text-foreground">Servicios</h3>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-muted-foreground">
+                <li>Visitas guiadas para colegios (previa reserva)</li>
+                <li>Zona de picnic, cafetería y tienda de recuerdos</li>
+                <li>Acceso para sillas de ruedas en el circuito principal</li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Muro de fotos */}
-      <section className="border-t border-border bg-muted/60">
+      {/* Normas */}
+      <section aria-labelledby="rules-heading" className="border-t border-border bg-muted/60">
         <div className="mx-auto max-w-5xl px-6 py-16">
-          <PhotoWall />
+          <h2 id="rules-heading" className="text-center font-heading text-2xl font-semibold text-foreground sm:text-3xl">
+            Normas del visitante
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-center leading-relaxed text-muted-foreground">
+            Tu comportamiento protege a los animales. Ten en cuenta estas reglas durante tu visita.
+          </p>
+          <ol className="mx-auto mt-8 grid max-w-3xl gap-3">
+            {rules.map((rule, i) => (
+              <li key={rule} className="flex gap-4 rounded-2xl border border-border bg-card px-5 py-4 text-sm leading-relaxed text-muted-foreground">
+                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary-soft font-heading text-sm font-bold text-primary">
+                  {i + 1}
+                </span>
+                {rule}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* Explora */}
+      <section aria-labelledby="explore-heading">
+        <div className="mx-auto max-w-5xl px-6 py-16">
+          <h2 id="explore-heading" className="text-center font-heading text-2xl font-semibold text-foreground sm:text-3xl">
+            Explora el zoológico
+          </h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {exploreCards.map((card) => (
+              <Link
+                key={card.to}
+                to={card.to}
+                className="group rounded-3xl border border-border bg-card p-8 transition-colors duration-200 hover:border-primary/40 hover:bg-primary-soft/30"
+              >
+                <span className="grid size-11 place-items-center rounded-full bg-primary-soft text-primary">
+                  {card.icon}
+                </span>
+                <h3 className="mt-4 font-heading text-lg font-semibold text-foreground">{card.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{card.text}</p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-transform duration-200 group-hover:translate-x-0.5">
+                  {card.cta}
+                  <ArrowRightIcon />
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
     </main>
