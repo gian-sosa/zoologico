@@ -30,6 +30,11 @@ export interface Animal {
   diet: string[]
   facts: FunFact[]
   quiz: QuizQuestion[]
+  /** Archivo de sonido en /public (opcional). Ej. '/leon.mp3' */
+  soundFile?: string
+  soundLabel?: string
+  /** Imagen de fondo del hero en /public (opcional). Ej. '/leon.jpeg' */
+  heroImage?: string
 }
 
 export const animals: Animal[] = [
@@ -39,11 +44,13 @@ export const animals: Animal[] = [
     scientificName: 'Panthera leo',
     tagline: 'El rey de la sabana',
     description:
-      'El león es el único felino que vive en grupos, llamados manadas. En Totorilla puedes conocer a nuestra manada y descubrir por qué su rugido se escucha a más de 8 kilómetros de distancia.',
+      'El león es el único felino que vive en grupos, llamados manadas. Las hembras suelen cazar, mientras los machos protegen el territorio. Su rugido puede escucharse a varios kilómetros y puede pasar hasta 20 horas al día descansando.',
     conservationStatus: 'Vulnerable (UICN)',
     statusLevel: 'vulnerable',
     accentHex: '#d97706',
     accentSoftHex: '#fef3c7',
+    soundFile: '/leon.mp3',
+    heroImage: '/leon.jpeg',
     stats: [
       { label: 'Peso', value: '150–250 kg' },
       { label: 'Velocidad', value: '80 km/h' },

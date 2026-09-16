@@ -138,6 +138,23 @@ export function LockIcon({ className = 'size-5' }: IconProps) {
   )
 }
 
+export function PlayIcon({ className = 'size-5' }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
+      <path d="M8 5.5v13l11-6.5-11-6.5Z" />
+    </svg>
+  )
+}
+
+export function PauseIcon({ className = 'size-5' }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
+      <rect x="6" y="5" width="4" height="14" rx="1" />
+      <rect x="14" y="5" width="4" height="14" rx="1" />
+    </svg>
+  )
+}
+
 export function TicketIcon({ className = 'size-5' }: IconProps) {
   return (
     <svg

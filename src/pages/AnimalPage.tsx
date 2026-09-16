@@ -1,5 +1,6 @@
 import { Navigate, useParams, Link } from 'react-router-dom'
 import { getAnimalBySlug, getOtherAnimals } from '../features/animals/animals.service'
+import AnimalSound from '../components/AnimalSound'
 import FlipFact from '../components/FlipFact'
 import Quiz from '../components/Quiz'
 import NotFoundPage from './NotFoundPage'
@@ -18,10 +19,28 @@ export default function AnimalPage() {
     <main>
       {/* Hero de la infografía */}
       <section
-        className="w-full"
-        style={{ backgroundColor: animal.accentSoftHex }}
+        className="relative w-full overflow-hidden"
+        style={
+          animal.heroImage
+            ? {
+                backgroundImage: `url(${animal.heroImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }
+            : { backgroundColor: animal.accentSoftHex }
+        }
       >
-        <div className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
+        {animal.heroImage && (
+          <div
+            className="absolute inset-0"
+            aria-hidden="true"
+            style={{
+              background:
+                'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 100%, rgba(0,0,0,0.65))',
+            }}
+          />
+        )}
+        <div className="relative mx-auto max-w-5xl px-6 py-16 sm:py-20">
           <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-10">
             <span
               className="grid size-24 shrink-0 place-items-center rounded-3xl text-white shadow-sm"
@@ -31,13 +50,24 @@ export default function AnimalPage() {
               <PawIcon className="size-12" />
             </span>
             <div>
-              <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: animal.accentHex }}>
+              <p
+                className="text-sm font-semibold uppercase tracking-widest"
+                style={{ color: animal.heroImage ? '#fed7aa' : animal.accentHex }}
+              >
                 Infografía interactiva
               </p>
-              <h1 className="mt-1 font-heading text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+              <h1
+                className={`mt-1 font-heading text-4xl font-bold tracking-tight sm:text-5xl ${
+                  animal.heroImage ? 'text-white' : 'text-foreground'
+                }`}
+              >
                 {animal.name}
               </h1>
-              <p className="mt-2 font-body text-lg italic text-muted-foreground">
+              <p
+                className={`mt-2 font-body text-lg italic ${
+                  animal.heroImage ? 'text-white/85' : 'text-muted-foreground'
+                }`}
+              >
                 {animal.scientificName}
               </p>
               <span
@@ -46,9 +76,23 @@ export default function AnimalPage() {
               >
                 Estado de conservación: {animal.conservationStatus}
               </span>
+              {animal.soundFile && (
+                <span className="block">
+                  <AnimalSound
+                    key={animal.slug}
+                    src={animal.soundFile}
+                    label={animal.soundLabel ?? `Escuchar el sonido del ${animal.name.toLowerCase()}`}
+                    accentHex={animal.accentHex}
+                  />
+                </span>
+              )}
             </div>
           </div>
-          <p className="mt-8 max-w-2xl font-body leading-relaxed text-muted-foreground">
+          <p
+            className={`mt-8 max-w-2xl font-body leading-relaxed ${
+              animal.heroImage ? 'text-white/90' : 'text-muted-foreground'
+            }`}
+          >
             {animal.description}
           </p>
         </div>
