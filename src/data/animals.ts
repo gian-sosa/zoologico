@@ -45,7 +45,7 @@ export const animals: Animal[] = [
     tagline: 'El rey de la sabana',
     description:
       'El león es el único felino que vive en grupos, llamados manadas. Las hembras suelen cazar, mientras los machos protegen el territorio. Su rugido puede escucharse a varios kilómetros y puede pasar hasta 20 horas al día descansando.',
-    conservationStatus: 'Vulnerable (UICN)',
+    conservationStatus: 'Vulnerable',
     statusLevel: 'vulnerable',
     accentHex: '#d97706',
     accentSoftHex: '#fef3c7',
@@ -101,10 +101,12 @@ export const animals: Animal[] = [
     tagline: 'El nadador elegante',
     description:
       'El pingüino de Humboldt llega desde las costas frías del Pacífico sudamericano. Es un ave que no vuela, pero nada como un torpedo. Conoce sus adaptaciones únicas en esta infografía.',
-    conservationStatus: 'Vulnerable (UICN)',
+    conservationStatus: 'Vulnerable',
     statusLevel: 'vulnerable',
     accentHex: '#0369a1',
     accentSoftHex: '#e0f2fe',
+    soundFile: '/pingu.mp3',
+    heroImage: '/pingu.png',
     stats: [
       { label: 'Profundidad', value: 'hasta 150 m' },
       { label: 'Velocidad en agua', value: '15 km/h' },
@@ -150,15 +152,17 @@ export const animals: Animal[] = [
   },
   {
     slug: 'mono',
-    name: 'Mono',
+    name: 'Mono Choro',
     scientificName: 'Lagothrix flavicauda',
     tagline: 'El acróbata del bosque',
     description:
       'Nuestro mono choro de cola amarilla es endémico del Perú y una de las especies más carismáticas del zoológico. Ágil, curioso e inteligente: descubre su mundo en la copa de los árboles.',
-    conservationStatus: 'En peligro (UICN)',
+    conservationStatus: 'En peligro',
     statusLevel: 'peligro',
     accentHex: '#15803d',
     accentSoftHex: '#dcfce7',
+    soundFile: '/monochoro.mp3',
+    heroImage: '/monochoro.png',
     stats: [
       { label: 'Longitud de cola', value: 'hasta 75 cm' },
       { label: 'Salto', value: 'hasta 10 m' },

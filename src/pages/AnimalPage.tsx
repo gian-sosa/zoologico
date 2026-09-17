@@ -19,13 +19,13 @@ export default function AnimalPage() {
     <main>
       {/* Hero de la infografía */}
       <section
-        className="relative w-full overflow-hidden"
+        className="relative max-w-[2560px] m-auto overflow-hidden"
         style={
           animal.heroImage
             ? {
                 backgroundImage: `url(${animal.heroImage})`,
                 backgroundSize: 'cover',
-                backgroundPosition: 'center',
+                backgroundPosition: 'top',
               }
             : { backgroundColor: animal.accentSoftHex }
         }
@@ -34,10 +34,6 @@ export default function AnimalPage() {
           <div
             className="absolute inset-0"
             aria-hidden="true"
-            style={{
-              background:
-                'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 100%, rgba(0,0,0,0.65))',
-            }}
           />
         )}
         <div className="relative mx-auto max-w-5xl px-6 py-16 sm:py-20">
@@ -50,12 +46,7 @@ export default function AnimalPage() {
               <PawIcon className="size-12" />
             </span>
             <div>
-              <p
-                className="text-sm font-semibold uppercase tracking-widest"
-                style={{ color: animal.heroImage ? '#fed7aa' : animal.accentHex }}
-              >
-                Infografía interactiva
-              </p>
+              
               <h1
                 className={`mt-1 font-heading text-4xl font-bold tracking-tight sm:text-5xl ${
                   animal.heroImage ? 'text-white' : 'text-foreground'
@@ -89,7 +80,7 @@ export default function AnimalPage() {
             </div>
           </div>
           <p
-            className={`mt-8 max-w-2xl font-body leading-relaxed ${
+            className={`mt-8 max-w-lg font-body leading-relaxed ${
               animal.heroImage ? 'text-white/90' : 'text-muted-foreground'
             }`}
           >
@@ -192,7 +183,7 @@ export default function AnimalPage() {
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {others.map((other) => (
               <Link
-                to={`/animales/${other.slug}`}
+                to={`/fauna/${other.slug}`}
                 className="flex items-center justify-between rounded-3xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
               >
                 <span>

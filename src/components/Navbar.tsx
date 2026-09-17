@@ -4,9 +4,9 @@ import { useAuth } from '../features/auth/auth.context'
 
 const links = [
   { to: '/', label: 'Inicio', match: (p: string) => p === '/' },
-  { to: '/animales', label: 'Animales', match: (p: string) => p.startsWith('/animales') },
+  { to: '/fauna', label: 'Fauna', match: (p: string) => p.startsWith('/fauna') },
   { to: '/entradas', label: 'Entradas', match: (p: string) => p.startsWith('/entradas') },
-  { to: '/comunidad', label: 'Comunidad', match: (p: string) => p.startsWith('/comunidad') },
+  { to: '/blog', label: 'Blog', match: (p: string) => p.startsWith('/blog') },
 ]
 
 export default function Navbar() {

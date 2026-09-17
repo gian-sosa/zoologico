@@ -34,11 +34,11 @@ const rules = [
 
 const exploreCards = [
   {
-    to: '/animales',
+    to: '/fauna',
     icon: <PawIcon />,
-    title: 'Nuestros animales',
+    title: 'Nuestra fauna',
     text: 'Fichas interactivas de cada especie: datos, curiosidades y quiz.',
-    cta: 'Ver animales',
+    cta: 'Ver fauna',
   },
   {
     to: '/entradas',
@@ -48,10 +48,10 @@ const exploreCards = [
     cta: 'Comprar entradas',
   },
   {
-    to: '/comunidad',
+    to: '/blog',
     icon: <LeafIcon className="size-5" />,
-    title: 'Comunidad',
-    text: 'Comparte tus fotos de visita en el muro de la comunidad Totorilla.',
+    title: 'Blog',
+    text: 'Comparte tus fotos de visita en el muro del blog Totorilla.',
     cta: 'Compartir mi foto',
   },
 ]
@@ -84,10 +84,10 @@ export default function HomePage() {
             <ArrowRightIcon />
           </Link>
           <Link
-            to="/animales"
+            to="/fauna"
             className="rounded-full border border-border bg-card px-7 py-3.5 text-sm font-semibold text-foreground transition-colors duration-200 hover:bg-muted"
           >
-            Conoce a los animales
+            Conoce nuestra fauna
           </Link>
         </div>
       </section>

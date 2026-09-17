@@ -3,8 +3,8 @@ import { LockIcon, MapPinIcon } from './icons'
 import { SITE } from '../shared/config/site'
 
 /**
- * Footer institucional: NO repite los menús del header (Inicio, Animales,
- * Entradas, Comunidad). Solo identidad, datos de visita y enlaces del
+ * Footer institucional: NO repite los menús del header (Inicio, Fauna,
+ * Entradas, Blog). Solo identidad, datos de visita y enlaces del
  * proyecto: desarrolladores y acceso interno de administración.
  */
 export default function Footer() {

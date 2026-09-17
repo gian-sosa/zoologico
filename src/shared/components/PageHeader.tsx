@@ -6,7 +6,7 @@ interface Props {
   description: string
 }
 
-/** Encabezado centrado reutilizado por Animales / Entradas / Comunidad. */
+/** Encabezado centrado reutilizado por Fauna / Entradas / Blog. */
 function PageHeader({ eyebrow, title, description }: Props) {
   return (
     <header className="text-center">

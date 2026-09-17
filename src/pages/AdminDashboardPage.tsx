@@ -12,8 +12,8 @@ type Tab = 'resumen' | 'entradas' | 'comunidad' | 'animales' | 'cuenta'
 const TABS: { id: Tab; label: string }[] = [
   { id: 'resumen', label: 'Resumen' },
   { id: 'entradas', label: 'Entradas' },
-  { id: 'comunidad', label: 'Comunidad' },
-  { id: 'animales', label: 'Animales' },
+  { id: 'comunidad', label: 'Blog' },
+  { id: 'animales', label: 'Fauna' },
   { id: 'cuenta', label: 'Cuenta' },
 ]
 

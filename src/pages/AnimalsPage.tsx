@@ -7,7 +7,7 @@ export default function AnimalsPage() {
     <main className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
       <PageHeader
         eyebrow="Nuestras especies"
-        title="Animales del zoológico"
+        title="Fauna del zoológico"
         description="Cada animal tiene su propia infografía interactiva con datos clave, curiosidades y un mini quiz para aprender mientras te diviertes."
       />
 

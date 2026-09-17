@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useParams } from 'react-router-dom'
 import RootLayout from './layouts/RootLayout'
 import RequireAdmin from './guards/RequireAdmin'
 import { RouteFallback } from '../shared/components/RouteFallback'
@@ -15,16 +15,25 @@ const AdminLoginPage = lazy(() => import('../pages/AdminLoginPage'))
 const AdminDashboardPage = lazy(() => import('../pages/AdminDashboardPage'))
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'))
 
+function LegacyAnimalRedirect() {
+  const { slug } = useParams<{ slug: string }>()
+  return <Navigate to={slug ? `/fauna/${slug}` : '/fauna'} replace />
+}
+
 export default function AppRouter() {
   return (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route element={<RootLayout />}>
           <Route index element={<HomePage />} />
-          <Route path="animales" element={<AnimalsPage />} />
-          <Route path="animales/:slug" element={<AnimalPage />} />
+          <Route path="fauna" element={<AnimalsPage />} />
+          <Route path="fauna/:slug" element={<AnimalPage />} />
           <Route path="entradas" element={<TicketsPage />} />
-          <Route path="comunidad" element={<CommunityPage />} />
+          <Route path="blog" element={<CommunityPage />} />
+          {/* Redirecciones desde rutas anteriores */}
+          <Route path="animales" element={<Navigate to="/fauna" replace />} />
+          <Route path="animales/:slug" element={<LegacyAnimalRedirect />} />
+          <Route path="comunidad" element={<Navigate to="/blog" replace />} />
           {/* Proyecto */}
           <Route path="desarrolladores" element={<DevelopersPage />} />
           {/* Administración (rol administrador) */}

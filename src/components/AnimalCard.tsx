@@ -6,7 +6,7 @@ import { ArrowRightIcon, PawIcon } from './icons'
 function AnimalCard({ animal }: { animal: Animal }) {
   return (
     <Link
-      to={`/animales/${animal.slug}`}
+      to={`/fauna/${animal.slug}`}
       className="group flex flex-col rounded-3xl border border-border bg-card p-8 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2"
       style={{ outlineColor: animal.accentHex }}
     >
