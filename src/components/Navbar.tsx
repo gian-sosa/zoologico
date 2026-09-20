@@ -33,7 +33,6 @@ export default function Navbar() {
             <img src="/logo-zoo.png" alt="Logo del zoológico" />
           </span>
           Parque Zoológico La Totorilla
-          <span className="hidden text-sm font-normal text-muted-foreground sm:inline">· Ayacucho</span>
         </Link>
 
         <ul className="hidden items-center gap-1 sm:flex">

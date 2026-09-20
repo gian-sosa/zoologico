@@ -50,7 +50,7 @@ export const animals: Animal[] = [
     accentHex: '#d97706',
     accentSoftHex: '#fef3c7',
     soundFile: '/leon.mp3',
-    heroImage: '/leon.jpeg',
+    heroImage: '/leon.webp',
     stats: [
       { label: 'Peso', value: '150–250 kg' },
       { label: 'Velocidad', value: '80 km/h' },
@@ -106,7 +106,7 @@ export const animals: Animal[] = [
     accentHex: '#0369a1',
     accentSoftHex: '#e0f2fe',
     soundFile: '/pingu.mp3',
-    heroImage: '/pingu.png',
+    heroImage: '/pingu.webp',
     stats: [
       { label: 'Profundidad', value: 'hasta 150 m' },
       { label: 'Velocidad en agua', value: '15 km/h' },
@@ -162,7 +162,7 @@ export const animals: Animal[] = [
     accentHex: '#15803d',
     accentSoftHex: '#dcfce7',
     soundFile: '/monochoro.mp3',
-    heroImage: '/monochoro.png',
+    heroImage: '/monochoro.webp',
     stats: [
       { label: 'Longitud de cola', value: 'hasta 75 cm' },
       { label: 'Salto', value: 'hasta 10 m' },
