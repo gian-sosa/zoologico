@@ -62,10 +62,10 @@ export default function HomePage() {
   return (
     <main>
       {/* Hero institucional */}
-      <section className="mx-auto max-w-5xl px-6 pb-16 pt-20 text-center sm:pt-28">
+      <section className="mx-auto max-w-6xl px-6 pb-16 pt-12 text-center sm:pt-20">
         <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <LeafIcon className="size-4 text-primary" />
-          Ayacucho · Perú · Desde 2004
+          Ayacucho · Desde 2001
         </p>
         <h1 className="mx-auto mt-6 max-w-3xl font-heading text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-6xl">
           Parque Zoológico <span className="text-primary">La Totorilla</span>
@@ -90,6 +90,29 @@ export default function HomePage() {
             Conoce nuestra fauna
           </Link>
         </div>
+
+        {/* Portada bienvenida - entrada principal */}
+        <figure className="relative mt-10 overflow-hidden rounded-3xl border border-border shadow-xl shadow-green-950/10 sm:mt-12 sm:rounded-[2rem]">
+          <img
+            src="/portada-bienvenida.webp"
+            alt="Entrada principal del Parque Zoológico La Totorilla, con animales y cuidadores dando la bienvenida a los visitantes"
+            className="h-[280px] w-full object-cover sm:h-[420px] lg:h-[520px]"
+            loading="eager"
+            fetchPriority="high"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"
+          />
+          <figcaption className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-5 text-left sm:flex-row sm:items-end sm:justify-between sm:p-7">
+            <div>
+              <p className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-primary">
+                <MapPinIcon className="size-3.5" />
+                Entrada principal
+              </p>
+            </div>
+          </figcaption>
+        </figure>
       </section>
 
       {/* Quiénes somos */}
