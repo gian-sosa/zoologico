@@ -102,7 +102,7 @@ export default function HomePage() {
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"
+            className="pointer-events-none absolute inset-0"
           />
           <figcaption className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-5 text-left sm:flex-row sm:items-end sm:justify-between sm:p-7">
             <div>
