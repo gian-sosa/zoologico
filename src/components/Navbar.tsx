@@ -32,7 +32,7 @@ export default function Navbar() {
           <span className="grid size-9 place-items-center rounded-full text-on-primary">
             <img src="/logo-zoo.png" alt="Logo del zoológico" />
           </span>
-          Parque Zoológico La Totorilla
+          Zoológico La Totorilla
         </Link>
 
         <ul className="hidden items-center gap-1 sm:flex">

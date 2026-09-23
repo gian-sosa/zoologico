@@ -8,7 +8,7 @@ import { SITE } from '../shared/config/site'
 const pillars = [
   {
     title: 'Rescate y rehabilitación',
-    text: 'Acogemos animales víctimas del tráfico ilegal y les brindamos cuidado veterinario hasta su recuperación.',
+    text: 'Acogemos animales víctimas del tráfico ilegal y les brindamos cuidado veterinario especializado hasta su recuperación.',
   },
   {
     title: 'Educación ambiental',
@@ -26,7 +26,7 @@ const visitInfo = [
 ]
 
 const rules = [
-  'No alimentes a los animales: cada especie tiene una dieta supervisada por veterinarios.',
+  'No alimentes a los animales: cada especie tiene una dieta supervisada.',
   'Mantén la distancia de las rejas y no toques a los animales.',
   'No uses flash en recintos cerrados ni hagas ruidos fuertes.',
   'Deposita la basura en los tachos y cuida las áreas verdes.',
@@ -37,7 +37,7 @@ const exploreCards = [
     to: '/fauna',
     icon: <PawIcon />,
     title: 'Nuestra fauna',
-    text: 'Fichas interactivas de cada especie: datos, curiosidades y quiz.',
+    text: 'Fichas interactivas de cada especie: datos y curiosidades.',
     cta: 'Ver fauna',
   },
   {
@@ -52,7 +52,7 @@ const exploreCards = [
     icon: <LeafIcon className="size-5" />,
     title: 'Blog',
     text: 'Comparte tus fotos de visita en el muro del blog Totorilla.',
-    cta: 'Compartir mi foto',
+    cta: 'Compartir foto',
   },
 ]
 
@@ -61,58 +61,54 @@ export default function HomePage() {
 
   return (
     <main>
-      {/* Hero institucional */}
-      <section className="mx-auto max-w-6xl px-6 pb-16 pt-12 text-center sm:pt-20">
-        <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          <LeafIcon className="size-4 text-primary" />
-          Ayacucho · Desde 2001
-        </p>
-        <h1 className="mx-auto mt-6 max-w-3xl font-heading text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-6xl">
-          Parque Zoológico <span className="text-primary">La Totorilla</span>
-        </h1>
-        <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
-          Un centro de rescate y educación ambiental a pocos minutos del centro de Huamanga.
-          Cada visita apoya el cuidado de la fauna peruana.
-        </p>
-
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 pt-4 sm:flex-row">
-          <Link
-            to="/entradas"
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-on-primary transition-opacity duration-200 hover:opacity-90"
-          >
-            Comprar entradas
-            <ArrowRightIcon />
-          </Link>
-          <Link
-            to="/fauna"
-            className="rounded-full border border-border bg-card px-7 py-3.5 text-sm font-semibold text-foreground transition-colors duration-200 hover:bg-muted"
-          >
-            Conoce nuestra fauna
-          </Link>
-        </div>
-
-        {/* Portada bienvenida - entrada principal */}
-        <figure className="relative mt-10 overflow-hidden rounded-3xl border border-border shadow-xl shadow-green-950/10 sm:mt-12 sm:rounded-[2rem]">
+      {/* Hero institucional - banner full-bleed */}
+      <section aria-label="Bienvenida al Parque Zoológico La Totorilla" className="relative isolate flex min-h-[92svh] w-full items-center justify-center overflow-hidden sm:min-h-[600px] lg:min-h-[82vh]">
+        {/* Fondo: portada entrada principal */}
+        <figure aria-hidden="true" className="absolute inset-0 -z-10 m-0">
           <img
             src="/portada-bienvenida.webp"
-            alt="Entrada principal del Parque Zoológico La Totorilla, con animales y cuidadores dando la bienvenida a los visitantes"
-            className="h-[280px] w-full object-cover sm:h-[420px] lg:h-[520px]"
+            alt=""
+            className="h-full w-full object-cover object-center lg:object-[center_30%]"
             loading="eager"
             fetchPriority="high"
           />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0"
-          />
-          <figcaption className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-5 text-left sm:flex-row sm:items-end sm:justify-between sm:p-7">
-            <div>
-              <p className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-primary">
-                <MapPinIcon className="size-3.5" />
-                Entrada principal
-              </p>
-            </div>
-          </figcaption>
         </figure>
+        {/* Overlays para legibilidad */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/25 to-black/65" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-black/50 to-transparent" />
+
+        {/* Contenido centrado sobre la imagen */}
+        <div className="mx-auto flex w-full max-w-4xl flex-col items-center px-6 py-20 text-center sm:py-28 lg:py-32">
+          <h1 className="mx-auto mt-6 max-w-3xl font-heading text-4xl font-bold leading-tight tracking-tight text-white drop-shadow-lg sm:text-6xl">
+            Parque Zoológico <span className="text-green-200">La Totorilla</span>
+          </h1><br />
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/30 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
+            <LeafIcon className="size-4 text-green-200" />
+            Ayacucho · Perú
+          </p>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/90 drop-shadow sm:text-lg">
+            Un centro de rescate y educación ambiental a pocos minutos del centro de Huamanga.
+            Cada visita apoya el cuidado de la fauna peruana.
+          </p>
+          <div className="mt-8 flex w-full flex-col items-center justify-center gap-3 pt-2 sm:w-auto sm:flex-row">
+            <Link
+              to="/entradas"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-on-primary shadow-lg transition-opacity duration-200 hover:opacity-90 sm:w-auto"
+            >
+              Comprar entradas
+            </Link>
+            <Link
+              to="/fauna"
+              className="inline-flex w-full items-center justify-center rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-foreground shadow-lg transition-colors duration-200 hover:bg-primary-soft sm:w-auto"
+            >
+              Conoce nuestra fauna
+            </Link>
+          </div>
+          <p className="mt-8 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-primary shadow">
+            <MapPinIcon className="size-3.5" />
+            Entrada principal
+          </p>
+        </div>
       </section>
 
       {/* Quiénes somos */}
@@ -131,7 +127,7 @@ export default function HomePage() {
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             {pillars.map((item) => (
               <article key={item.title} className="rounded-3xl border border-border bg-card p-8">
-                <h3 className="font-heading text-lg font-semibold text-primary">{item.title}</h3>
+                <h3 className="font-heading text-lg font-semibold text-primary text-center sm:text-start">{item.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.text}</p>
               </article>
             ))}
@@ -181,7 +177,6 @@ export default function HomePage() {
                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-transform duration-200 hover:translate-x-0.5"
               >
                 Comprar entradas online
-                <ArrowRightIcon />
               </Link>
             </div>
           </div>
@@ -218,7 +213,7 @@ export default function HomePage() {
           </p>
           <ol className="mx-auto mt-8 grid max-w-3xl gap-3">
             {rules.map((rule, i) => (
-              <li key={rule} className="flex gap-4 rounded-2xl border border-border bg-card px-5 py-4 text-sm leading-relaxed text-muted-foreground">
+              <li key={rule} className="flex items-center gap-4 rounded-2xl border border-border bg-card px-5 py-4 text-sm leading-relaxed text-muted-foreground">
                 <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary-soft font-heading text-sm font-bold text-primary">
                   {i + 1}
                 </span>
@@ -240,16 +235,15 @@ export default function HomePage() {
               <Link
                 key={card.to}
                 to={card.to}
-                className="group rounded-3xl border border-border bg-card p-8 transition-colors duration-200 hover:border-primary/40 hover:bg-primary-soft/30"
+                className="flex flex-col items-center group rounded-3xl border border-border bg-card p-8 transition-colors duration-200 hover:border-primary/40 hover:bg-primary-soft/30"
               >
                 <span className="grid size-11 place-items-center rounded-full bg-primary-soft text-primary">
                   {card.icon}
                 </span>
                 <h3 className="mt-4 font-heading text-lg font-semibold text-foreground">{card.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{card.text}</p>
+                <p className="text-center mt-2 text-sm leading-relaxed text-muted-foreground">{card.text}</p>
                 <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-transform duration-200 group-hover:translate-x-0.5">
                   {card.cta}
-                  <ArrowRightIcon />
                 </span>
               </Link>
             ))}
