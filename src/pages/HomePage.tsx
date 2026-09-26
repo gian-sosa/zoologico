@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRightIcon, LeafIcon, MapPinIcon, TicketIcon } from '../components/icons'
+import { LeafIcon, MapPinIcon, TicketIcon } from '../components/icons'
 import { PawIcon } from '../components/icons'
 import { getTicketTypes } from '../features/tickets/prices.store'
 import { SITE } from '../shared/config/site'
@@ -62,7 +62,7 @@ export default function HomePage() {
   return (
     <main>
       {/* Hero institucional - banner full-bleed */}
-      <section aria-label="Bienvenida al Parque Zoológico La Totorilla" className="relative isolate flex min-h-[92svh] w-full items-center justify-center overflow-hidden sm:min-h-[600px] lg:min-h-[82vh]">
+      <section aria-label="Bienvenida al Parque Zoológico La Totorilla" className="relative isolate flex min-h-[92svh] w-full items-center justify-center overflow-hidden sm:min-h-150 lg:min-h-[82vh]">
         {/* Fondo: portada entrada principal */}
         <figure aria-hidden="true" className="absolute inset-0 -z-10 m-0">
           <img
@@ -74,8 +74,7 @@ export default function HomePage() {
           />
         </figure>
         {/* Overlays para legibilidad */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/25 to-black/65" />
-        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-black/50 to-transparent" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-linear-to-b from-black/10 via-black/20 to-black/10" />
 
         {/* Contenido centrado sobre la imagen */}
         <div className="mx-auto flex w-full max-w-4xl flex-col items-center px-6 py-20 text-center sm:py-28 lg:py-32">
