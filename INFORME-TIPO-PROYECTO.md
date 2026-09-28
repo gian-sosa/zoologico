@@ -3,7 +3,7 @@
 **Curso:** Desarrollo Web
 **Proyecto:** Digitalización e interactividad de la visita al Parque Zoológico La Totorilla (Ayacucho)
 **Repositorio:** `zoo-totorilla`
-**Sitio de referencia:** https://zoologico-totorilla.netlify.app/
+**Sitio de referencia:** https://zoologico-totorilla.vercel.app/
 
 ---
 
@@ -17,7 +17,7 @@ La pregunta del trabajo plantea tres caminos:
 2. Tema o plugin propio en PHP (WordPress).
 3. Sitio programado desde cero con tecnologías web actuales.
 
-Elijo la **opción 3**: desarrollo a medida con **React + TypeScript + Vite**, enrutamiento con **React Router**, estilos con **Tailwind CSS** y despliegue como sitio estático en **Netlify**.
+Elijo la **opción 3**: desarrollo a medida con **React + TypeScript + Vite**, enrutamiento con **React Router**, estilos con **Tailwind CSS** y despliegue como sitio estático en **Vercel**.
 
 El motivo es académico y técnico: el objetivo del curso es aprender desarrollo web real (componentes, rutas, estado, formularios, validación, persistencia y despliegue), y eso solo se logra escribiendo el código. Un constructor visual ocultaría precisamente lo que se quiere evaluar.
 
@@ -87,7 +87,7 @@ Página del equipo de Ingeniería de Sistemas (UNSCH) y de cómo cada módulo na
 | Estado / persistencia | **LocalStorage + stores propios** | Órdenes de entradas (`orders.store`), tipos y precios (`prices.store`), fotos (`photos.store`). Sin backend en esta etapa. |
 | Multimedia | **HTML Audio, Canvas, `createImageBitmap`** | Sonidos de animales y compresión de fotos en el cliente. |
 | Calidad | **Oxlint** | Linter rápido para React y TypeScript (`npm run lint`). |
-| Despliegue | **Netlify (sitio estático)** | Se publica el `dist/` de Vite. Archivo `public/_redirects` con `/* /index.html 200` para que el enrutado del lado del cliente funcione al recargar o entrar directo a una ruta profunda. |
+| Despliegue | **Vercel (sitio estático)** | Se publica el `dist/` de Vite. Archivo `vercel.json` con un `rewrite` de `/(.*)` a `/index.html` para que el enrutado del lado del cliente funcione al recargar o entrar directo a una ruta profunda. |
 
 Comandos principales:
 
@@ -124,7 +124,7 @@ src/
     animals.ts          # Catálogo (incluye heroImage y soundFile del león)
 public/
   leon.jpeg / leon.mp3  # Medios servidos como archivos estáticos
-  _redirects            # Fallback SPA en Netlify
+vercel.json           # Rewrite SPA (/(.*) → /index.html) en Vercel
 ```
 
 Patrones aplicados: componentes presentacionales reutilizables, lógica encapsulada en *features* y *hooks*, carga diferida por ruta para reducir el bundle inicial y guardia de autenticación para la zona interna.
