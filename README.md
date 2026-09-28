@@ -18,7 +18,7 @@ La propuesta arquitectónica sigue el enfoque de separación por capas indicado 
 
 # 2. Identificar actores
 
-Los actores representan las personas o sistemas externos que interactúan con la plataforma. La guía establece que un actor puede ser una persona, organización o sistema externo que interactúa con el sistema.
+Los actores representan las personas o sistemas externos que interactúan con la plataforma. Un actor puede ser una persona, organización o sistema externo que interactúa con el sistema.
 
 | ID | Actor | Tipo | ¿Qué necesita realizar? |
 |---|---|---|---|
@@ -37,8 +37,6 @@ Los actores representan las personas o sistemas externos que interactúan con la
 Las historias de usuario describen una necesidad desde la perspectiva del actor y siguen la estructura:
 
 > **Como [actor], quiero [acción], para [beneficio].**
-
-Esta estructura corresponde al formato indicado en la guía.
 
 | ID | Historia de usuario |
 |---|---|
@@ -60,7 +58,7 @@ Esta estructura corresponde al formato indicado en la guía.
 
 # 4. Identificar requisitos funcionales
 
-Los requisitos funcionales expresan lo que el sistema debe realizar para satisfacer las historias de usuario. La guía establece que los requisitos funcionales se obtienen a partir de las historias de usuario.
+Los requisitos funcionales expresan lo que el sistema debe realizar para satisfacer las historias de usuario. Se establece que los requisitos funcionales se obtienen a partir de las historias de usuario.
 
 | ID | Requisito funcional |
 |---|---|
@@ -116,7 +114,7 @@ Los requisitos funcionales expresan lo que el sistema debe realizar para satisfa
 
 # 6. Identificar atributos de calidad
 
-Los atributos de calidad describen **cómo debe comportarse el sistema**, además de qué funciones debe realizar. La guía considera como ejemplos rendimiento, disponibilidad, escalabilidad, seguridad y mantenibilidad.
+Los atributos de calidad describen **cómo debe comportarse el sistema**, además de qué funciones debe realizar. Se considera como ejemplos rendimiento, disponibilidad, escalabilidad, seguridad y mantenibilidad.
 
 | ID | Atributo de calidad | Escenario de calidad |
 |---|---|---|
@@ -133,7 +131,7 @@ Los atributos de calidad describen **cómo debe comportarse el sistema**, ademá
 
 # 7. Identificar restricciones
 
-Las restricciones representan condiciones tecnológicas, organizacionales o de proyecto que limitan las decisiones arquitectónicas. La guía utiliza ejemplos como aplicación web, Git/GitHub, API REST y servicios externos.
+Las restricciones representan condiciones tecnológicas, organizacionales o de proyecto que limitan las decisiones arquitectónicas.
 
 | ID | Restricción | Descripción |
 |---|---|---|
@@ -153,7 +151,7 @@ Las restricciones representan condiciones tecnológicas, organizacionales o de p
 
 # 8. Identificar drivers arquitectónicos
 
-Un driver arquitectónico es un requisito, atributo de calidad o restricción que tiene una influencia importante sobre las decisiones arquitectónicas. La guía propone precisamente identificar qué condiciones pueden cambiar la forma en que se diseña la arquitectura.
+Un driver arquitectónico es un requisito, atributo de calidad o restricción que tiene una influencia importante sobre las decisiones arquitectónicas. Se propone precisamente identificar qué condiciones pueden cambiar la forma en que se diseña la arquitectura.
 
 | ID | Driver arquitectónico | Origen | ¿Por qué influye en la arquitectura? |
 |---|---|---|---|
@@ -171,7 +169,7 @@ Un driver arquitectónico es un requisito, atributo de calidad o restricción qu
 
 # 9. Diseñar la arquitectura en capas
 
-La guía propone inicialmente una arquitectura de tres capas:
+Se propone inicialmente una arquitectura de tres capas:
 
 - **Presentación:** interacción con el usuario.
 - **Lógica de negocio:** procesamiento de las funcionalidades.
