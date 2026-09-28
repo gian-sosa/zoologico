@@ -14,7 +14,7 @@ export interface TeamMember {
 export const TEAM_LEADER: TeamMember = {
   name: 'Gian Carlos Mallqui Sosa',
   role: 'Líder del equipo · Coordinación general',
-  focus: 'Arquitectura del proyecto, planificación y integración de los módulos.',
+  focus: 'Arquitectura del proyecto, planificación e integración de los módulos.',
   initials: 'GC',
 }
 
@@ -48,4 +48,4 @@ export const TEAM_MEMBERS: TeamMember[] = [
 export const TEAM_UNIVERSITY = 'Ingeniería de Sistemas · UNSCH'
 
 export const PROJECT_ORIGIN =
-  'Este proyecto integra trabajos de investigación desarrollados en distintos cursos de la carrera de Ingeniería de Sistemas. Cada módulo —infografías de fauna, boletería online y muro comunitario— nació como una investigación aplicada en el aula y aquí converge en una sola plataforma al servicio del Parque Zoológico La Totorilla y la educación ambiental en Ayacucho.'
+  'Este proyecto integra trabajos de investigación desarrollados en distintos cursos de la carrera de Ingeniería de Sistemas. Cada módulo, infografías de fauna, boletería online y muro comunitario, nació como una investigación aplicada en el aula y aquí converge en una sola plataforma al servicio del Parque Zoológico La Totorilla y la educación ambiental en Ayacucho.'
