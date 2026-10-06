@@ -1,17 +1,18 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { animals } from '../features/animals/animals.service'
-import { clearOrders, deleteOrder, listOrders, ordersToCSV } from '../features/tickets/orders.store'
-import { getTicketTypes, resetPriceOverrides, savePriceOverride } from '../features/tickets/prices.store'
+import { getParkingTypes, getTicketTypes, resetParkingOverrides, resetPriceOverrides, saveParkingOverride, savePriceOverride } from '../features/tickets/prices.store'
 import { clearPhotos, deletePhoto, listPhotos } from '../features/community/photos.store'
+import { clearRequests, deleteRequest, listRequests } from '../features/requests/requests.store'
 import { useAuth } from '../features/auth/auth.context'
-import { formatDateES, formatPEN } from '../shared/lib/format'
+import { formatDateES } from '../shared/lib/format'
 
-type Tab = 'resumen' | 'entradas' | 'comunidad' | 'animales' | 'cuenta'
+type Tab = 'resumen' | 'entradas' | 'solicitudes' | 'comunidad' | 'animales' | 'cuenta'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'resumen', label: 'Resumen' },
-  { id: 'entradas', label: 'Entradas' },
+  { id: 'entradas', label: 'Tarifas' },
+  { id: 'solicitudes', label: 'Solicitudes' },
   { id: 'comunidad', label: 'Blog' },
   { id: 'animales', label: 'Fauna' },
   { id: 'cuenta', label: 'Cuenta' },
@@ -31,40 +32,23 @@ export default function AdminDashboardPage() {
   const { username, logout } = useAuth()
   const navigate = useNavigate()
   const [tab, setTab] = useState<Tab>('resumen')
-  const [orders, setOrders] = useState(listOrders)
   const [photos, setPhotos] = useState(listPhotos)
+  const [requests, setRequests] = useState(listRequests)
   const [prices, setPrices] = useState<Record<string, string>>(() =>
-    Object.fromEntries(getTicketTypes().map((t) => [t.id, String(t.price)])),
+    Object.fromEntries(
+      [...getTicketTypes(), ...getParkingTypes()].map((t) => [t.id, String(t.price)]),
+    ),
   )
   const [notice, setNotice] = useState('')
-  const [confirmClear, setConfirmClear] = useState<'orders' | 'photos' | null>(null)
+  const [confirmClearPhotos, setConfirmClearPhotos] = useState(false)
+  const [confirmClearRequests, setConfirmClearRequests] = useState(false)
 
-  const income = useMemo(() => orders.reduce((a, o) => a + (o.totalPrice ?? 0), 0), [orders])
-  const tickets = useMemo(
-    () => orders.reduce((a, o) => a + Object.values(o.quantities ?? {}).reduce((x, y) => x + (y ?? 0), 0), 0),
-    [orders],
-  )
   const quizCount = useMemo(() => animals.reduce((a, an) => a + an.quiz.length, 0), [])
+  const tariffCount = useMemo(() => getTicketTypes().length + getParkingTypes().length, [])
 
   function flash(msg: string) {
     setNotice(msg)
     window.setTimeout(() => setNotice(''), 3500)
-  }
-
-  function handleDeleteOrder(code: string) {
-    setOrders(deleteOrder(code))
-    flash(`Orden ${code} eliminada.`)
-  }
-
-  function handleClearOrders() {
-    if (confirmClear !== 'orders') {
-      setConfirmClear('orders')
-      return
-    }
-    clearOrders()
-    setOrders([])
-    setConfirmClear(null)
-    flash('Historial de entradas vaciado.')
   }
 
   function handleDeletePhoto(id: string) {
@@ -73,13 +57,28 @@ export default function AdminDashboardPage() {
   }
 
   function handleClearPhotos() {
-    if (confirmClear !== 'photos') {
-      setConfirmClear('photos')
+    if (!confirmClearPhotos) {
+      setConfirmClearPhotos(true)
       return
     }
     setPhotos(clearPhotos())
-    setConfirmClear(null)
+    setConfirmClearPhotos(false)
     flash('Muro de fotos vaciado.')
+  }
+
+  function handleDeleteRequest(id: string) {
+    setRequests(deleteRequest(id))
+    flash('Solicitud eliminada.')
+  }
+
+  function handleClearRequests() {
+    if (!confirmClearRequests) {
+      setConfirmClearRequests(true)
+      return
+    }
+    setRequests(clearRequests())
+    setConfirmClearRequests(false)
+    flash('Bandeja de solicitudes vaciada.')
   }
 
   function handleSavePrices() {
@@ -90,24 +89,22 @@ export default function AdminDashboardPage() {
         return
       }
     }
-    for (const [id, raw] of Object.entries(prices)) savePriceOverride(id, Number(raw))
-    flash('Tarifas actualizadas. Aplican a las próximas compras.')
+    for (const [id, raw] of Object.entries(prices)) {
+      if (id.startsWith('park-')) saveParkingOverride(id, Number(raw))
+      else savePriceOverride(id, Number(raw))
+    }
+    flash('Tarifas actualizadas. Ya se reflejan en el tarifario público.')
   }
 
   function handleResetPrices() {
     resetPriceOverrides()
-    setPrices(Object.fromEntries(getTicketTypes().map((t) => [t.id, String(t.price)])))
+    resetParkingOverrides()
+    setPrices(
+      Object.fromEntries(
+        [...getTicketTypes(), ...getParkingTypes()].map((t) => [t.id, String(t.price)]),
+      ),
+    )
     flash('Tarifas restablecidas a los valores base.')
-  }
-
-  function handleExportCSV() {
-    const blob = new Blob([ordersToCSV(orders)], { type: 'text/csv;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'totorilla-entradas.csv'
-    a.click()
-    URL.revokeObjectURL(url)
   }
 
   function handleLogout() {
@@ -144,7 +141,8 @@ export default function AdminDashboardPage() {
             type="button"
             onClick={() => {
               setTab(t.id)
-              setConfirmClear(null)
+              setConfirmClearPhotos(false)
+              setConfirmClearRequests(false)
             }}
             aria-pressed={tab === t.id}
             className={`cursor-pointer rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${
@@ -165,19 +163,40 @@ export default function AdminDashboardPage() {
       {tab === 'resumen' && (
         <section aria-label="Resumen" className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card label="Especies" value={String(animals.length)} hint={`${quizCount} preguntas de quiz`} />
-          <Card label="Órdenes" value={String(orders.length)} hint={`${tickets} entradas vendidas`} />
-          <Card label="Ingresos" value={formatPEN(income)} hint="Suma de órdenes registradas" />
+          <Card label="Tarifas" value={String(tariffCount)} hint="Categorías en el tarifario" />
+          <Card label="Solicitudes" value={String(requests.length)} hint="En mesa de partes" />
           <Card label="Fotos" value={String(photos.length)} hint="En el muro de la comunidad" />
         </section>
       )}
 
       {tab === 'entradas' && (
-        <section aria-label="Gestión de entradas" className="mt-6 space-y-6">
+        <section aria-label="Gestión de tarifas" className="mt-6 space-y-6">
           <div className="rounded-3xl border border-border bg-card p-6 sm:p-8">
             <h2 className="font-heading text-lg font-semibold text-foreground">Tarifas vigentes</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Los cambios aplican a las próximas compras.</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <p className="mt-1 text-sm text-muted-foreground">Los cambios se reflejan en el tarifario público. Las entradas se venden solo en boletería y en efectivo. La tarifa de S/ 0 se muestra como GRATIS.</p>
+            <h3 className="mt-5 text-sm font-semibold text-foreground">Entradas</h3>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
               {getTicketTypes().map((t) => (
+                <div key={t.id}>
+                  <label htmlFor={`price-${t.id}`} className="block text-sm font-semibold text-foreground">
+                    {t.name} (S/)
+                  </label>
+                  <input
+                    id={`price-${t.id}`}
+                    type="number"
+                    min={0}
+                    max={999}
+                    step={0.5}
+                    value={prices[t.id] ?? ''}
+                    onChange={(e) => setPrices((p) => ({ ...p, [t.id]: e.target.value }))}
+                    className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                </div>
+              ))}
+            </div>
+            <h3 className="mt-5 text-sm font-semibold text-foreground">Parqueo vehicular</h3>
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              {getParkingTypes().map((t) => (
                 <div key={t.id}>
                   <label htmlFor={`price-${t.id}`} className="block text-sm font-semibold text-foreground">
                     {t.name} (S/)
@@ -212,65 +231,62 @@ export default function AdminDashboardPage() {
               </button>
             </div>
           </div>
+        </section>
+      )}
 
-          <div className="rounded-3xl border border-border bg-card p-6 sm:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+      {tab === 'solicitudes' && (
+        <section aria-label="Solicitudes de mesa de partes" className="mt-6 rounded-3xl border border-border bg-card p-6 sm:p-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
               <h2 className="font-heading text-lg font-semibold text-foreground">
-                Órdenes ({orders.length})
+                Descuentos educativos ({requests.length})
               </h2>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={handleExportCSV}
-                  disabled={orders.length === 0}
-                  className="cursor-pointer rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Exportar CSV
-                </button>
-                <button
-                  type="button"
-                  onClick={handleClearOrders}
-                  disabled={orders.length === 0}
-                  className="cursor-pointer rounded-full border border-red-300 bg-background px-5 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  {confirmClear === 'orders' ? 'Confirma: vaciar todo' : 'Vaciar historial'}
-                </button>
-              </div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Solicitudes enviadas desde la mesa de partes. Responde por correo o teléfono.
+              </p>
             </div>
-
-            {orders.length === 0 ? (
-              <p className="mt-4 text-sm text-muted-foreground">Aún no hay órdenes registradas.</p>
-            ) : (
-              <ul className="mt-4 space-y-3">
-                {orders.map((o) => {
-                  const count = Object.values(o.quantities ?? {}).reduce((a, b) => a + (b ?? 0), 0)
-                  return (
-                    <li
-                      key={o.code}
-                      className="flex flex-col gap-2 rounded-2xl border border-border bg-background px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="text-sm">
-                        <p className="font-semibold text-foreground">
-                          {o.code} · {count} {count === 1 ? 'entrada' : 'entradas'} · {formatPEN(o.totalPrice)}
-                        </p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">
-                          {o.name} · {formatDateES(o.date)}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteOrder(o.code)}
-                        aria-label={`Eliminar orden ${o.code}`}
-                        className="shrink-0 cursor-pointer rounded-full border border-border px-4 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50"
-                      >
-                        Eliminar
-                      </button>
-                    </li>
-                  )
-                })}
-              </ul>
-            )}
+            <button
+              type="button"
+              onClick={handleClearRequests}
+              disabled={requests.length === 0}
+              className="cursor-pointer rounded-full border border-red-300 bg-background px-5 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {confirmClearRequests ? 'Confirma: eliminar todas' : 'Eliminar todas'}
+            </button>
           </div>
+          {requests.length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">Aún no hay solicitudes registradas.</p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {requests.map((r) => (
+                <li key={r.id} className="rounded-2xl border border-border bg-background px-5 py-4 text-sm">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="font-semibold text-foreground">
+                        {r.institution} <span className="font-normal text-muted-foreground">· {r.id}</span>
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {r.name} · {r.email}{r.phone ? ` · ${r.phone}` : ''} · Visita: {formatDateES(r.visitDate)} · {r.students} {r.students === 1 ? 'estudiante' : 'estudiantes'}
+                      </p>
+                      {r.message && (
+                        <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                          “{r.message}”
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteRequest(r.id)}
+                      aria-label={`Eliminar solicitud ${r.id}`}
+                      className="shrink-0 cursor-pointer rounded-full border border-border px-4 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       )}
 
@@ -286,7 +302,7 @@ export default function AdminDashboardPage() {
               disabled={photos.length === 0}
               className="cursor-pointer rounded-full border border-red-300 bg-background px-5 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {confirmClear === 'photos' ? 'Confirma: eliminar todas' : 'Eliminar todas'}
+              {confirmClearPhotos ? 'Confirma: eliminar todas' : 'Eliminar todas'}
             </button>
           </div>
           {photos.length === 0 ? (

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/auth.context'
-import { TicketIcon } from './icons'
+import { MapPinIcon } from './icons'
 
 const links = [
   { to: '/', label: 'Inicio', match: (p: string) => p === '/' },
   { to: '/fauna', label: 'Fauna', match: (p: string) => p.startsWith('/fauna') },
   { to: '/entradas', label: 'Entradas', match: (p: string) => p.startsWith('/entradas') },
+  { to: '/mapa', label: 'Mapa', match: (p: string) => p.startsWith('/mapa') || p.startsWith('/croquis') },
   { to: '/blog', label: 'Blog', match: (p: string) => p.startsWith('/blog') },
 ]
 
@@ -113,8 +114,8 @@ export default function Navbar() {
             to="/entradas"
             className="hidden items-center gap-2 rounded-full bg-jungle px-5 py-2.5 font-heading text-[14px] font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep hover:shadow-lg sm:inline-flex"
           >
-            <TicketIcon className="size-4" />
-            Comprar entradas
+            <MapPinIcon className="size-4" />
+            Planifica tu visita
           </Link>
           {/* Hamburguesa móvil */}
           <button
@@ -200,8 +201,8 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
               className="mt-2 flex items-center justify-center gap-2 rounded-2xl bg-jungle px-5 py-4 font-heading text-base font-semibold text-white shadow-md transition-colors hover:bg-jungle-deep sm:hidden"
             >
-              <TicketIcon className="size-5" />
-              Comprar entradas
+              <MapPinIcon className="size-5" />
+              Planifica tu visita
             </Link>
           </div>
         </div>

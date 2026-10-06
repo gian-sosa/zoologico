@@ -28,7 +28,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     name: 'Maycol Rubén Loayza de la Cruz',
     role: 'Desarrollo frontend',
-    focus: 'Boletería online: flujo de compra, validaciones y resumen.',
+    focus: 'Tarifario y página de visita: tarifas, horarios y ubicación.',
     initials: 'C2',
   },
   {
@@ -48,4 +48,4 @@ export const TEAM_MEMBERS: TeamMember[] = [
 export const TEAM_UNIVERSITY = 'Ingeniería de Sistemas · UNSCH'
 
 export const PROJECT_ORIGIN =
-  'Este proyecto integra trabajos de investigación desarrollados en distintos cursos de la carrera de Ingeniería de Sistemas. Cada módulo, infografías de fauna, boletería online y muro comunitario, nació como una investigación aplicada en el aula y aquí converge en una sola plataforma al servicio del Parque Zoológico La Totorilla y la educación ambiental en Ayacucho.'
+  'Este proyecto integra trabajos de investigación desarrollados en distintos cursos de la carrera de Ingeniería de Sistemas. Cada módulo, infografías de fauna, tarifario de visita y muro comunitario, nació como una investigación aplicada en el aula y aquí converge en una sola plataforma al servicio del Parque Zoológico La Totorilla y la educación ambiental en Ayacucho.'
