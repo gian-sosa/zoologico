@@ -130,12 +130,13 @@ export default function HomePage() {
               >
                 Ver tarifas de ingreso
               </Link>
-              <a
-                href="#visita"
-                className="group inline-flex items-center justify-center gap-2 rounded-full border-2 border-jungle/60 bg-white/90 px-7 py-3 font-heading text-[15px] font-semibold text-jungle shadow-lg backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-jungle"
+              <button
+                type="button"
+                onClick={() => document.getElementById('visita')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="group inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-jungle/60 bg-white/90 px-7 py-3 font-heading text-[15px] font-semibold text-jungle shadow-lg backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-jungle"
               >
                 Planifica tu visita
-              </a>
+              </button>
             </div>
         </div>
 
@@ -322,7 +323,7 @@ export default function HomePage() {
       </section>
 
       {/* VISITA + TARIFAS */}
-      <section aria-labelledby="visita-heading" id="visita" className="relative overflow-hidden">
+      <section aria-labelledby="visita-heading" id="visita" className="relative scroll-mt-20 overflow-hidden">
         {/* Fondo: franja de montañas reutilizando el banner con velo crema */}
         <div aria-hidden="true" className="absolute inset-0">
           <img src="/banner.png" alt="" className="h-full w-full object-cover object-bottom" loading="lazy" />
