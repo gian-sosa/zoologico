@@ -1,10 +1,10 @@
-import { Navigate, useParams, Link } from 'react-router-dom'
-import { getAnimalBySlug, getOtherAnimals } from '../features/animals/animals.service'
+import { Navigate, useParams } from 'react-router-dom'
+import { getAnimalBySlug } from '../features/animals/animals.service'
 import AnimalSound from '../components/AnimalSound'
 import FlipFact from '../components/FlipFact'
 import Quiz from '../components/Quiz'
 import NotFoundPage from './NotFoundPage'
-import { ArrowRightIcon, PawIcon } from '../components/icons'
+import { PawIcon } from '../components/icons'
 
 export default function AnimalPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -12,8 +12,6 @@ export default function AnimalPage() {
 
   if (slug && !animal) return <NotFoundPage />
   if (!animal) return <Navigate to="/" replace />
-
-  const others = getOtherAnimals(animal.slug)
 
   return (
     <main>
@@ -173,27 +171,6 @@ export default function AnimalPage() {
             Responde {animal.quiz.length} preguntas sobre el {animal.name.toLowerCase()}.
           </p>
           <Quiz questions={animal.quiz} accentHex={animal.accentHex} />
-        </section>
-
-        {/* Otros animales */}
-        <section aria-labelledby="others-heading">
-          <h2 id="others-heading" className="font-heading text-2xl font-semibold text-foreground">
-            Sigue explorando
-          </h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            {others.map((other) => (
-              <Link
-                to={`/fauna/${other.slug}`}
-                className="flex items-center justify-between rounded-3xl border border-border bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <span>
-                  <span className="block font-heading text-lg font-semibold text-foreground">{other.name}</span>
-                  <span className="text-sm italic text-muted-foreground">{other.tagline}</span>
-                </span>
-                <ArrowRightIcon className="size-5 shrink-0" />
-              </Link>
-            ))}
-          </div>
         </section>
       </div>
     </main>

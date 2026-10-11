@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { LeafIcon, MapPinIcon } from '../components/icons'
 import { getParkingTypes, getTicketTypes, formatTariff } from '../features/tickets/prices.store'
+import { VISITOR_RULES } from '../features/zoo/visitor-rules'
 import { ZOO_HISTORY } from '../features/zoo/history.data'
 
 const heroFeatures = [
@@ -78,14 +79,7 @@ const experiencePoints = [
   },
 ]
 
-const visitorRules = [
-  'Está prohibido el ingreso de mascotas.',
-  'Está prohibido alimentar a los animales.',
-  'Debe respetar las señalizaciones del circuito.',
-  'Deposite los residuos sólidos en los recipientes destinados.',
-  'Conserve el boleto durante su visita.',
-  'El Zoológico NO se hace responsable del cuidado de los niños.',
-]
+const visitorRules = VISITOR_RULES
 
 export default function HomePage() {
   const tariffs = useMemo(getTicketTypes, [])
@@ -126,7 +120,7 @@ export default function HomePage() {
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
                 to="/entradas"
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#0e3d24] px-7 py-3.5 font-heading text-[15px] font-semibold text-white shadow-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep"
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#2c5c42] px-7 py-3.5 font-heading text-[15px] font-semibold text-white shadow-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep"
               >
                 Ver tarifas de ingreso
               </Link>
@@ -258,7 +252,7 @@ export default function HomePage() {
           </Link>
           <Link
             to="/entradas"
-            className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-jungle px-7 py-3 font-heading text-sm font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-jungle-deep sm:w-auto"
+            className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2c5c42] px-7 py-3 font-heading text-sm font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-jungle-deep sm:w-auto"
           >
             Planifica tu visita
           </Link>
@@ -267,7 +261,7 @@ export default function HomePage() {
 
       {/* EXPERIENCIA */}
       <section aria-labelledby="experiencia-heading" className="mx-auto max-w-6xl px-4 pt-12 sm:px-6 sm:pt-16">
-        <div className="grid overflow-hidden rounded-[1.75rem] border border-black/5 bg-white shadow-[0_20px_50px_-24px_rgba(0,0,0,0.35)] lg:grid-cols-[1fr_1.1fr]">
+        <div className="grid overflow-hidden rounded-[1.75rem] border border-black/5 bg-white shadow-[0_20px_50px_-24px_rgba(0,0,0,0.35)] lg:grid-cols-[1fr_1fr]">
           {/* Imagen */}
           <div className="relative">
             <img
@@ -277,7 +271,7 @@ export default function HomePage() {
               className="aspect-16/10 h-full w-full object-cover lg:aspect-auto lg:min-h-105"
             />
             <div aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-black/30 via-transparent to-transparent lg:bg-linear-to-r lg:from-transparent lg:to-white/10" />
-            <p className="absolute top-4 left-4 rounded-full bg-[#0e3d24]/95 px-4 py-2 text-center font-heading text-[13px] leading-tight font-bold text-white shadow-lg backdrop-blur">
+            <p className="absolute top-4 left-4 lg:left-auto lg:right-4 rounded-full bg-[#2c5c42]/95 px-4 py-2 text-center font-heading text-[13px] leading-tight font-bold text-white shadow-lg backdrop-blur">
               <span aria-hidden="true" className="mr-1 text-[#f5d76e]">✦</span>
               Momentos que conectan
             </p>
@@ -307,7 +301,7 @@ export default function HomePage() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
                 to="/fauna"
-                className="inline-flex w-full items-center justify-center rounded-full bg-jungle px-6 py-3 font-heading text-sm font-semibold text-white shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep sm:w-auto"
+                className="inline-flex w-full items-center justify-center rounded-full bg-[#2c5c42] px-6 py-3 font-heading text-sm font-semibold text-white shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep sm:w-auto"
               >
                 Descubre la fauna
               </Link>
@@ -332,7 +326,7 @@ export default function HomePage() {
         </div>
 
         <div className="relative mx-auto grid max-w-6xl gap-5 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_1fr]">
-          <div className="rounded-[1.75rem] bg-[#0e3d24] p-7 text-white shadow-[0_24px_60px_-20px_rgba(8,52,35,0.7)] sm:p-8">
+          <div className="rounded-[1.75rem] bg-[#2c5c42] p-7 text-white shadow-[0_24px_60px_-20px_rgba(8,52,35,0.7)] sm:p-8 lg:order-2">
             <div className="flex items-start gap-3">
               <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-white/10">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#d9f99d" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true" className="size-6">
@@ -405,7 +399,7 @@ export default function HomePage() {
 
           <div className="rounded-[1.75rem] border border-black/5 bg-white p-7 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.4)] sm:p-8">
             <h3 className="flex items-center gap-2 font-heading text-xl font-bold text-stone-900">
-              <span className="grid size-9 place-items-center rounded-xl bg-jungle text-white">
+              <span className="grid size-9 place-items-center rounded-xl bg-[#2c5c42] text-white">
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="size-5">
                   <path d="M21.4 11.6 12.4 2.6A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .6 1.4l9 9a2 2 0 0 0 2.8 0l7-7a2 2 0 0 0 0-2.8ZM9 12a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" />
                 </svg>
@@ -442,7 +436,7 @@ export default function HomePage() {
               </p>
               <Link
                 to="/mesadepartes"
-                className="group mt-3 inline-flex items-center gap-2 rounded-full bg-jungle px-6 py-2.5 font-heading text-sm font-semibold text-white shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep"
+                className="group mt-3 inline-flex items-center gap-2 rounded-full bg-[#2c5c42] px-6 py-2.5 font-heading text-sm font-semibold text-white shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep"
               >
                 Solicitar descuento
               </Link>
@@ -453,7 +447,7 @@ export default function HomePage() {
 
       {/* CTA FINAL */}
       <section aria-labelledby="explora-heading" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-        <div className="overflow-hidden rounded-4xl bg-linear-to-br from-jungle to-[#1a6b3c] p-8 text-center text-white shadow-xl sm:p-12">
+        <div className="overflow-hidden rounded-4xl bg-[#2c5c42] p-8 text-center text-white shadow-xl sm:p-12">
           <h2 id="explora-heading" className="mx-auto max-w-xl font-heading text-3xl font-semibold text-balance sm:text-4xl">
             ¿Listo para una aventura con la naturaleza?
           </h2>

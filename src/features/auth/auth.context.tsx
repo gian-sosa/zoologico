@@ -1,70 +1,136 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { load, remove, save } from '../../shared/lib/storage'
-import { verifyAdminCredentials } from './adminCredentials'
+import type { User } from '@supabase/supabase-js'
+import { getSupabase, isAdminEmail, isSupabaseConfigured } from '../../shared/lib/supabase'
 import type { Role } from './roles'
-
-interface Session {
-  username: string
-  role: Extract<Role, 'administrador'>
-  loginAt: string
-  expiresAt: string
-}
 
 interface AuthState {
   role: Role
+  user: User | null
   username: string | null
-  login: (username: string, password: string) => Promise<boolean>
-  logout: () => void
-}
-
-const SESSION_KEY = 'totorilla-admin-session'
-const SESSION_TTL_MS = 8 * 60 * 60 * 1000 // 8 horas
-
-function readSession(): Session | null {
-  const s = load<Session | null>(SESSION_KEY, null)
-  if (!s || s.role !== 'administrador') return null
-  if (!s.expiresAt || new Date(s.expiresAt).getTime() < Date.now()) {
-    remove(SESSION_KEY)
-    return null
-  }
-  return s
+  loading: boolean
+  configured: boolean
+  unauthorizedEmail: string | null
+  signInWithGoogle: (next?: string) => Promise<string | null>
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthState | null>(null)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(readSession)
+const POST_LOGIN_NEXT_KEY = 'totorilla-post-login-next'
+const POST_LOGIN_NEXT_TTL_MS = 10 * 60 * 1000 // 10 minutos
 
-  const login = useCallback(async (username: string, password: string) => {
-    const ok = await verifyAdminCredentials(username, password)
-    if (!ok) return false
-    const now = Date.now()
-    const next: Session = {
-      username: username.trim().toLowerCase(),
-      role: 'administrador',
-      loginAt: new Date(now).toISOString(),
-      expiresAt: new Date(now + SESSION_TTL_MS).toISOString(),
+function savePostLoginNext(next: string): void {
+  try {
+    sessionStorage.setItem(POST_LOGIN_NEXT_KEY, JSON.stringify({ next, at: Date.now() }))
+  } catch {
+    // almacenamiento no disponible: no-op
+  }
+}
+
+/** Lee y consume el destino pendiente del login (null si no hay o expiró). */
+export function consumePostLoginNext(): string | null {
+  try {
+    const raw = sessionStorage.getItem(POST_LOGIN_NEXT_KEY)
+    if (!raw) return null
+    sessionStorage.removeItem(POST_LOGIN_NEXT_KEY)
+    const parsed = JSON.parse(raw) as { next?: unknown; at?: unknown }
+    if (typeof parsed.next !== 'string' || !parsed.next.startsWith('/')) return null
+    if (typeof parsed.at !== 'number' || Date.now() - parsed.at > POST_LOGIN_NEXT_TTL_MS) {
+      return null
     }
-    save(SESSION_KEY, next)
-    setSession(next)
-    return true
+    return parsed.next
+  } catch {
+    return null
+  }
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [unauthorizedEmail, setUnauthorizedEmail] = useState<string | null>(null)
+
+  useEffect(() => {
+    const supabase = getSupabase()
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
+    let mounted = true
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return
+      const sessionUser = data.session?.user ?? null
+      if (sessionUser && !isAdminEmail(sessionUser.email)) {
+        setUnauthorizedEmail(sessionUser.email ?? 'desconocido')
+        void supabase.auth.signOut()
+        setUser(null)
+      } else {
+        setUser(sessionUser)
+      }
+      setLoading(false)
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return
+      const sessionUser = session?.user ?? null
+      if (event === 'SIGNED_IN' && sessionUser && !isAdminEmail(sessionUser.email)) {
+        setUnauthorizedEmail(sessionUser.email ?? 'desconocido')
+        void supabase.auth.signOut()
+        setUser(null)
+        return
+      }
+      if (event === 'SIGNED_OUT') {
+        setUser(null)
+        return
+      }
+      setUser(sessionUser)
+    })
+
+    return () => {
+      mounted = false
+      listener.subscription.unsubscribe()
+    }
   }, [])
 
-  const logout = useCallback(() => {
-    remove(SESSION_KEY)
-    setSession(null)
+  const signInWithGoogle = useCallback(async (next?: string): Promise<string | null> => {
+    const supabase = getSupabase()
+    if (!supabase) return 'Falta configurar Supabase (VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY).'
+    setUnauthorizedEmail(null)
+    // El state de React Router se pierde al salir a Google, así que el destino
+    // viaja dentro del propio redirectTo para volver directo al panel.
+    // OJO: esta URL debe estar en la allowlist "Redirect URLs" de Supabase.
+    const destination = next && next.startsWith('/') ? next : '/administracion/panel'
+    savePostLoginNext(destination)
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}${destination}`,
+        queryParams: { prompt: 'select_account' },
+      },
+    })
+    return error ? error.message : null
   }, [])
 
-  const value = useMemo<AuthState>(
-    () => ({
-      role: session ? 'administrador' : 'visitante',
-      username: session?.username ?? null,
-      login,
+  const logout = useCallback(async (): Promise<void> => {
+    const supabase = getSupabase()
+    if (supabase) await supabase.auth.signOut()
+    setUser(null)
+  }, [])
+
+  const value = useMemo<AuthState>(() => {
+    const isAdmin = user !== null && isAdminEmail(user.email)
+    return {
+      role: isAdmin ? 'administrador' : 'visitante',
+      user: isAdmin ? user : null,
+      username: isAdmin ? (user?.email ?? null) : null,
+      loading,
+      configured: isSupabaseConfigured,
+      unauthorizedEmail,
+      signInWithGoogle,
       logout,
-    }),
-    [session, login, logout],
-  )
+    }
+  }, [user, loading, unauthorizedEmail, signInWithGoogle, logout])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

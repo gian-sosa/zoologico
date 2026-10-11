@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import PageHeader from '../shared/components/PageHeader'
-import { ArrowRightIcon, MapPinIcon } from '../components/icons'
+import { MapPinIcon } from '../components/icons'
 
 /** Leyenda de especies numeradas según el croquis oficial del zoológico. */
 const speciesLegend: { n: string; name: string }[] = [
@@ -222,7 +221,7 @@ export default function MapaPage() {
           </ul>
         </section>
 
-        <section aria-label="Buscar especie en el mapa" className="rounded-3xl bg-[#0e3d24] p-7 text-white sm:p-8">
+        <section aria-label="Buscar especie en el mapa" className="rounded-3xl bg-[#2c5c42] p-7 text-white sm:p-8">
           <h2 className="font-heading text-xl font-bold">¿Dónde está cada especie?</h2>
           <p className="mt-1 text-sm font-medium text-white/70">
             Busca por nombre o número y ubícalo en el croquis.
@@ -254,23 +253,6 @@ export default function MapaPage() {
         </section>
       </div>
 
-      <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <Link
-          to="/fauna"
-          className="group inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-jungle/40 px-7 py-3 font-heading text-[15px] font-semibold text-jungle transition-all hover:-translate-y-0.5 hover:border-jungle sm:w-auto"
-        >
-          Conoce nuestra fauna
-          <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
-        </Link>
-        <Link
-          to="/entradas"
-          className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-jungle px-7 py-3.5 font-heading text-[15px] font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-jungle-deep sm:w-auto"
-        >
-          Planifica tu visita
-          <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
-        </Link>
-      </div>
-
       {/* PANTALLA COMPLETA */}
       {fullscreen && (
         <div
@@ -278,7 +260,7 @@ export default function MapaPage() {
           aria-modal="true"
           aria-label="Croquis del zoológico en pantalla completa"
           onClick={() => setFullscreen(false)}
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/92 p-3 sm:p-6"
+          className="fixed inset-0 z-70 flex items-center justify-center bg-black/92 p-3 sm:p-6"
         >
           <button
             type="button"

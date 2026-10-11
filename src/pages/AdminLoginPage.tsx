@@ -1,51 +1,52 @@
-import { useRef, useState } from 'react'
-import type { FormEvent } from 'react'
-import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { Navigate, useLocation } from 'react-router-dom'
 import PageHeader from '../shared/components/PageHeader'
 import { useAuth } from '../features/auth/auth.context'
-import { LockIcon } from '../components/icons'
+import { ADMIN_EMAIL_DOMAIN } from '../shared/lib/supabase'
 
-const MAX_ATTEMPTS = 5
-const LOCK_MS = 30_000
+function GoogleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5">
+      <path
+        fill="#4285F4"
+        d="M23.5 12.3c0-.9-.1-1.5-.3-2.3H12v4.5h6.5c-.1 1.1-.8 2.7-2.4 3.8l-.1.1 3.5 2.7.2.1c2.2-2 3.8-5.2 3.8-8.9Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 24c3.2 0 6-1.1 7.9-2.9l-3.8-2.9c-1 .7-2.4 1.2-4.1 1.2-3.2 0-5.9-2.1-6.8-5l-.1.1-3.6 2.8v.1C3.5 21.3 7.5 24 12 24Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.2 14.4c-.2-.7-.4-1.5-.4-2.4s.1-1.7.4-2.4l-.1-.1-3.6-2.8-.1.1C.5 8.6 0 10.2 0 12s.5 3.4 1.4 4.9l3.8-2.5Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 4.6c1.8 0 3 .8 3.7 1.4l3.3-3.2C17.9 1.1 15.2 0 12 0 7.5 0 3.5 2.7 1.4 6.7l3.8 2.9c.9-2.9 3.6-5 6.8-5Z"
+      />
+    </svg>
+  )
+}
 
 export default function AdminLoginPage() {
-  const { role, login } = useAuth()
-  const navigate = useNavigate()
+  const { role, loading, configured, unauthorizedEmail, signInWithGoogle } = useAuth()
   const location = useLocation() as { state?: { from?: string } }
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const [lockedUntil, setLockedUntil] = useState(0)
-  const attempts = useRef(0)
 
-  if (role === 'administrador') {
-    return <Navigate to={location.state?.from ?? '/administracion/panel'} replace />
+  const destination = location.state?.from ?? '/administracion/panel'
+
+  if (!loading && role === 'administrador') {
+    return <Navigate to={destination} replace />
   }
 
-  const locked = Date.now() < lockedUntil
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
-    if (busy || locked) return
+  async function handleGoogleLogin() {
+    if (busy) return
     setError('')
     setBusy(true)
     try {
-      const ok = await login(username, password)
-      if (ok) {
-        attempts.current = 0
-        navigate(location.state?.from ?? '/administracion/panel', { replace: true })
-      } else {
-        attempts.current += 1
-        if (attempts.current >= MAX_ATTEMPTS) {
-          setLockedUntil(Date.now() + LOCK_MS)
-          attempts.current = 0
-          setError('Demasiados intentos. Espera 30 segundos e inténtalo de nuevo.')
-        } else {
-          setError('Usuario o contraseña incorrectos.')
-        }
-        setPassword('')
-      }
+      const oauthError = await signInWithGoogle(destination)
+      if (oauthError) setError(oauthError)
+      // Si no hay error, el navegador redirige a Google y vuelve directo al destino.
     } finally {
       setBusy(false)
     }
@@ -56,68 +57,54 @@ export default function AdminLoginPage() {
       <PageHeader
         eyebrow="Zoo · Administración"
         title="Acceso interno"
-        description="Zona restringida para el personal del zoológico. Si eres visitante, vuelve a la página principal."
+        description="Zona restringida para el personal del zoológico. Ingresa con tu cuenta institucional UNSCH."
       />
 
-      <form
-        onSubmit={handleSubmit}
-        autoComplete="off"
-        className="mx-auto mt-10 max-w-md rounded-3xl border border-border bg-card p-8"
-      >
-        <span className="mx-auto grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">
-          <LockIcon className="size-5" />
-        </span>
+      <div className="mx-auto mt-10 max-w-md rounded-3xl border border-border bg-card p-8 text-center">
 
-        <div className="mt-6">
-          <label htmlFor="admin-user" className="block text-sm font-semibold text-foreground">
-            Usuario
-          </label>
-          <input
-            id="admin-user"
-            name="admin-user-field"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            autoComplete="off"
-            maxLength={40}
-            className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-        </div>
+        <h2 className="mt-4 font-heading text-xl font-bold text-foreground">
+          Iniciar sesión con Google
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed font-medium text-muted-foreground">
+          Serás redirigido a Google para autenticarte y volverás automáticamente al panel.
+        </p>
 
-        <div className="mt-4">
-          <label htmlFor="admin-pass" className="block text-sm font-semibold text-foreground">
-            Contraseña
-          </label>
-          <input
-            id="admin-pass"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-            maxLength={80}
-            className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-        </div>
-
+        {!configured && (
+          <p role="alert" className="mt-4 rounded-2xl bg-cream px-4 py-3 text-sm font-medium text-red-600">
+            Falta configurar Supabase. Define VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en tu
+            archivo .env y reinicia el servidor.
+          </p>
+        )}
+        {unauthorizedEmail && (
+          <p role="alert" className="mt-4 rounded-2xl bg-cream px-4 py-3 text-sm font-medium text-red-600">
+            {unauthorizedEmail} no es una cuenta institucional autorizada (@{ADMIN_EMAIL_DOMAIN}).
+          </p>
+        )}
         {error && (
-          <p role="alert" className="mt-4 text-sm font-medium text-red-600">
+          <p role="alert" className="mt-4 rounded-2xl bg-cream px-4 py-3 text-sm font-medium text-red-600">
             {error}
           </p>
         )}
-        {locked && !error && (
-          <p role="alert" className="mt-4 text-sm font-medium text-red-600">
-            Acceso bloqueado temporalmente por seguridad.
+        {loading && (
+          <p role="status" className="mt-4 text-sm font-medium text-muted-foreground">
+            Verificando sesión…
           </p>
         )}
 
         <button
-          type="submit"
-          disabled={busy || locked}
-          className="mt-6 w-full cursor-pointer rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-on-primary transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={busy || loading || !configured}
+          className="mt-6 inline-flex w-full cursor-pointer items-center justify-center gap-3 rounded-full border border-border bg-background px-6 py-3.5 text-sm font-semibold text-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-none"
         >
-          {busy ? 'Verificando…' : 'Ingresar al panel'}
+          <GoogleIcon />
+          {busy ? 'Redirigiendo a Google…' : 'Continuar con Google'}
         </button>
-      </form>
+
+        <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+          Al ingresar aceptas usar esta cuenta solo para la gestión interna del zoológico.
+        </p>
+      </div>
     </main>
   )
 }

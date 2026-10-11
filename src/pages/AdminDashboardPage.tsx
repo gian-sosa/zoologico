@@ -108,7 +108,7 @@ export default function AdminDashboardPage() {
   }
 
   function handleLogout() {
-    logout()
+    void logout()
     navigate('/', { replace: true })
   }
 

@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import PageHeader from '../shared/components/PageHeader'
-import { ArrowRightIcon, MapPinIcon, PawIcon } from '../components/icons'
+import { MapPinIcon, PawIcon } from '../components/icons'
 import { getParkingTypes, getTicketTypes, formatTariff } from '../features/tickets/prices.store'
+import { VISITOR_RULES } from '../features/zoo/visitor-rules'
 import { SITE } from '../shared/config/site'
 
 const steps = [
@@ -71,16 +72,15 @@ export default function TicketsPage() {
             </p>
             <Link
               to="/mesadepartes"
-              className="group mt-3 inline-flex items-center gap-2 rounded-full bg-jungle px-6 py-2.5 font-heading text-sm font-semibold text-white shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep"
+              className="group mt-3 inline-flex items-center gap-2 rounded-full bg-[#2c5c42] px-6 py-2.5 font-heading text-sm font-semibold text-white shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep"
             >
               Solicitar descuento
-              <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
         </section>
 
         <div className="grid gap-5">
-          <section aria-label="Horario y ubicación" className="rounded-3xl bg-[#0e3d24] p-7 text-white sm:p-8">
+          <section aria-label="Horario y ubicación" className="rounded-3xl bg-[#2c5c42] p-7 text-white sm:p-8">
             <h2 className="font-heading text-xl font-bold">Horario y ubicación</h2>
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex items-center gap-2 font-semibold">
@@ -103,7 +103,6 @@ export default function TicketsPage() {
                 className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 font-heading text-sm font-bold text-[#0e3d24] transition-all hover:-translate-y-0.5"
               >
                 Cómo llegar
-                <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
               </a>
               <Link
                 to="/mapa"
@@ -123,7 +122,7 @@ export default function TicketsPage() {
             <ol className="mt-4 space-y-4">
               {steps.map((s) => (
                 <li key={s.n} className="flex gap-3">
-                  <span aria-hidden="true" className="grid size-8 shrink-0 place-items-center rounded-full bg-jungle font-heading text-sm font-bold text-white">
+                  <span aria-hidden="true" className="grid size-8 shrink-0 place-items-center rounded-full bg-[#2c5c42] font-heading text-sm font-bold text-white">
                     {s.n}
                   </span>
                   <div>
@@ -137,15 +136,28 @@ export default function TicketsPage() {
         </div>
       </div>
 
-      <div className="mt-8 text-center">
-        <Link
-          to="/fauna"
-          className="group inline-flex items-center gap-2 rounded-full border-2 border-jungle/40 px-7 py-3 font-heading text-[15px] font-semibold text-jungle transition-all hover:-translate-y-0.5 hover:border-jungle"
-        >
-          Conoce nuestra fauna
-          <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
-        </Link>
-      </div>
+      <section aria-label="Normativa del visitante" className="mt-5 rounded-3xl border border-black/5 bg-white p-7 shadow-sm sm:p-8">
+        <h2 className="flex items-center gap-2 font-heading text-xl font-bold text-stone-900">
+          <span aria-hidden="true" className="grid size-9 place-items-center rounded-xl bg-[#2c5c42] text-white">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-5">
+              <path d="M12 22s8-3.6 8-10V5l-8-3-8 3v7c0 6.4 8 10 8 10Z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+          </span>
+          Normativa del visitante
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed font-medium text-stone-600">
+          Para una visita segura y una buena convivencia con nuestra fauna, ten en cuenta estas normas durante tu recorrido.
+        </p>
+        <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
+          {VISITOR_RULES.map((rule) => (
+            <li key={rule} className="flex items-start gap-2.5 rounded-2xl bg-cream px-4 py-3 text-sm leading-snug font-medium text-stone-700">
+              <span aria-hidden="true" className="mt-1.5 size-1.5 shrink-0 rounded-full bg-jungle" />
+              {rule}
+            </li>
+          ))}
+        </ul>
+      </section>
     </main>
   )
 }

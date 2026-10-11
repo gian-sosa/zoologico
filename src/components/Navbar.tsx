@@ -112,7 +112,7 @@ export default function Navbar() {
           {/* CTA como en el diseño */}
           <Link
             to="/entradas"
-            className="hidden items-center gap-2 rounded-full bg-jungle px-5 py-2.5 font-heading text-[14px] font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep hover:shadow-lg sm:inline-flex"
+            className="hidden items-center gap-2 rounded-full bg-[#2c5c42] px-5 py-2.5 font-heading text-[14px] font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep hover:shadow-lg sm:inline-flex"
           >
             <MapPinIcon className="size-4" />
             Planifica tu visita

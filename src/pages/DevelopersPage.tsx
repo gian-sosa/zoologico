@@ -1,6 +1,5 @@
-import { Link } from 'react-router-dom'
 import PageHeader from '../shared/components/PageHeader'
-import { ArrowRightIcon, LeafIcon } from '../components/icons'
+import { LeafIcon } from '../components/icons'
 import { PROJECT_ORIGIN, TEAM_LEADER, TEAM_MEMBERS, TEAM_UNIVERSITY } from '../features/team/team.data'
 
 function MemberCard({
@@ -79,16 +78,6 @@ export default function DevelopersPage() {
           ))}
         </div>
       </section>
-
-      <div className="mt-12 text-center">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-on-primary transition-opacity duration-200 hover:opacity-90"
-        >
-          Ver el resultado de nuestro trabajo
-          <ArrowRightIcon />
-        </Link>
-      </div>
     </main>
   )
 }
