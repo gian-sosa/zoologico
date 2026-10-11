@@ -1,5 +1,6 @@
 # Informe — Tipo de proyecto: Sitio web del Parque Zoológico La Totorilla
 
+**Alumno:** Gian Carlos Mallqui Sosa
 **Curso:** Desarrollo Web
 **Proyecto:** Digitalización e interactividad de la visita al Parque Zoológico La Totorilla (Ayacucho)
 **Repositorio:** `zoo-totorilla`
