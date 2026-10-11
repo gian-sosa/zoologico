@@ -71,8 +71,7 @@ export default function AdminLoginPage() {
 
         {!configured && (
           <p role="alert" className="mt-4 rounded-2xl bg-cream px-4 py-3 text-sm font-medium text-red-600">
-            Falta configurar Supabase. Define VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en tu
-            archivo .env y reinicia el servidor.
+            Error de Variables de Entorno. Contactar con el administrador del sistema.
           </p>
         )}
         {unauthorizedEmail && (
