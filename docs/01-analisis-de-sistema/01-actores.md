@@ -2,9 +2,9 @@
 
 [Índice general](../README.md) · [Siguiente: historias de usuario](02-historias-del-usuario.md)
 
-## 1. Propósito y contexto
+## 1. Problemática y contexto
 
-La plataforma del Parque Zoológico La Totorilla permite informarse antes y durante la visita, consultar especies y sus recintos, compartir fotografías bajo moderación y presentar documentos o reclamaciones. El análisis diferencia a las **personas que persiguen un objetivo** de los servicios tecnológicos que permiten realizarlo.
+Los visitantes del Parque Zoológico La Totorilla enfrentan dificultades para acceder a información organizada y actualizada sobre las especies, sus recintos y los servicios disponibles antes y durante su visita. Asimismo, la dispersión de información y la falta de canales digitales integrados pueden dificultar la participación de los visitantes, la presentación de documentos y reclamaciones, así como su gestión administrativa. Esta situación evidencia la necesidad de mejorar el acceso a la información, la orientación y la comunicación entre los visitantes y la administración del zoológico.
 
 ## 2. Actores humanos
 
