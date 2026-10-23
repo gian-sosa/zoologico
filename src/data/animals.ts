@@ -45,14 +45,14 @@ export const animals: Animal[] = [
     scientificName: 'Lagidium sp.',
     tagline: 'La saltadora de los roquedales andinos',
     description:
-      'La vizcacha andina es un roedor de orejas largas y cola peluda que se mueve con agilidad entre las rocas. Vive en grupos y encuentra refugio en las grietas de los roquedales. Se alimenta de vegetación y suele aprovechar el sol durante el día. Su recinto es el número 1 del mapa.',
+      'La vizcacha andina es un roedor de orejas largas y cola peluda que se mueve con agilidad entre las rocas. Vive en grupos y encuentra refugio en las grietas de los roquedales. Se alimenta de vegetación y suele aprovechar el sol durante el día.',
     conservationStatus: 'Por confirmar según la especie',
     statusLevel: 'sin-determinar',
     accentHex: '#d97706',
     accentSoftHex: '#fef3c7',
     // Recursos provisionales: sustituir manualmente la imagen y el sonido.
-    soundFile: '/leon.mp3',
-    heroImage: '/leon.webp',
+    soundFile: '/vizcacha.mp3',
+    heroImage: '/vizcacha.png',
     stats: [
       { label: 'Grupo', value: 'Roedores' },
       { label: 'Actividad', value: 'Diurna' },
@@ -102,14 +102,14 @@ export const animals: Animal[] = [
     scientificName: 'Vicugna pacos',
     tagline: 'Una compañera de los pueblos andinos',
     description:
-      'La alpaca es un camélido sudamericano domesticado desde hace miles de años en los Andes. Vive en rebaños, se alimenta de pastos y es conocida por su fibra suave y abrigadora. Forma parte de la vida y la cultura de muchas comunidades altoandinas. Encuentra las alpacas en el recinto número 2 del mapa.',
+      'La alpaca es un camélido sudamericano domesticado desde hace miles de años en los Andes. Vive en rebaños, se alimenta de pastos y es conocida por su fibra suave y abrigadora. Forma parte de la vida y la cultura de muchas comunidades altoandinas.',
     conservationStatus: 'Animal domesticado',
     statusLevel: 'domestico',
     accentHex: '#0369a1',
     accentSoftHex: '#e0f2fe',
     // Recursos provisionales: sustituir manualmente la imagen y el sonido.
-    soundFile: '/pingu.mp3',
-    heroImage: '/pingu.webp',
+    soundFile: '/alpaca.mp3',
+    heroImage: '/alpaca.png',
     stats: [
       { label: 'Grupo', value: 'Camélidos' },
       { label: 'Relación con humanos', value: 'Domesticada' },
@@ -159,14 +159,14 @@ export const animals: Animal[] = [
     scientificName: 'Vicugna vicugna',
     tagline: 'La silueta silvestre de la puna',
     description:
-      'La vicuña es un camélido silvestre de los Andes, de cuerpo esbelto y pelaje abrigador. Habita en los pastizales de altura y se alimenta de vegetación. A diferencia de la alpaca, no es un animal domesticado. Representa la riqueza animal en el escudo del Perú y ocupa el recinto número 3 del mapa.',
+      'La vicuña es un camélido silvestre de los Andes, de cuerpo esbelto y pelaje abrigador. Habita en los pastizales de altura y se alimenta de vegetación. A diferencia de la alpaca, no es un animal domesticado. Representa la riqueza animal en el escudo del Perú.',
     conservationStatus: 'Preocupación menor (UICN)',
     statusLevel: 'estable',
     accentHex: '#15803d',
     accentSoftHex: '#dcfce7',
     // Recursos provisionales: sustituir manualmente la imagen y el sonido.
-    soundFile: '/monochoro.mp3',
-    heroImage: '/monochoro.webp',
+    soundFile: '/vicuna.mp3',
+    heroImage: '/vicuna.png',
     stats: [
       { label: 'Grupo', value: 'Camélidos' },
       { label: 'Condición', value: 'Silvestre' },

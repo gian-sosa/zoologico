@@ -9,10 +9,10 @@ export default function FlipFact({ fact, accentHex, index }: { fact: FunFact; ac
       type="button"
       onClick={() => setFlipped((v) => !v)}
       aria-pressed={flipped}
-      className="relative h-40 w-full cursor-pointer text-left perspective-[1000px] transition-transform duration-200 active:scale-[0.98]"
+      className="relative h-40 w-full cursor-pointer text-center perspective-[1000px] transition-transform duration-200 active:scale-[0.98]"
     >
       <span
-        className="absolute inset-0 grid transform-3d place-items-center rounded-3xl border border-border p-6 text-center transition-transform duration-500"
+        className="absolute inset-0 grid transform-3d place-items-center rounded-3xl border border-border p-6 transition-transform duration-500"
         style={{
           transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
         }}
@@ -21,7 +21,7 @@ export default function FlipFact({ fact, accentHex, index }: { fact: FunFact; ac
           aria-hidden={flipped}
           className="absolute inset-0 grid place-items-center rounded-3xl bg-card p-6 backface-hidden"
         >
-          <span>
+          <span className="flex flex-col items-center">
             <span
               className="grid size-10 place-items-center rounded-full font-heading text-sm font-bold"
               style={{ backgroundColor: `${accentHex}1a`, color: accentHex }}

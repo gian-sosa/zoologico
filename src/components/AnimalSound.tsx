@@ -47,7 +47,7 @@ export default function AnimalSound({ src, label, accentHex }: Props) {
         style={{ backgroundColor: accentHex }}
       >
         {playing ? <PauseIcon className="size-4" /> : <PlayIcon className="size-4" />}
-        {playing ? 'Pausar sonido' : 'Escuchar sonido'}
+        {playing ? 'Pausar sonido' : 'Escuchar guía'}
       </button>
       <audio
         ref={audioRef}

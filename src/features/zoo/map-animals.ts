@@ -11,11 +11,11 @@ export interface MapAnimal {
 
 // Imágenes provisionales. Añade aquí el nombre normalizado y su imagen definitiva.
 const ANIMAL_IMAGES: Record<string, string> = {
-  vizcacha: '/leon.webp',
-  alpaca: '/pingu.webp',
-  vicuna: '/monochoro.webp',
+  vizcacha: '/vizcacha.png',
+  alpaca: '/alpaca.png',
+  vicuna: '/vicuna.png',
 }
-const PLACEHOLDER_IMAGES = ['/leon.webp', '/pingu.webp', '/monochoro.webp']
+const PLACEHOLDER_IMAGES = ['/vizcacha.png', '/alpaca.png', '/vicuna.png']
 const DISPLAY_NAMES: Record<string, string> = {
   alpacas: 'Alpaca',
   'tigrillo margay': 'Margay',
