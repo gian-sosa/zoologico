@@ -12,12 +12,13 @@ const PHOTO = '33333333-3333-4333-8333-333333333333'
 const createWebp = () => sharp({ create: { width: 40, height: 30, channels: 3, background: '#166534' } }).webp().toBuffer()
 
 // Todas las peticiones Supabase se simulan: no se crean cuentas ni fotos reales.
-async function request({ method = 'POST', body = Buffer.alloc(0), contentType = 'image/webp', token = true, admin = false, anonymous = !admin, action = 'approve', confirmPending = true } = {}) {
+async function request({ method = 'POST', body = Buffer.alloc(0), contentType = 'image/webp', token = true, admin = false, anonymous = !admin, action = 'approve', confirmPending = true, missingEnv = [] } = {}) {
   const fetchBefore = globalThis.fetch
   const envBefore = { url: process.env.SUPABASE_URL, key: process.env.SUPABASE_SERVICE_ROLE_KEY }
   const calls = []
   process.env.SUPABASE_URL = 'https://photos-test.invalid'
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-server-key-not-a-real-secret'
+  for (const name of missingEnv) delete process.env[name]
   globalThis.fetch = async (input, options = {}) => {
     const url = new URL(typeof input === 'string' || input instanceof URL ? input : input.url)
     const verb = options.method ?? 'GET'
@@ -61,6 +62,18 @@ async function request({ method = 'POST', body = Buffer.alloc(0), contentType = 
     else process.env.SUPABASE_SERVICE_ROLE_KEY = envBefore.key
   }
 }
+
+test('API: identifica variables ausentes sin exponer valores ni contactar Supabase', async () => {
+  for (const missingEnv of [['SUPABASE_URL'], ['SUPABASE_SERVICE_ROLE_KEY'], ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']]) {
+    const result = await request({ missingEnv })
+    assert.equal(result.status, 503)
+    assert.equal(result.body.code, 'PHOTO_STORAGE_NOT_CONFIGURED')
+    assert.deepEqual(result.body.missing, missingEnv)
+    assert.equal(result.calls.length, 0)
+    assert.ok(!JSON.stringify(result.body).includes('test-server-key-not-a-real-secret'))
+    assert.ok(!JSON.stringify(result.body).includes('https://photos-test.invalid'))
+  }
+})
 
 test('originales: rechaza vídeos, PDF, SVG, GIF y más de 10 MB antes de decodificar', async () => {
   for (const type of ['video/mp4', 'application/pdf', 'image/svg+xml', 'image/gif']) {

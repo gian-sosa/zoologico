@@ -16,8 +16,14 @@ export default async function handler(req, res) {
     res.setHeader('Allow', 'POST, PATCH')
     return fail(405, 'Método no permitido.')
   }
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return fail(503, 'El almacenamiento de fotos aún no está configurado.')
+  const missingEnv = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'].filter((name) => !process.env[name]?.trim())
+  if (missingEnv.length) {
+    // Solo nombres de configuración: nunca devolver claves ni sus valores.
+    return res.status(503).json({
+      error: 'El almacenamiento de fotos aún no está configurado.',
+      code: 'PHOTO_STORAGE_NOT_CONFIGURED',
+      missing: missingEnv,
+    })
   }
   const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
