@@ -16,40 +16,7 @@ Abrir el sistema del nivel 1 e identificar aplicaciones y almacenes que ejecutan
 
 ## 2. Diagrama de contenedores
 
-![Contenedores de La Totorilla](diagramas/nivel2-contenedores.png)
-
-[Abrir PNG](diagramas/nivel2-contenedores.png) · [Abrir SVG](diagramas/nivel2-contenedores.svg)
-
-<details>
-<summary>Ver fuente editable Mermaid</summary>
-
-```mermaid
-flowchart TB
-    V["Persona: Público y personal"] -->|"Interacción desde navegador"| WEB
-    CDN["Infraestructura: Vercel CDN"] -->|"HTTPS: HTML, CSS, JS y recursos"| WEB
-    subgraph PROPIO["Software propio"]
-        WEB["Contenedor: SPA React + TypeScript<br/>Se ejecuta en el navegador"]
-        API["Contenedor lógico: API Node serverless<br/>photos, documents y claims en Vercel"]
-    end
-    subgraph GESTIONADO["Supabase"]
-        AUTH["Servicio: Auth<br/>Identidades y sesiones"]
-        DATA["Servicio: Data API<br/>Acceso HTTPS autorizado"]
-        DB[("Almacén: PostgreSQL<br/>Datos, constraints, grants y RLS")]
-        STORAGE["Servicio y almacén: Storage privado<br/>WebP y PDF"]
-        DATA -->|"Acceso gestionado"| DB
-    end
-    WEB -->|"HTTPS: sesión y OAuth"| AUTH
-    WEB -->|"HTTPS/JSON: consultas y tarifas con RLS"| DATA
-    WEB -->|"HTTPS: URL firmadas y lectura autorizada"| STORAGE
-    WEB -->|"HTTPS: JSON, WebP o multipart"| API
-    API -->|"HTTPS: getUser cuando exige token"| AUTH
-    API -->|"HTTPS: escrituras privilegiadas"| DATA
-    API -->|"HTTPS: subida y eliminación"| STORAGE
-    AUTH -->|"OAuth"| GOOGLE["Google"]
-    API -->|"HTTPS/JSON: copia de hoja"| RESEND["Resend"]
-```
-
-</details>
+![Contenedores de La Totorilla](../img/nivel2-contenedores.png)
 
 ## 3. Contenedores y servicios
 

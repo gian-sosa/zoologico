@@ -38,13 +38,7 @@ Una restricción limita las alternativas de diseño: una tecnología existente, 
 
 ## 4. Fronteras que no deben confundirse
 
-```mermaid
-flowchart LR
-    P["Variables VITE: públicas"] --> N["Bundle del navegador"]
-    S["Variables privadas del servidor"] --> A["Funciones Node en Vercel"]
-    N -->|"Datos permitidos por RLS"| DB["Supabase"]
-    A -->|"Operaciones autorizadas por el handler"| DB
-```
+![Separación de configuración pública y privada](../img/05-restricciones-1.png)
 
 La `service_role` no debe enviarse al navegador para «arreglar» un error de permisos. La configuración local tampoco se transfiere automáticamente a Vercel: las variables deben existir en el entorno del despliegue activo.
 

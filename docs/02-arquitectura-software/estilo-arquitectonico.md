@@ -19,17 +19,11 @@ La organización del código es modular y el despliegue utiliza serverless/BaaS.
 
 ## 2. Diagrama del estilo
 
-![Arquitectura cliente-servidor de La Totorilla](../arquitectura-cliente-servidor.png)
+![Arquitectura cliente-servidor de La Totorilla](../img/arquitectura-cliente-servidor.png)
 
-[Diagrama editable en SVG](../arquitectura-cliente-servidor.svg).
+[Versión vectorial en SVG](../img/arquitectura-cliente-servidor.svg).
 
-```mermaid
-flowchart LR
-    C["Cliente: navegador React"] -->|"HTTPS / operaciones sensibles"| S["Servidor: API Node en Vercel"]
-    S -->|"HTTPS / credenciales de servidor"| B["Supabase: Auth, datos y archivos"]
-    C -->|"HTTPS / SDK público con RLS"| B
-    S -->|"HTTPS / copia de reclamación"| M["Resend"]
-```
+![Relaciones del estilo cliente-servidor](../img/estilo-arquitectonico-1.png)
 
 ## 3. Por qué es adecuado para el zoológico
 

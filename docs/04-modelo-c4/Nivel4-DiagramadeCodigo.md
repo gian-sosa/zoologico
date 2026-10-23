@@ -19,60 +19,7 @@ Mostrar cómo se conectan estructuras de datos, validador, servicio del navegado
 
 ## 2. Diagrama de estructuras de datos
 
-![Contratos de datos de reclamaciones](diagramas/nivel4-contratos.png)
-
-[Abrir PNG](diagramas/nivel4-contratos.png) · [Abrir SVG](diagramas/nivel4-contratos.svg)
-
-<details>
-<summary>Ver fuente editable Mermaid</summary>
-
-```mermaid
-classDiagram
-    class ClaimFields {
-        <<type>>
-        name
-        document_type
-        document_number
-        address
-        email
-        is_minor
-        guardian_name
-        item_description
-        kind
-        detail
-        request
-        response_channel
-        conformity
-    }
-    class ClaimsProvider {
-        <<interface>>
-        name
-        ruc
-        address
-        privacyContact
-        privacyNotice
-    }
-    class ClaimReceipt {
-        <<interface>>
-        code
-        created_at
-        provider
-        details
-        receipt_email_status
-        provider_actions
-    }
-    class StoredClaim {
-        <<interface>>
-        id
-        response_text
-        response_sent_at
-    }
-    ClaimReceipt --> ClaimsProvider : provider
-    ClaimReceipt --> ClaimFields : details
-    ClaimReceipt <|-- StoredClaim : extends
-```
-
-</details>
+![Contratos de datos de reclamaciones](../img/nivel4-contratos.png)
 
 `ClaimFields` se muestra resumido; el contrato completo está en `shared/claims.d.mts` y los valores/validaciones en `shared/claims.mjs`. Los tipos TypeScript desaparecen al compilar: **no son clases instanciadas ni validación automática en tiempo de ejecución**. Por eso la API ejecuta `validateClaim` antes de persistir.
 
@@ -82,7 +29,7 @@ classDiagram
 |---|---|---|
 | Caja `interface` / `type` | Estructura del contrato de datos. | No es una implementación orientada a objetos. |
 | Flecha con nombre de campo | Un contrato contiene un dato con ese tipo. | No implica propiedad de infraestructura ni ciclo de vida independiente. |
-| Triángulo `extends` | `StoredClaim` amplía `ClaimReceipt`. | No representa herencia entre servicios o controladores. |
+| Flecha `extends` | `StoredClaim` amplía `ClaimReceipt`. | No representa herencia entre servicios o controladores. |
 
 ## 3. Funciones y archivos
 
@@ -100,71 +47,13 @@ classDiagram
 
 ## 4. Dependencias de código
 
-```mermaid
-flowchart LR
-    PAGE["ClaimsPage"] --> CLIENT["claims.service: submitClaim"]
-    PAGE --> VALID["shared/claims: validateClaim"]
-    CLIENT -->|"HTTP POST"| HANDLER["api/claims: handler"]
-    HANDLER --> VALID
-    HANDLER --> CRYPTO["node:crypto: SHA-256"]
-    HANDLER --> SDK["Supabase SDK"]
-    HANDLER --> MAIL["sendClaimReceipt"]
-    MAIL --> FORMAT["claimEmail y claimSheetEntries"]
-    MAIL --> SDK
-    MAIL -->|"HTTP"| RESEND["Resend"]
-```
+![Dependencias de código de reclamaciones](../img/nivel4-dependencias.png)
 
 Solo las flechas marcadas HTTP cruzan un límite remoto. El resto son imports/llamadas. El navegador y servidor comparten reglas puras, no el cliente privilegiado ni una instancia del handler.
 
 ## 5. Secuencia: registrar una reclamación y reintentar
 
-![Secuencia de registro y reintento de reclamaciones](diagramas/nivel4-secuencia.png)
-
-[Abrir PNG](diagramas/nivel4-secuencia.png) · [Abrir SVG](diagramas/nivel4-secuencia.svg)
-
-<details>
-<summary>Ver fuente editable Mermaid</summary>
-
-```mermaid
-sequenceDiagram
-    actor U as Consumidor
-    participant P as ClaimsPage
-    participant A as api/claims
-    participant V as validateClaim
-    participant DB as consumer_claims
-    participant M as sendClaimReceipt
-    participant R as Resend
-    U->>P: Confirmar formulario
-    P->>P: Conservar submission_key UUID
-    P->>A: POST JSON con clave y details
-    A->>A: Comprobar configuración, tamaño y UUID
-    A->>V: Validar y normalizar details
-    V-->>A: value y errors
-    A->>A: Calcular payload_hash
-    A->>DB: INSERT con clave única
-    alt Alta nueva
-        DB-->>A: Hoja con código y fecha
-    else Clave duplicada
-        DB-->>A: Conflicto de unicidad
-        A->>DB: Recuperar por submission_key
-        DB-->>A: Hoja existente y hash
-        A->>A: Si hash difiere, responder 409 y terminar
-    end
-    Note over A,M: Continúa solo con hoja válida nueva o recuperada
-    A->>M: Solicitar copia cuando corresponde
-    M->>R: HTTPS con clave de servidor e idempotencia de correo
-    alt Proveedor acepta
-        R-->>M: Identificador de correo
-        M->>DB: Marcar aceptación del envío
-        M-->>A: sent
-    else Error o timeout
-        M-->>A: pending sin borrar la hoja
-    end
-    A-->>P: 201 con constancia y estado de copia
-    P-->>U: Hoja imprimible y mensaje veraz
-```
-
-</details>
+![Secuencia de registro y reintento de reclamaciones](../img/nivel4-secuencia.png)
 
 El diagrama resume el camino donde existe destinatario y la copia no estaba aceptada. Si no se indicó correo, el estado es `not_requested`; si ya figura `sent`, el helper no vuelve a enviarla. El conflicto de hash finaliza antes de correo/respuesta de éxito.
 

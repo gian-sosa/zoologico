@@ -16,45 +16,11 @@ Esta vista abre la **API Node serverless propia** del nivel 2. Muestra sus handl
 
 ## 2. Diagrama de componentes
 
-![Componentes de la API de La Totorilla](diagramas/nivel3-componentes.png)
-
-[Abrir PNG](diagramas/nivel3-componentes.png) · [Abrir SVG](diagramas/nivel3-componentes.svg)
-
-<details>
-<summary>Ver fuente editable Mermaid</summary>
-
-```mermaid
-flowchart LR
-    SPA["Externo al detalle: SPA"]
-    subgraph API["API propia"]
-        PH["Componente: Fotos<br/>api/photos.mjs"]
-        DO["Componente: Documentos<br/>api/documents.mjs"]
-        CL["Componente: Reclamaciones<br/>api/claims.mjs"]
-        IMG["Componente: Procesamiento seguro<br/>server/photo-image.mjs"]
-        VAL["Componente: Validación compartida<br/>shared/claims.mjs"]
-        MAIL["Componente: Correo de constancias<br/>server/claim-mail.mjs"]
-        PH -->|"sanitizeWebp"| IMG
-        CL -->|"validateClaim y claimEmail"| VAL
-        CL -->|"sendClaimReceipt"| MAIL
-        MAIL -->|"claimSheetEntries"| VAL
-    end
-    SUP["Servicios externos: Supabase<br/>Auth, Data API / PostgreSQL y Storage"]
-    RES["Resend"]
-    SPA -->|"POST / PATCH"| PH
-    SPA -->|"POST / DELETE"| DO
-    SPA -->|"GET / POST"| CL
-    PH --> SUP
-    DO --> SUP
-    CL -->|"Registrar o recuperar hoja"| SUP
-    MAIL -->|"Solicitar correo"| RES
-    MAIL -->|"Estado del correo"| SUP
-```
-
-</details>
+![Componentes de la API de La Totorilla](../img/nivel3-componentes.png)
 
 Las flechas entre componentes propios son llamadas/imports en el entorno de la función; las flechas a proveedores son solicitudes remotas. No se inventa un módulo de Auth de backend compartido: cada handler protegido construye su cliente y verifica el token.
 
-La caja externa de Supabase agrupa sus servicios para evitar cruces innecesarios. No es un nuevo componente propio: los servicios y protocolos individuales se mantienen detallados en el nivel 2 y en las tablas siguientes.
+Cada fila muestra el servicio del navegador, el handler, su procesamiento y los proveedores externos. Supabase se repite por flujo para evitar cruces innecesarios; esas cajas representan el mismo proveedor, no bases independientes. Los handlers llaman directamente a los servicios gestionados; Sharp procesa la imagen localmente y el helper de correo se comunica con Resend. La validación PDF es un proceso del handler, no un nuevo módulo de servidor.
 
 ## 3. Componentes y contratos
 

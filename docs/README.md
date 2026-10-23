@@ -2,7 +2,7 @@
 
 Esta documentación explica el sistema **a partir del código del repositorio**. Conserva la organización temática del [proyecto de referencia](https://github.com/devlizbethjaico/Marketplace-arquitSoft-02/tree/bf0dd8ddb9affd43d60bd9578f08c25c3e83ec69/docs), pero los actores, requisitos, decisiones, tablas y diagramas corresponden al zoológico.
 
-> **Estilo arquitectónico:** cliente-servidor. **Enfoque de diseño:** modular por funcionalidades, con separación en capas lógicas. **Despliegue:** SPA y funciones serverless en Vercel, con Supabase como BaaS. No es Clean Architecture estricta ni un sistema de microservicios.
+> **Estilo arquitectónico:** cliente-servidor. **Enfoque de diseño:** modular por funcionalidades, con separación de responsabilidades. **Despliegue:** SPA y funciones serverless en Vercel, con Supabase como BaaS.
 
 ## 1. Cómo leer los documentos
 
@@ -55,9 +55,9 @@ Esta documentación explica el sistema **a partir del código del repositorio**.
 | **Propuesto / por validar** | Meta o mejora de diseño, no comportamiento demostrado ni compromiso operativo aprobado. |
 | **Fuera de alcance actual** | No existe funcionalidad equivalente en el código revisado. |
 
-Los diagramas Mermaid son editables en el propio Markdown y se visualizan en GitHub. Las cajas de código del nivel 4 representan funciones, módulos y tipos TypeScript; **no implican que existan clases o repositorios orientados a objetos**. Las flechas de dependencias de código no son conexiones HTTP.
+Todos los diagramas se incluyen como **imágenes PNG almacenadas en [`img/`](img/)** y enlazadas desde el documento correspondiente, sin bloques de código de diagramas ni dependencia de un visor especial. Las cajas de código del nivel 4 representan funciones, módulos y tipos TypeScript; **no implican que existan clases o repositorios orientados a objetos**. Las flechas de dependencias de código no son conexiones HTTP.
 
-La imagen [cliente-servidor en PNG](arquitectura-cliente-servidor.png) y su [fuente SVG](arquitectura-cliente-servidor.svg) se conservan para usar en diapositivas.
+La imagen [cliente-servidor en PNG](img/arquitectura-cliente-servidor.png) y su [versión SVG](img/arquitectura-cliente-servidor.svg) también están disponibles en esa carpeta. Se conservan los archivos originales de la raíz de `docs/`.
 
 ## 4. Fuentes de evidencia
 
@@ -74,14 +74,23 @@ No se han copiado los módulos de compras, pagos, vendedores, ERP o Redis del ej
 
 ## 5. Diagramas para presentaciones
 
-Los documentos C4 incluyen una imagen y su fuente Mermaid desplegable. El SVG es vectorial; el PNG permite insertarlo directamente en diapositivas.
+Los 25 diagramas de análisis, arquitectura, diseño y C4 están generados en PNG, con una versión SVG adicional, dentro de `docs/img/`. Cada Markdown importa la imagen que le corresponde. El SVG es vectorial; el PNG permite insertarlo directamente en diapositivas. Si cambia un diagrama, deben actualizarse ambas imágenes.
+
+Las imágenes siguen el estilo de la arquitectura cliente-servidor original: fondo crema, tarjetas blancas, verde para cliente/datos, azul para operaciones del servidor y ámbar para correo o recuperación. Los PNG tienen 2880 px de ancho; los diagramas de secuencia usan un lienzo vertical para mantener las etiquetas legibles.
+
+La [fuente de generación](img/fuentes/generar-diagramas.mjs) dibuja directamente los SVG y exporta los PNG con Chrome, sin motores de diagramación. Para regenerarlos desde la raíz del proyecto:
+
+```bash
+node docs/img/fuentes/generar-diagramas.mjs
+```
+
+En equipos con Chrome en otra ubicación, definir `CHROME_PATH` con la ruta al ejecutable. La exportación comprueba que el texto no salga del lienzo ni de sus tarjetas.
 
 | Vista | Imagen | Vector |
 |---|---|---|
-| Nivel 1 · Contexto | [PNG](04-modelo-c4/diagramas/nivel1-contexto.png) | [SVG](04-modelo-c4/diagramas/nivel1-contexto.svg) |
-| Nivel 2 · Contenedores | [PNG](04-modelo-c4/diagramas/nivel2-contenedores.png) | [SVG](04-modelo-c4/diagramas/nivel2-contenedores.svg) |
-| Nivel 3 · Componentes | [PNG](04-modelo-c4/diagramas/nivel3-componentes.png) | [SVG](04-modelo-c4/diagramas/nivel3-componentes.svg) |
-| Nivel 4 · Contratos | [PNG](04-modelo-c4/diagramas/nivel4-contratos.png) | [SVG](04-modelo-c4/diagramas/nivel4-contratos.svg) |
-| Nivel 4 · Secuencia | [PNG](04-modelo-c4/diagramas/nivel4-secuencia.png) | [SVG](04-modelo-c4/diagramas/nivel4-secuencia.svg) |
-
-
+| Nivel 1 · Contexto | [PNG](img/nivel1-contexto.png) | [SVG](img/nivel1-contexto.svg) |
+| Nivel 2 · Contenedores | [PNG](img/nivel2-contenedores.png) | [SVG](img/nivel2-contenedores.svg) |
+| Nivel 3 · Componentes | [PNG](img/nivel3-componentes.png) | [SVG](img/nivel3-componentes.svg) |
+| Nivel 4 · Contratos | [PNG](img/nivel4-contratos.png) | [SVG](img/nivel4-contratos.svg) |
+| Nivel 4 · Dependencias | [PNG](img/nivel4-dependencias.png) | [SVG](img/nivel4-dependencias.svg) |
+| Nivel 4 · Secuencia | [PNG](img/nivel4-secuencia.png) | [SVG](img/nivel4-secuencia.svg) |

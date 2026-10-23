@@ -10,40 +10,9 @@ La Totorilla es una aplicación web cliente-servidor con frontend React, funcion
 
 ## 2. Diagrama global
 
-```mermaid
-flowchart TB
-    V["Visitante / remitente / consumidor"] --> SPA
-    A["Administrador autorizado"] --> SPA
-    CDN["Vercel CDN: archivos compilados"] -->|"Entrega HTML, CSS, JS y recursos"| SPA
-    subgraph CLIENTE["Dispositivo del usuario"]
-        SPA["SPA React + TypeScript"]
-        PUB["Fichas, mapa y cuestionarios estáticos"]
-        FEAT["Servicios y hooks por funcionalidad"]
-        SPA --> PUB
-        SPA --> FEAT
-    end
-    subgraph VERCEL["Servidor propio: funciones Node"]
-        API["API de fotos, documentos y reclamaciones"]
-        PROC["Validación, procesamiento y coordinación"]
-        API --> PROC
-    end
-    subgraph SUPA["Supabase: servicios gestionados"]
-        AUTH["Auth"]
-        DATA["Data API / PostgreSQL + RLS"]
-        STO["Storage privado"]
-    end
-    FEAT -->|"Sesión / OAuth"| AUTH
-    AUTH --> G["Google: identidad institucional"]
-    FEAT -->|"Consultas y tarifas autorizadas"| DATA
-    FEAT -->|"URL firmadas de objetos permitidos"| STO
-    FEAT -->|"HTTPS: operaciones sensibles"| API
-    PROC -->|"Verificar token cuando corresponde"| AUTH
-    PROC -->|"Persistir y moderar"| DATA
-    PROC -->|"Subir o eliminar archivos"| STO
-    PROC -->|"Copia de hoja registrada"| MAIL["Resend"]
-```
+![Arquitectura global de La Totorilla](../img/arquitectura-inicial-1.png)
 
-También se conserva la [imagen de presentación](../arquitectura-cliente-servidor.png), con [fuente SVG](../arquitectura-cliente-servidor.svg).
+También se conserva la [imagen de presentación](../img/arquitectura-cliente-servidor.png), con [versión SVG](../img/arquitectura-cliente-servidor.svg).
 
 ## 3. Responsabilidades y límites
 
@@ -99,4 +68,4 @@ También se conserva la [imagen de presentación](../arquitectura-cliente-servid
 | Fallo entre SQL y Storage | Reserva persistida y estados intermedios. | Conciliación y limpieza supervisada; no hay transacción distribuida. |
 | Fallo de correo | Hoja conservada y estado pendiente. | Programar reintentos y seguimiento de entrega. |
 | Abuso de sesiones anónimas | Cuotas por identidad y límites de archivo. | CAPTCHA/rate limiting del entorno; no son cuotas infalibles por persona. |
-| Dependencia de proveedor | Servicios de acceso localizados. | Cambiar Supabase exige adaptar código y políticas; no está abstraído por puertos universales. |
+| Dependencia de proveedor | Servicios de acceso localizados. | Cambiar Supabase exige adaptar código, políticas y pruebas. |

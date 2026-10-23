@@ -112,15 +112,7 @@ Cada escenario identifica fuente, estímulo, entorno, respuesta y medida. Los n�
 
 ## 2. Ciclo de evaluación
 
-```mermaid
-flowchart LR
-    E["Definir estímulo y entorno"] --> M["Aprobar medida"]
-    M --> P["Ejecutar prueba controlada"]
-    P --> R["Registrar evidencia y límites"]
-    R --> D["Comparar con objetivo"]
-    D -->|"No cumple"| A["Ajustar diseño o configuración"]
-    A --> P
-```
+![Ciclo de evaluación de escenarios de calidad](../img/08-escenarios-atributos-calidad-1.png)
 
 ## 3. Resumen para la exposición
 

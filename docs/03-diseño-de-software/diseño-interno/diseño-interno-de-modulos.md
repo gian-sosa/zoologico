@@ -2,7 +2,7 @@
 
 [Índice general](../../README.md) · [Patrones](patrones-de-diseño.md) · [Principios](principios-de-diseño.md)
 
-> **Proyecto:** La Totorilla. **Módulo de referencia:** Comunidad y moderación de fotografías. **Enfoque:** funciones, componentes y hooks; no una jerarquía de clases de Clean Architecture.
+> **Proyecto:** La Totorilla. **Módulo de referencia:** Comunidad y moderación de fotografías. **Enfoque:** módulos por funcionalidad, funciones, componentes y hooks.
 
 ## 1. Propósito
 
@@ -39,56 +39,13 @@ tests/photos.test.mjs                      pruebas de validación y API simulada
 
 ## 3. Dependencias del módulo
 
-```mermaid
-flowchart TD
-    CP["CommunityPage / AdminDashboardPage"] --> H["useVisitorPhotos"]
-    CP --> W["PhotoWall / controles de revisión"]
-    W -->|"Eventos"| H
-    H --> IMG["fileToCompressedWebP"]
-    H --> S["listPhotos / photoRequest"]
-    S --> PUB["getSupabase: cliente público"]
-    S -->|"HTTPS"| API["api/photos handler"]
-    API --> SHARP["sanitizeWebp"]
-    API --> AUTH["Auth: getUser"]
-    API --> DB["Tabla y cuota SQL"]
-    API --> ST["Storage privado"]
-    PUB --> READ["Data API y URL firmadas con RLS"]
-```
+![Dependencias internas del módulo Comunidad](../../img/diseno-interno-de-modulos-1.png)
 
 `photos.store.ts` no implementa un store Redux ni un repositorio abstracto: es un módulo de funciones de acceso. La extensión del nombre no determina un patrón que el código no utiliza.
 
 ## 4. Secuencia de envío de una foto
 
-```mermaid
-sequenceDiagram
-    actor V as Visitante
-    participant UI as PhotoWall y hook
-    participant IMG as Conversor de imagen
-    participant S as photos.store
-    participant API as api/photos
-    participant AUTH as Supabase Auth
-    participant DB as PostgreSQL
-    participant ST as Storage
-    V->>UI: Seleccionar originales permitidos
-    UI->>IMG: fileToCompressedWebP(file)
-    IMG-->>UI: Blob WebP hasta 300 KiB
-    UI->>S: photoRequest(POST, query, blob)
-    S->>AUTH: Obtener sesión o signInAnonymously
-    AUTH-->>S: Token del visitante
-    S->>API: POST WebP y Bearer token
-    API->>AUTH: getUser(token)
-    AUTH-->>API: Identidad validada
-    API->>API: sanitizeWebp y validar autor
-    API->>DB: INSERT uploading y reservar cuota
-    DB-->>API: Reserva válida
-    API->>ST: Subir WebP privado
-    ST-->>API: Confirmación
-    API->>DB: UPDATE condicional a pending
-    DB-->>API: Identificador confirmado
-    API-->>UI: 201 con id
-    UI-->>V: Enviada para aprobación
-    Note over UI,ST: La foto todavía no aparece en el muro público
-```
+![Secuencia de envío y recepción de fotografías](../../img/diseno-interno-de-modulos-2.png)
 
 ### Revisión posterior
 
@@ -96,18 +53,7 @@ El administrador autenticado envía `PATCH` con `approve` o `reject`. El servido
 
 ## 5. Estados y transiciones
 
-```mermaid
-stateDiagram-v2
-    [*] --> uploading: Reservar antes de Storage
-    uploading --> pending: Confirmar objeto subido
-    pending --> published: Aprobar por personal
-    pending --> rejected: Rechazar por personal
-    pending --> deleting: Eliminar por personal
-    published --> deleting: Eliminar por personal
-    rejected --> deleting: Eliminar por personal
-    uploading --> deleting: Limpieza de reserva antigua
-    deleting --> [*]: Eliminar objeto y fila
-```
+![Estados y transiciones de una fotografía](../../img/diseno-interno-de-modulos-3.png)
 
 | Estado / marca | Quién la establece | Efecto |
 |---|---|---|
@@ -146,18 +92,7 @@ El límite por identidad no es un control infalible por persona: perder `session
 
 ## 8. Reclamaciones: coordinación e idempotencia
 
-```mermaid
-flowchart TD
-    IN["POST con submission_key y datos"] --> VALID["Validar y normalizar con validateClaim"]
-    VALID --> HASH["Calcular SHA-256"]
-    HASH --> INSERT["Intentar INSERT"]
-    INSERT -->|"Alta correcta"| MAIL["Solicitar copia por correo"]
-    INSERT -->|"Clave duplicada"| GET["Recuperar hoja existente"]
-    GET --> EQ{"¿Hash coincide?"}
-    EQ -->|"Sí"| MAIL
-    EQ -->|"No"| CONFLICT["409: no cambiar la hoja original"]
-    MAIL --> RES["Responder con hoja, aunque el correo quede pendiente"]
-```
+![Flujo de idempotencia de reclamaciones](../../img/diseno-interno-de-modulos-4.png)
 
 `shared/claims.mjs` se usa tanto en navegador como en servidor. La API no importa React. La numeración usa una secuencia de PostgreSQL y puede presentar saltos; no se reinicia para satisfacer una expectativa de continuidad perfecta.
 

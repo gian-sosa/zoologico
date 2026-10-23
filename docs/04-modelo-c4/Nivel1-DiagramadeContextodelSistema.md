@@ -17,30 +17,7 @@ Mostrar La Totorilla como una sola caja: quién la utiliza, qué valor entrega y
 
 ## 2. Diagrama de contexto
 
-![Contexto del sistema La Totorilla](diagramas/nivel1-contexto.png)
-
-[Abrir PNG](diagramas/nivel1-contexto.png) · [Abrir SVG](diagramas/nivel1-contexto.svg)
-
-<details>
-<summary>Ver fuente editable Mermaid</summary>
-
-```mermaid
-flowchart LR
-    VIS["Persona: Visitante / remitente / consumidor"]
-    ADM["Persona: Personal administrador"]
-    SIS["Sistema: Plataforma Zoológico La Totorilla<br/>Información, aprendizaje, fotos moderadas,<br/>documentos y reclamos"]
-    SUP["Sistema externo: Supabase<br/>Identidad, persistencia y archivos gestionados"]
-    GOO["Sistema externo: Google<br/>Identidad institucional"]
-    COR["Sistema externo: Resend<br/>Envío de copias de reclamaciones"]
-    VIS -->|"Consulta, participa y presenta solicitudes"| SIS
-    ADM -->|"Gestiona tarifas y revisa registros privados"| SIS
-    SIS -->|"Autentica, consulta y conserva información"| SUP
-    SUP -->|"Delegación de identidad institucional"| GOO
-    SIS -->|"Solicita envío de copia de hoja"| COR
-    COR -->|"Correo al consumidor cuando corresponde"| VIS
-```
-
-</details>
+![Contexto del sistema La Totorilla](../img/nivel1-contexto.png)
 
 Las líneas representan relaciones de uso, no todas las respuestas HTTP. Google no recibe la `service_role` ni decide quién pertenece a `photo_admins`.
 

@@ -14,7 +14,7 @@ Identificar mecanismos **presentes en el código**, distinguir patrones clásico
 | Observación / suscripción | `auth.context.tsx`. | Actualizar la UI al cambiar la sesión. | `onAuthStateChange`, estado y cancelación de la suscripción. | Patrón de eventos del SDK, no un bus de eventos de negocio. |
 | Context + Provider | `AuthProvider` y `useAuth`. | Compartir estado de autorización de UI. | Contexto React y hook consumidor. | No sustituye RLS o verificación del token en API. |
 | Servicio de aplicación/acceso, de forma funcional | `photos.store.ts`, `claims.service.ts`, `requests.store.ts`, `prices.store.ts`. | Evitar repetir consultas y detalles HTTP en cada componente. | Funciones con entradas y resultados explícitos. | No es Repository abstracto ni dominio independiente del proveedor. |
-| Adaptación de protocolo | `server/vite-api.mjs`. | Reutilizar handlers Vercel en el middleware de Vite. | Añade `status()` y `json()` a la respuesta Node y enruta `/api/*`. | Adaptador concreto de desarrollo, no una arquitectura hexagonal completa. |
+| Adaptación de protocolo | `server/vite-api.mjs`. | Reutilizar handlers Vercel en el middleware de Vite. | Añade `status()` y `json()` a la respuesta Node y enruta `/api/*`. | Adaptador concreto que solo participa en el entorno de desarrollo. |
 | Modelo de estados | Fotos y documentos. | Controlar qué operaciones son válidas en cada etapa. | Campos de estado y condiciones SQL/HTTP. | No hay clases GoF State ni motor de workflow. |
 | Idempotency Key | Reclamaciones. | Evitar otra hoja tras reintentar una petición. | UUID único, hash de contenido y recuperación de registro. | No vuelve idempotentes automáticamente fotos/documentos ni todos los efectos externos. |
 | Control optimista de concurrencia | Moderación y limpieza de fotos. | Detectar decisiones basadas en datos antiguos. | `UPDATE ... WHERE id/status/deletion_requested` y comprobar filas cambiadas. | No es un lock global de toda la aplicación. |
@@ -22,35 +22,13 @@ Identificar mecanismos **presentes en el código**, distinguir patrones clásico
 
 ## 3. Ejemplo: instancia compartida
 
-```mermaid
-flowchart LR
-    A["Servicio de tarifas"] --> GET["getSupabase()"]
-    B["Servicio de fotos"] --> GET
-    C["Contexto Auth"] --> GET
-    GET --> EXIST{"¿Cliente ya creado?"}
-    EXIST -->|"Sí"| RETURN["Devolver la instancia"]
-    EXIST -->|"No y hay configuración"| CREATE["createClient"]
-    CREATE --> RETURN
-```
+![Inicialización diferida del cliente compartido](../../img/patrones-de-diseno-1.png)
 
 El módulo retorna `null` si no tiene configuración. Cada consumidor decide cómo tratarlo: tarifas conserva su fallback; Auth marca que no está configurado; una operación que requiere persistencia informa el fallo. No se debe sustituir la clave pública por una privilegiada.
 
 ## 4. Ejemplo: suscripción al estado de Auth
 
-```mermaid
-sequenceDiagram
-    participant SDK as Supabase Auth
-    participant P as AuthProvider
-    participant DB as Membresía del personal
-    participant UI as Consumidores de useAuth
-    P->>SDK: Suscribir onAuthStateChange
-    SDK-->>P: Cambio de sesión
-    P->>P: Diferir consulta fuera del callback Auth
-    P->>DB: Consultar photo_admins cuando corresponde
-    DB-->>P: Resultado de autorización
-    P-->>UI: Nuevo estado de contexto
-    Note over SDK,P: Al desmontar, cancelar la suscripción
-```
+![Suscripción y actualización del estado de autenticación](../../img/patrones-de-diseno-2.png)
 
 La revisión incremental del contexto evita aplicar una respuesta antigua sobre un estado de sesión más reciente. No se afirma que todas las peticiones del sistema se actualicen por eventos: el muro se refresca con consultas, intervalo y visibilidad.
 
@@ -68,10 +46,8 @@ La revisión incremental del contexto evita aplicar una respuesta antigua sobre 
 
 | Nombre | Situación actual | Cuándo evaluarlo |
 |---|---|---|
-| Repository con puerto de dominio | No hay interfaz e implementación intercambiable por cada servicio. | Si aparecen fuentes de datos alternativas o reglas cuya prueba lo requiera. |
 | Strategy de proveedores | No hay múltiples proveedores seleccionados por contrato. | Si correo, almacenamiento o identidad necesitan alternativas reales. |
 | Decorator con Redis | No existe Redis ni repositorio decorado. | Si la medición demuestra un cuello de botella en lecturas persistentes. |
-| Factory de módulos con inyección | No hay raíces de composición de casos de uso como en el ejemplo. | Cuando construir un componente tenga variantes y dependencias complejas. |
 | Event bus / CQRS / Saga | No hay infraestructura equivalente ni segregación formal de modelos. | Solo con necesidades de integración, consistencia o escala justificadas. |
 
 ## 7. Beneficio de documentar con precisión

@@ -52,15 +52,7 @@ Los requisitos describen el alcance funcional observado en el repositorio. «Imp
 
 ## 4. Flujo funcional representativo
 
-```mermaid
-flowchart LR
-    F["RF09: recibir foto"] --> P["Pendiente y privada para el público"]
-    P --> A["RF11: comprobar al personal"]
-    A --> M["RF13: aprobar o rechazar"]
-    M -->|"Aprobada"| L["RF08: incluir en muro publicado"]
-    M -->|"Rechazada"| N["No incluir en el muro"]
-    L --> D["RF10 y RF14: solicitud y decisión de retirada"]
-```
+![Flujo de requisitos de publicación y moderación](../img/03-requisitos-funcionales-1.png)
 
 ## 5. Reglas que condicionan los requisitos
 

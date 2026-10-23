@@ -27,19 +27,7 @@ Expresar las necesidades en lenguaje del usuario y conectarlas con comportamient
 
 ## 3. Agrupación por objetivos
 
-```mermaid
-flowchart TD
-    U["Necesidades de los usuarios"] --> I["Informarse y aprender: HU01 a HU04"]
-    U --> C["Participar: HU05 y HU06"]
-    U --> A["Administrar: HU07 a HU09"]
-    U --> D["Presentar documentos: HU10 y HU11"]
-    U --> R["Ejercer derechos: HU12 a HU14"]
-    I --> E["Información estática y tarifas consultables"]
-    C --> M["Subida privada y moderación"]
-    A --> P["Autenticación y autorización explícita"]
-    D --> P
-    R --> H["Hoja persistida y conservación de evidencia"]
-```
+![Historias de usuario agrupadas por objetivos](../img/02-historias-del-usuario-1.png)
 
 ## 4. Límites y mejoras futuras
 

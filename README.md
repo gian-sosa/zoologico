@@ -18,7 +18,7 @@
 8. [Drivers arquitectónicos](#8-identificar-drivers-arquitectónicos)
 9. [Decisiones arquitectónicas (ADR)](#9-decisiones-arquitectónicas-adr)
 10. [Estilo arquitectónico](#10-estilo-arquitectónico)
-11. [Enfoque arquitectónico: Clean Architecture](#11-enfoque-arquitectónico-clean-architecture)
+11. [Enfoque arquitectónico: modular por funcionalidades](#11-enfoque-arquitectónico-modular-por-funcionalidades)
 12. [Tecnologías y ejecución](#12-tecnologías-y-ejecución)
 
 ---
@@ -168,7 +168,7 @@ Un driver arquitectónico es un requisito, atributo de calidad o restricción qu
 | DA03 – Rendimiento | Muchos visitantes consultarán fauna e información a la vez. | Carga diferida, caché de lectura y recursos estáticos en CDN (ADR-006). |
 | DA04 – Supabase | Persistencia centralizada, compartida y protegida por RLS. | Servicios de datos Supabase (ADR-003, ADR-004). |
 | DA05 – Separación admin/público | Las funciones de gestión no deben ser accesibles al público. | Autenticación, autorización y rutas protegidas (ADR-005). |
-| DA06 – Mantenibilidad | Un cambio en un módulo no debe romper los demás. | Modularidad + Clean Architecture (ADR-001, ADR-002). |
+| DA06 – Mantenibilidad | Un cambio en un módulo no debe romper los demás. | Modularidad por funcionalidades y separación de responsabilidades (ADR-001, ADR-002). |
 | DA07 – Servicios definidos | La interfaz no debe conocer cómo se guardan los datos. | Casos de uso y puertos (ADR-002, ADR-004). |
 
 ---
@@ -180,7 +180,7 @@ Un **ADR (Architecture Decision Record)** documenta las decisiones importantes d
 | ID | Decisión arquitectónica | Driver relacionado | Alternativas consideradas | Justificación | Resultado / Consecuencias |
 |---|---|---|---|---|---|
 | ADR-001 | **Monolito modular** (una sola aplicación SPA desplegable, dividida en módulos independientes). | DA01 – Escalabilidad; DA06 – Mantenibilidad | Microservicios; aplicación monolítica sin módulos. | El alcance del proyecto no justifica la complejidad operativa de los microservicios, pero sí requiere módulos con responsabilidades separadas. | Módulos de **Fauna, Información, Comunidad, Autenticación y Administración**; un único despliegue. |
-| ADR-002 | **Clean Architecture** como enfoque de organización interna. | DA06 – Mantenibilidad; DA07 – Servicios definidos | Arquitectura en capas tradicional; MVC; Hexagonal. | Separa las reglas del negocio de React y Supabase, y hace que las dependencias apunten hacia el dominio. | Carpetas `dominio`, `aplicacion`, `presentacion` e `infraestructura`; casos de uso independientes del framework. |
+| ADR-002 | **Diseño modular por funcionalidades** como enfoque de organización interna. | DA06 – Mantenibilidad; DA07 – Servicios definidos | Página única con lógica concentrada; organización solo por tipo de archivo. | Agrupa datos, servicios y hooks por tema y separa presentación, coordinación y procesamiento confiable. | `src/features/`, `src/pages/`, `src/components/`, `api/`, `server/` y utilidades compartidas. |
 | ADR-003 | **Supabase** como plataforma de persistencia (PostgreSQL, Auth y Storage). | DA01 – Escalabilidad; DA04 – Supabase; DA02 – Seguridad | Backend y base autogestionados. | Comparte información y aplica permisos centralizados. | Tablas y bucket privado descritos en BD.md; API Node para sanitizar fotos. |
 | ADR-004 | Servicios de acceso a datos separados de los componentes. | DA04 – Supabase; DA07 – Servicios definidos; DA06 – Mantenibilidad | Consultas repartidas por los componentes. | Facilita mantenimiento y pruebas. | Servicios de fotos, solicitudes y tarifas en `src/features/`. |
 | ADR-005 | **Autenticación y autorización** con Supabase Auth, RLS y rutas protegidas. | DA02 – Seguridad; DA05 – Separación admin/público | Autorización únicamente visual. | Protege operaciones desde el servidor y la base. | Administradores autorizados explícitamente en `photo_admins`; revisión de publicación y eliminación. |
@@ -193,25 +193,25 @@ Un **ADR (Architecture Decision Record)** documenta las decisiones importantes d
 
 ## Estilo seleccionado
 
-**Monolito modular organizado en capas, bajo un esquema cliente-servidor sobre BaaS (Backend as a Service).**
+**Cliente-servidor, con módulos por funcionalidad y servicios gestionados (BaaS).**
 
-- **Cliente-servidor:** una SPA en el navegador consume los servicios de Supabase.
-- **Monolito modular:** toda la aplicación se construye y despliega como una sola unidad, dividida internamente en módulos de negocio (Fauna, Información, Comunidad, Autenticación, Administración).
-- **Capas:** presentación, lógica de negocio y datos, con dependencias controladas.
+- **Cliente-servidor:** una SPA en el navegador consume las API Node propias y los servicios autorizados de Supabase.
+- **Modularidad:** funcionalidades agrupadas en `src/features/`, con páginas, componentes y utilidades compartidas.
+- **Serverless:** Vercel ejecuta los handlers de fotos, documentos y reclamaciones.
 - **BaaS:** persistencia, autenticación y almacenamiento se delegan a Supabase.
 
-> **Capas = organización lógica; monolito = unidad de despliegue.** Ambos conceptos coexisten.
+> La SPA y los handlers pertenecen al mismo proyecto de Vercel, pero se ejecutan en entornos distintos. El navegador nunca recibe credenciales privadas.
 
 ## Justificación frente a otros estilos
 
 | Estilo | ¿Se selecciona? | Motivo |
 |---|---|---|
-| Monolito modular + capas | ✅ Sí | Simplicidad, bajo costo operativo, módulos separados y evolución gradual. |
-| Cliente-servidor (BaaS) | ✅ Sí | La SPA delega datos, autenticación y archivos a Supabase. |
+| Diseño modular por funcionalidades | ✅ Sí | Simplicidad, responsabilidades separadas y evolución gradual. |
+| Cliente-servidor con BaaS | ✅ Sí | La SPA utiliza API propias y delega identidad, datos y archivos a Supabase. |
 | Microservicios | ❌ No | Complejidad y costo excesivos para el tamaño del proyecto. |
 | SOA | ❌ No | No existen múltiples servicios empresariales que orquestar. |
 | Event-driven | ❌ No | No hay procesos asíncronos complejos que lo requieran. |
-| Serverless puro | ❌ No | Supabase ya cubre las necesidades de backend sin funciones propias. |
+| Funciones serverless | ✅ Complemento | Los handlers Node realizan operaciones sensibles y procesamiento confiable en Vercel. |
 
 ## Evolución del estilo
 
@@ -222,105 +222,42 @@ Un **ADR (Architecture Decision Record)** documenta las decisiones importantes d
 
 ## Diagrama del estilo arquitectónico
 
-```mermaid
-flowchart TB
-    V["Visitante"]
-    A["Administrador"]
-
-    subgraph CLIENTE["CLIENTE · Navegador web"]
-        subgraph SPA["MONOLITO MODULAR · SPA React + TypeScript + Vite · una sola unidad de despliegue"]
-
-            subgraph P["1. CAPA DE PRESENTACIÓN"]
-                UI["Páginas y componentes<br/>Inicio · Fauna · Información · Comunidad · Admin"]
-                RT["React Router<br/>rutas públicas y protegidas"]
-            end
-
-            subgraph N["2. CAPA DE LÓGICA DE NEGOCIO"]
-                MF["Módulo Fauna"]
-                MI["Módulo Información<br/>horarios · ubicación · tarifas"]
-                MC["Módulo Comunidad"]
-                MA["Módulo Autenticación"]
-                MD["Módulo Administración"]
-            end
-
-            subgraph D["3. CAPA DE DATOS"]
-                REPO["Repositorios y servicios de datos"]
-                LS["Servicios de datos<br/>Supabase"]
-                SB["Adaptador Supabase<br/>escalamiento"]
-            end
-        end
-    end
-
-    subgraph EXT["SISTEMAS EXTERNOS"]
-        SUPA["Supabase"]
-        AUTHS["Auth"]
-        DB[("PostgreSQL")]
-        STO["Storage"]
-    end
-
-    HOST["Vercel · CDN y hosting estático"]
-
-    V --> UI
-    A --> UI
-
-    UI --> RT
-    RT --> MF
-    RT --> MI
-    RT --> MC
-    RT --> MA
-    RT --> MD
-
-    MF --> REPO
-    MI --> REPO
-    MC --> REPO
-    MA --> REPO
-    MD --> REPO
-
-    REPO --> LS
-    REPO --> SB
-
-    SB --> SUPA
-    SUPA --> AUTHS
-    SUPA --> DB
-    SUPA --> STO
-
-    HOST -. "entrega la SPA" .-> SPA
-```
+![Arquitectura cliente-servidor de La Totorilla](./docs/img/arquitectura-cliente-servidor.png)
 
 **Reglas de la arquitectura**
 
-1. Cada capa solo invoca a la capa inmediatamente inferior.
-2. Un módulo no accede a los datos de otro módulo; se comunican mediante sus servicios.
-3. Toda la aplicación se construye y despliega como una sola unidad.
-4. El acceso a Supabase se concentra en la capa de datos.
+1. Las páginas y componentes delegan la coordinación y el acceso a datos en servicios y hooks.
+2. Las funcionalidades reutilizan utilidades comunes sin mezclar responsabilidades ajenas.
+3. Las operaciones sensibles verifican identidad, permisos y entradas en el servidor.
+4. Las consultas directas a Supabase quedan sujetas a grants y RLS; los secretos se utilizan solo en las API.
 
 ---
 
-# 11. Enfoque arquitectónico: Clean Architecture
+# 11. Enfoque arquitectónico: modular por funcionalidades
 
 | Elemento | Descripción aplicada al Zoológico La Totorilla |
 |---|---|
-| Patrón / enfoque arquitectónico | Clean Architecture (Arquitectura Limpia). |
-| Objetivo | Separar responsabilidades y controlar las dependencias hacia el dominio. |
-| ¿Qué problema resuelve? | Evita el acoplamiento entre la interfaz React, las reglas del negocio y los servicios externos de persistencia. |
-| Capas definidas | Dominio, Aplicación, Presentación e Infraestructura. |
-| Regla de dependencia | Las dependencias del código solo apuntan hacia el interior: Infraestructura y Presentación → Aplicación → Dominio. |
-| Beneficios | • Facilita el mantenimiento y las pruebas.<br>• Centraliza el acceso a Supabase.<br>• Mejora la separación de responsabilidades. |
+| Patrón / enfoque arquitectónico | Diseño modular por funcionalidades dentro del sistema cliente-servidor. |
+| Objetivo | Localizar cambios y separar responsabilidades entre interfaz, coordinación y operaciones confiables. |
+| ¿Qué problema resuelve? | Evita concentrar toda la lógica en las páginas y mezclar credenciales del servidor con código del navegador. |
+| Organización | Funcionalidades en `src/features/`, presentación en páginas/componentes y handlers Node en `api/`. |
+| Comunicación | El navegador consulta Supabase con permisos/RLS y utiliza las API propias para operaciones sensibles. |
+| Beneficios | • Facilita el mantenimiento y las pruebas.<br>• Reutiliza utilidades comunes.<br>• Mantiene explícitas las fronteras de seguridad. |
 
-## Responsabilidades por capa
+## Responsabilidades por carpeta
 
-| Carpeta | Capa de Clean Architecture | ¿Qué contiene? | Ejemplo en el Zoológico |
-|---|---|---|---|
-| `dominio` | 1. Domain | Entidades, objetos de valor y reglas de negocio puras (sin React ni Supabase). | `Especie`, `Tarifa`, `Fotografia`, `Administrador`, `EstadoConservacion`. |
-| `aplicacion` | 2. Application | Casos de uso, puertos (interfaces de repositorio y servicios) y DTO. | `ListarEspecies`, `ObtenerFichaEspecie`, `PublicarFotografia`, `ActualizarTarifas`, `ModerarFotografias`. |
-| `presentacion` | 3. Presentación / adaptadores de interfaz | Páginas, componentes React, hooks, rutas y protección de rutas. | Inicio, Fauna, Información, Comunidad, Panel de administración. |
-| `infraestructura` | 4. Infraestructura / frameworks y drivers | Implementaciones concretas de los puertos: persistencia, autenticación y archivos. | `TarifaLocalStorageRepository`, `TarifaSupabaseRepository`, `SupabaseAuthService`, `SupabaseStorageAdapter`. |
+| Carpeta | Responsabilidad | Ejemplo |
+|---|---|---|
+| `src/pages/`, `src/components/` | Presentación e interacción. | Páginas, formularios y muro de fotografías. |
+| `src/features/` | Datos, servicios, validaciones y hooks de cada funcionalidad. | Animales, tarifas, Comunidad, Mesa de Partes y reclamaciones. |
+| `src/shared/`, `shared/` | Utilidades comunes y reglas reutilizables según el entorno. | Cliente público Supabase y validación de reclamaciones. |
+| `api/`, `server/` | Autorización, procesamiento y coordinación del lado servidor. | Recepción de fotos/documentos y envío de copias de hojas. |
+| `supabase/` | Persistencia, permisos e integridad. | Migraciones, políticas RLS y cuotas. |
 
 ## Estructura de carpetas actual
 
-La implementación usa una organización modular sencilla. Las capas anteriores
-son una referencia conceptual, no una obligación de crear una carpeta por capa,
-repositorios, interfaces o casos de uso para cada operación.
+La implementación usa una organización modular sencilla: cada funcionalidad
+reúne sus datos y servicios, y comparte únicamente las utilidades necesarias.
 
 ```text
 src/
@@ -347,9 +284,9 @@ al cliente común sin depender de los servicios de otra funcionalidad.
 
 > **Acceso a datos:** el cliente Supabase compartido se configura en `src/shared/supabase.ts`; los servicios de cada funcionalidad están en `src/features/`.
 
-## Diagrama del enfoque (Clean Architecture)
+## Diagrama del enfoque modular
 
-![Diagrama circular de Clean Architecture del Zoológico La Totorilla](./public/clean-architecture.png)
+![Diseño modular por funcionalidades de La Totorilla](./docs/img/enfoque-aquitectonico-1.png)
 
 ---
 

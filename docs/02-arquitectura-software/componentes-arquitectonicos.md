@@ -43,18 +43,7 @@ Un componente agrupa código con una responsabilidad clara y puntos de interacci
 
 ## 5. Relaciones principales
 
-```mermaid
-flowchart LR
-    UI["Páginas y componentes"] --> H["Hooks / servicios de funcionalidad"]
-    H --> D["Datos estáticos: animales y mapa"]
-    H --> SDK["Cliente público Supabase"]
-    H --> API["API Node: fotos, documentos, reclamaciones"]
-    API --> V["Validación / Sharp / correo"]
-    API --> B["Cliente Supabase de servidor"]
-    SDK --> DB["Auth / Data API / Storage"]
-    B --> DB
-    V --> M["Resend"]
-```
+![Relaciones entre componentes arquitectónicos](../img/componentes-arquitectonicos-1.png)
 
 ## 6. Catálogo de endpoints propios
 

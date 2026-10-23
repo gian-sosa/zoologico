@@ -13,7 +13,7 @@
 | Responsabilidades lógicas | Presentación; estado/validación/coordinación; acceso a servicios; procesamiento confiable; persistencia y permisos. |
 | Dependencias reales | Hooks importan React; servicios importan el SDK Supabase; handlers conocen HTTP, SDK y helpers. |
 | Beneficio | Menos capas artificiales y lectura directa del flujo, con reutilización donde existe una necesidad concreta. |
-| Coste aceptado | Acoplamiento tecnológico explícito y algunas validaciones duplicadas; no se ha implementado una arquitectura hexagonal. |
+| Coste aceptado | Acoplamiento tecnológico explícito a React y Supabase, y algunas validaciones duplicadas. |
 
 ## 2. Distribución por carpetas
 
@@ -32,33 +32,21 @@ supabase/       esquema, permisos, cuotas y pruebas SQL
 
 ## 3. Dependencias lógicas observables
 
-```mermaid
-flowchart TB
-    APP["app: composición y navegación"] --> PAGE["pages y components: presentación"]
-    PAGE --> FEATURE["features: hooks, validación y servicios"]
-    FEATURE --> COMMON["src/shared: Supabase y utilidades"]
-    FEATURE --> LOCAL["Datos educativos locales"]
-    FEATURE -->|"HTTP para escrituras sensibles"| API["api: handlers Node"]
-    API --> SERVER["server: Sharp y correo"]
-    API --> VALID["shared/claims: validación pura"]
-    FEATURE --> VALID
-    COMMON --> SDK["SDK de Supabase"]
-    API --> SDK
-    SERVER --> SDK
-```
+![Dependencias del diseño modular por funcionalidades](../img/enfoque-aquitectonico-1.png)
 
-Las flechas sin etiqueta HTTP representan imports/uso. `features/` no es una capa de dominio puro: reúne funciones relacionadas para que el proyecto siga siendo fácil de entender.
+Las flechas sin etiqueta HTTP representan imports/uso. `features/` reúne funciones relacionadas para que el proyecto siga siendo fácil de entender.
 
-## 4. Por qué no es Clean Architecture estricta
+## 4. Colaboración entre módulos y entornos
 
-| Requisito habitual de una implementación estricta | Situación real |
-|---|---|
-| Dominio independiente de React, HTTP y proveedor de datos. | Algunas validaciones son puras, pero la lógica y coordinación no están completamente aisladas. |
-| Casos de uso separados y contratos de persistencia. | No hay carpetas de casos de uso ni interfaces Repository para cada operación. |
-| Inyección de implementaciones a través de puertos. | Los servicios construyen/utilizan clientes concretos mediante `getSupabase` o `createClient`. |
-| Dependencias dirigidas sistemáticamente hacia el dominio. | Se emplea una separación pragmática; no existe una regla de inversión completa aplicada a todo el código. |
+| Responsabilidad | Implementación | Criterio de separación |
+|---|---|---|
+| Presentación | Páginas y componentes React. | Mostrar información y recoger acciones del usuario. |
+| Coordinación del navegador | Hooks y servicios de cada funcionalidad. | Gestionar estado, consultas y peticiones sin duplicar detalles en cada página. |
+| Procesamiento confiable | Handlers de `api/` y helpers de `server/`. | Comprobar entradas y permisos antes de ejecutar operaciones privilegiadas. |
+| Reglas reutilizables | Funciones puras como `shared/claims.mjs`. | Compartir validaciones entre navegador y servidor sin importar componentes visuales. |
+| Persistencia y autorización | Supabase, migraciones y políticas. | Conservar datos y aplicar integridad, cuotas y acceso según la operación. |
 
-Se aprovechan principios de separación de responsabilidades y funciones testeables, sin afirmar que todos los patrones de Clean Architecture estén implementados. No se propone añadir interfaces vacías solo para que el diagrama parezca más sofisticado.
+La separación responde a responsabilidades reales del sistema cliente-servidor. Los servicios usan `getSupabase` o `createClient` en el entorno correspondiente; las credenciales privadas permanecen en el servidor.
 
 ## 5. Reglas de mantenimiento
 
@@ -77,4 +65,4 @@ Para modificar la compresión de fotos se revisan `image.ts`, `photo-image.mjs`,
 
 ## 7. Criterio para evolucionar
 
-Introducir puertos/repositorios o casos de uso separados sería razonable si aparecen múltiples proveedores reales, reglas complejas reutilizadas o pruebas difíciles por acoplamiento. Hasta entonces, la modularidad ligera refleja mejor el tamaño del proyecto y permite explicar su arquitectura sin inventar capas.
+Cuando crezca una funcionalidad, se pueden extraer validadores, coordinadores o servicios más pequeños. La extracción debe responder a responsabilidades repetidas o pruebas difíciles, manteniendo la organización modular y los límites entre navegador, API y servicios gestionados.

@@ -13,10 +13,10 @@ Explicar los principios aplicables a un proyecto React/TypeScript y Node basado 
 | S — Responsabilidad única | `PhotoWall` presenta; `image.ts` prepara originales; `photo-image.mjs` recodifica; `claim-mail.mjs` envía copia. | Permite revisar y probar preocupaciones distintas. | Los handlers y `AdminDashboardPage` todavía concentran varias responsabilidades de coordinación/UI. |
 | O — Abierto/cerrado | Datos de especies y tipos de tarifa separados de sus vistas. | Se puede añadir contenido sin reescribir el componente de ficha. | Agregar proveedores o nuevos estados sí requiere modificar código; no hay Strategy ni plugin de dominio universal. |
 | L — Sustitución de Liskov | No hay una jerarquía de clases de negocio relevante. | Evita introducir herencia artificial solo para el documento. | No corresponde afirmar que dos proveedores cumplen Liskov cuando no existen interfaces/implementaciones alternativas. |
-| I — Segregación de interfaces | Tipos de datos y funciones concretas como `DocumentDetails`, `ClaimFields`, `VisitorPhoto`. | Contratos acotados a cada flujo y validación más clara. | Son estructuras de datos, no prueba de una arquitectura completa de puertos segregados. |
+| I — Segregación de interfaces | Tipos de datos y funciones concretas como `DocumentDetails`, `ClaimFields`, `VisitorPhoto`. | Contratos acotados a cada flujo y validación más clara. | Los tipos de datos no reemplazan la validación en tiempo de ejecución. |
 | D — Inversión de dependencias | Validación pura compartida de reclamos; UI llama servicios en vez de dispersar cada consulta. | Parte de las reglas es testeable sin UI. | No se aplica de forma completa: servicios y API conocen Supabase, React o HTTP directamente. |
 
-**Conclusión:** predominan separación de responsabilidades, composición y modularidad. No se necesita reformular todo como clases para explicar este diseño ni afirmar que se cumplen todas las reglas de Clean Architecture.
+**Conclusión:** predominan separación de responsabilidades, composición y modularidad. Los principios se evalúan sobre las funciones, componentes y servicios existentes, sin introducir clases artificiales.
 
 ## 3. Principios prácticos que guían el proyecto
 
@@ -34,15 +34,7 @@ Explicar los principios aplicables a un proyecto React/TypeScript y Node basado 
 
 ## 4. Diagrama de separación de responsabilidades
 
-```mermaid
-flowchart LR
-    UI["UI: interacción y mensajes"] --> CO["Coordinación: hooks y servicios"]
-    CO --> API["Servidor: autorizar y validar"]
-    API --> IMG["Helper: procesar imagen"]
-    API --> MAIL["Helper: enviar copia"]
-    API --> DATA["BD: integridad y persistencia"]
-    DATA --> POL["Permisos y cuotas"]
-```
+![Separación de responsabilidades de diseño](../../img/principios-de-diseno-1.png)
 
 Este diagrama ilustra responsabilidades, no impone que todas las lecturas atraviesen todos los bloques. Las tarifas y consultas autorizadas conservan acceso directo al BaaS.
 
@@ -62,7 +54,7 @@ Este diagrama ilustra responsabilidades, no impone que todas las lecturas atravi
 |---|---|---|
 | Validación de Mesa de Partes repetida en cliente/API. | Divergencia de reglas. | Extraer un validador puro común cuando se revise ese flujo. |
 | Coordinación extensa en handlers/panel. | Más difícil aislar errores y pruebas. | Extraer funciones con propósito claro al crecer; no duplicar capas por anticipado. |
-| SDK concreto en servicios. | Cambiar proveedor requiere cambios internos. | Mantener acceso localizado; introducir puertos solo si el coste de cambio lo justifica. |
+| SDK concreto en servicios. | Cambiar proveedor requiere cambios internos. | Mantener el acceso localizado y probar los contratos de cada servicio. |
 | Identidad anónima ligada a sesión del navegador. | Propiedad y cuota pueden perder continuidad. | Definir política de identidad/abuso y consentimiento antes de ampliar persistencia. |
 | Mantenimiento sin programación demostrada. | Acumulación de archivos/estados incompletos. | Acordar ejecución, monitoreo, retención y responsables. |
 

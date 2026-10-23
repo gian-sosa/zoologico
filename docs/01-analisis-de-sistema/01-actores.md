@@ -32,16 +32,7 @@ Una misma persona puede actuar como visitante, remitente y consumidor. Estos nom
 
 ## 4. Diagrama de participación
 
-```mermaid
-flowchart LR
-    V["Visitante / remitente / consumidor"] -->|"Consulta y presenta información"| S["Plataforma La Totorilla"]
-    A["Administrador autorizado"] -->|"Gestiona tarifas y revisa contenido"| S
-    T["Responsable técnico"] -->|"Configura y mantiene"| S
-    S -->|"Identidad y sesiones"| AU["Supabase Auth"]
-    AU -->|"Inicio de sesión institucional"| G["Google"]
-    S -->|"Datos y archivos"| DB["Supabase Data API y Storage"]
-    S -->|"Solicita envío de copias"| M["Resend"]
-```
+![Actores y servicios de La Totorilla](../img/01-actores-1.png)
 
 ## 5. Matriz resumida de acceso
 

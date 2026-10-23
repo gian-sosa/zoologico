@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title description">
+  <title id="title">Arquitectura cliente-servidor del Zoológico La Totorilla</title>
+  <desc id="description">React se ejecuta en el navegador. Accede directamente a Supabase para autenticación, consultas, tarifas y URL firmadas, sujeto a permisos y RLS. Las operaciones sensibles pasan por las API Node serverless de Vercel: validación, procesamiento de fotos y documentos, reclamaciones y moderación administrativa. Estas API utilizan Supabase y el servicio de correo Resend. Vercel CDN entrega la aplicación. Las claves privadas permanecen en el servidor.</desc>
+  <defs>
+    <marker id="blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0 0 10 5 0 10Z" fill="#2563eb"/></marker>
+    <marker id="green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0 0 10 5 0 10Z" fill="#166534"/></marker>
+    <marker id="amber" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0 0 10 5 0 10Z" fill="#b45309"/></marker>
+    <style>
+      text { font-family: "Segoe UI", Arial, sans-serif; fill: #1c241e; }
+      .eyebrow { font-size: 20px; font-weight: 700; letter-spacing: 3px; fill: #166534; }
+      .heading { font-size: 32px; font-weight: 700; }
+      .body { font-size: 23px; fill: #425349; }
+      .small { font-size: 20px; fill: #536459; }
+      .label { font-size: 20px; font-weight: 600; }
+      .line { fill: none; stroke-width: 3; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#faf8f1"/>
+  <rect x="0" y="0" width="1920" height="12" fill="#166534"/>
+  <text x="80" y="79" class="eyebrow">ZOOLÓGICO LA TOTORILLA · ARQUITECTURA DEL SISTEMA</text>
+  <text x="80" y="152" font-size="56" font-weight="700">Cliente-servidor, con módulos por funcionalidad</text>
+  <text x="80" y="201" font-size="27" fill="#536459">Una SPA en React + API serverless en Vercel + Supabase como backend gestionado (BaaS)</text>
+
+  <!-- El acceso directo también puede escribir tarifas: RLS autoriza al personal. -->
+  <path d="M305 385 V290 H1615 V385" class="line" stroke="#166534" stroke-dasharray="9 7" marker-start="url(#green)" marker-end="url(#green)"/>
+  <rect x="536" y="245" width="848" height="89" rx="18" fill="#edf5eb" stroke="#c9dfc8"/>
+  <text x="960" y="279" text-anchor="middle" class="label" fill="#166534">Acceso directo: Auth, consultas, tarifas y URL firmadas</text>
+  <text x="960" y="309" text-anchor="middle" class="small">SDK de Supabase · permisos y políticas RLS (seguridad por fila)</text>
+
+  <!-- Cliente -->
+  <rect x="80" y="385" width="450" height="420" rx="26" fill="white" stroke="#bed3c0" stroke-width="2"/>
+  <rect x="80" y="385" width="450" height="7" rx="3" fill="#166534"/>
+  <text x="114" y="436" class="eyebrow">CLIENTE</text>
+  <text x="114" y="486" class="heading">React en el navegador</text>
+  <text x="114" y="527" class="small">Visitantes y administradores</text>
+  <path d="M114 552 H496" stroke="#e4e8df"/>
+  <text x="114" y="596" class="body">• Fichas, mapa y cuestionarios</text>
+  <text x="114" y="641" class="body">• Comunidad y formularios</text>
+  <text x="114" y="686" class="body">• Panel de administración</text>
+  <rect x="114" y="731" width="382" height="42" rx="12" fill="#eef6ed"/>
+  <text x="305" y="759" text-anchor="middle" class="label" fill="#166534">Interfaz: React + TypeScript</text>
+
+  <!-- Servidor propio -->
+  <rect x="735" y="385" width="450" height="420" rx="26" fill="white" stroke="#c3d3ee" stroke-width="2"/>
+  <rect x="735" y="385" width="450" height="7" rx="3" fill="#2563eb"/>
+  <text x="769" y="436" font-size="20" font-weight="700" letter-spacing="2" fill="#2563eb">SERVIDOR · VERCEL</text>
+  <text x="769" y="486" class="heading">API Node / Serverless</text>
+  <text x="769" y="527" class="small">/api/photos · documents · claims</text>
+  <path d="M769 552 H1151" stroke="#e4e8df"/>
+  <text x="769" y="596" class="body">• Verifica sesión y permisos</text>
+  <text x="769" y="634" class="body">• Procesa fotos y documentos</text>
+  <text x="769" y="672" class="body">• Registra reclamaciones</text>
+  <text x="769" y="710" class="body">• Modera fotos: solo personal</text>
+  <rect x="769" y="731" width="382" height="42" rx="12" fill="#edf3fd"/>
+  <text x="960" y="759" text-anchor="middle" class="label" fill="#1d4ed8">Claves privadas solo aquí</text>
+
+  <!-- Backend como servicio -->
+  <rect x="1390" y="385" width="450" height="420" rx="26" fill="white" stroke="#bed3c0" stroke-width="2"/>
+  <rect x="1390" y="385" width="450" height="7" rx="3" fill="#166534"/>
+  <text x="1424" y="436" font-size="19" font-weight="700" letter-spacing="1.5" fill="#166534">SERVICIOS GESTIONADOS · BaaS</text>
+  <text x="1424" y="486" class="heading">Supabase</text>
+  <text x="1424" y="539" font-size="24" font-weight="700">Auth</text>
+  <text x="1424" y="572" class="small">Sesiones Google y anónimas</text>
+  <path d="M1424 593 H1806" stroke="#e4e8df"/>
+  <text x="1424" y="628" font-size="24" font-weight="700">PostgreSQL + RLS</text>
+  <text x="1424" y="661" class="small">Tarifas, fotos, solicitudes y reclamos</text>
+  <path d="M1424 682 H1806" stroke="#e4e8df"/>
+  <text x="1424" y="719" font-size="24" font-weight="700">Storage privado</text>
+  <text x="1424" y="752" class="small">Imágenes WebP y documentos PDF</text>
+
+  <!-- Peticiones y respuestas -->
+  <path d="M544 605 H721" class="line" stroke="#2563eb" marker-start="url(#blue)" marker-end="url(#blue)"/>
+  <text x="632" y="546" text-anchor="middle" class="label">Fotos, documentos</text>
+  <text x="632" y="576" text-anchor="middle" class="label">y reclamaciones</text>
+  <text x="632" y="643" text-anchor="middle" class="small">HTTPS + token*</text>
+  <path d="M1199 605 H1376" class="line" stroke="#2563eb" marker-start="url(#blue)" marker-end="url(#blue)"/>
+  <text x="1287" y="546" text-anchor="middle" class="label">Operaciones</text>
+  <text x="1287" y="576" text-anchor="middle" class="label">privilegiadas</text>
+  <text x="1287" y="643" text-anchor="middle" class="small">API del servidor</text>
+
+  <path d="M305 855 V819" class="line" stroke="#166534" marker-end="url(#green)"/>
+  <rect x="80" y="855" width="450" height="100" rx="18" fill="#edf5eb" stroke="#c9dfc8"/>
+  <text x="114" y="892" font-size="23" font-weight="700">Vercel CDN</text>
+  <text x="114" y="926" class="small">Entrega la SPA y sus archivos estáticos.</text>
+
+  <path d="M960 819 V850" class="line" stroke="#b45309" marker-end="url(#amber)"/>
+  <rect x="735" y="855" width="450" height="100" rx="18" fill="#fff4e1" stroke="#ead8b6"/>
+  <text x="769" y="892" font-size="23" font-weight="700" fill="#92400e">Servicio de correo · Resend</text>
+  <text x="769" y="926" class="small">Envía copias de las reclamaciones.</text>
+
+  <rect x="1390" y="855" width="450" height="100" rx="18" fill="#edf5eb" stroke="#c9dfc8"/>
+  <text x="1424" y="892" font-size="23" font-weight="700">Publicación de fotografías</text>
+  <text x="1424" y="926" font-size="19" fill="#536459">Pendiente → aprobación del admin → pública</text>
+
+  <path d="M80 990 H1840" stroke="#d9dfd4"/>
+  <text x="80" y="1027" font-size="18" fill="#536459">Las flechas dobles representan peticiones y respuestas. *Fotos y documentos requieren token; el registro de reclamaciones no exige sesión.</text>
+  <text x="80" y="1056" font-size="18" fill="#536459">Serverless = Vercel administra los servidores. El navegador nunca recibe la clave privada del backend. Diagrama basado en el código del proyecto.</text>
+</svg>

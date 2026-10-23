@@ -32,19 +32,7 @@ La priorización es una propuesta técnica, no una aprobación formal del negoci
 
 ## 4. Relación entre mecanismos y calidad
 
-```mermaid
-flowchart TD
-    Q["Calidad de La Totorilla"] --> S["Seguridad: token, membresía, RLS"]
-    Q --> I["Integridad: UNIQUE, cuotas y estados"]
-    Q --> R["Rendimiento: CDN, lazy y compresión"]
-    Q --> U["Accesibilidad: teclado, foco y semántica"]
-    Q --> M["Mantenibilidad: módulos y pruebas"]
-    S --> V["Verificar con escenarios y evidencia"]
-    I --> V
-    R --> V
-    U --> V
-    M --> V
-```
+![Atributos de calidad y mecanismos de verificación](../img/04-atributos-de-calidad-1.png)
 
 ## 5. Compromisos de diseño
 

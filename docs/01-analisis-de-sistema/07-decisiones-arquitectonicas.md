@@ -11,7 +11,7 @@ Estos ADR documentan retrospectivamente decisiones observables y sus compromisos
 | ID | Decisión | Drivers | Alternativas consideradas para justificarla | Resultado / consecuencia |
 |---|---|---|---|---|
 | ADR-001 | Cliente-servidor con SPA, API serverless y BaaS. | DA01, DA06. | Servidor completo autogestionado, sitio solo estático, microservicios. | Interfaz en navegador; operaciones privilegiadas en Node; identidad/datos/archivos en Supabase. |
-| ADR-002 | Diseño modular por funcionalidades con capas lógicas ligeras. | DA05. | Una única página con toda la lógica; Clean Architecture estricta con puertos/repositorios por operación. | Servicios y hooks por tema; se acepta dependencia directa de SDK/React donde simplifica. |
+| ADR-002 | Diseño modular por funcionalidades. | DA05. | Una única página con toda la lógica; organización exclusivamente por tipo de archivo. | Servicios y hooks por tema; se acepta dependencia directa de SDK/React donde simplifica. |
 | ADR-003 | Supabase con acceso directo autorizado y API privilegiadas. | DA02, DA06. | Pasar toda lectura por un backend propio; exponer una clave privilegiada al cliente. | Las consultas y tarifas usan RLS; archivos y reclamaciones usan handlers con secretos. |
 | ADR-004 | Autorización explícita y defensa en profundidad. | DA02, DA03. | Confiar solo en el dominio del correo o en ocultar botones. | Membresía, API, grants y RLS cooperan; el alta del personal es confiable y externa. |
 | ADR-005 | Contenido educativo estático, carga diferida y UI accesible. | DA01, DA08. | CMS obligatorio para todo; cargar todas las páginas al inicio. | Edición por commit; menos dependencias remotas y recursos diferidos. |
@@ -31,7 +31,7 @@ Estos ADR documentan retrospectivamente decisiones observables y sus compromisos
 
 **Estado:** adoptada. **Decisión:** agrupar animales, autenticación, comunidad, solicitudes, tarifas y reclamaciones en `features/`; mantener componentes reutilizables y utilidades comunes. La API y el procesamiento Node quedan fuera de `src/`.
 
-**Beneficio:** localizar una funcionalidad sin recorrer capas vacías. **Coste:** no hay inversión de dependencias completa; algunos servicios conocen Supabase y hooks conocen React. **No se afirma Clean Architecture estricta** ni reemplazo de proveedor «sin tocar código».
+**Beneficio:** localizar cada funcionalidad y sus responsabilidades. **Coste:** algunos servicios conocen Supabase y los hooks conocen React; cambiar de proveedor requiere adaptar esos módulos y sus pruebas.
 
 ## 5. ADR-003 y ADR-004 — Acceso y seguridad
 
@@ -55,13 +55,7 @@ El correo se solicita después de persistir. Una aceptación de Resend significa
 
 **Estado:** implementada como herramientas, pendiente como disciplina operativa continua. Existen tests de fotos, validaciones y API, pruebas SQL con rollback y scripts de recuperación. No se ha inferido una suite E2E, una cola de mensajes o un SLA a partir de su existencia.
 
-```mermaid
-flowchart LR
-    D["Driver y riesgo"] --> A["ADR con decisión y alternativas"]
-    A --> I["Implementación observable"]
-    I --> P["Pruebas y medidas"]
-    P -->|"Nueva necesidad o límite"| D
-```
+![Ciclo de revisión de decisiones arquitectónicas](../img/07-decisiones-arquitectonicas-1.png)
 
 ## 9. Cuándo revisar estas decisiones
 

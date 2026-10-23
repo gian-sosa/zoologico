@@ -21,14 +21,7 @@ Un driver es una necesidad con suficiente impacto para condicionar la estructura
 
 ## 3. De la necesidad a la decisión
 
-```mermaid
-flowchart LR
-    N["Necesidad o riesgo"] --> R["HU / RF / AC / RC"]
-    R --> D["Driver DA"]
-    D --> A["Decisión ADR"]
-    A --> C["Código, SQL y despliegue"]
-    C --> T["Escenario y prueba"]
-```
+![Trazabilidad de necesidades, drivers y decisiones](../img/06-driver-arquitectonicos-1.png)
 
 ## 4. Matriz de trazabilidad arquitectónica
 
