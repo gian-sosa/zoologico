@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { User } from '@supabase/supabase-js'
-import { getSupabase, isAdminEmail, isSupabaseConfigured } from '../../shared/lib/supabase'
+import { getSupabase, isAdminEmail, isSupabaseConfigured } from '../../shared/supabase'
 import type { Role } from './roles'
 
 interface AuthState {

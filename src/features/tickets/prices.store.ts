@@ -1,22 +1,28 @@
 import { useEffect, useState } from 'react'
-import { photosClient } from '../community/photos.store'
+import { getSupabase } from '../../shared/supabase'
 import { PARKING_TYPES, TICKET_TYPES } from './tickets.config'
 import type { TicketType } from './tickets.config'
 
+function tariffsClient() {
+  const db = getSupabase()
+  if (!db) throw new Error('Falta configurar Supabase para las tarifas.')
+  return db
+}
+
 let overrides: Record<string, number> = {}
 export async function refreshPrices(): Promise<void> {
-  const { data, error } = await photosClient().from('tariff_overrides').select('id,price')
+  const { data, error } = await tariffsClient().from('tariff_overrides').select('id,price')
   if (error) throw error
   overrides = Object.fromEntries((data ?? []).map((r) => [r.id, Number(r.price)]))
 }
 export async function savePriceOverride(id: string, price: number): Promise<void> {
-  const { error } = await photosClient().from('tariff_overrides').upsert({ id, price })
+  const { error } = await tariffsClient().from('tariff_overrides').upsert({ id, price })
   if (error) throw error
   overrides = { ...overrides, [id]: price }
 }
 export const saveParkingOverride = savePriceOverride
 async function reset(ids: string[]): Promise<void> {
-  const { error } = await photosClient().from('tariff_overrides').delete().in('id', ids)
+  const { error } = await tariffsClient().from('tariff_overrides').delete().in('id', ids)
   if (error) throw error
   await refreshPrices()
 }

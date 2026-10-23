@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../../features/auth/auth.context'
-import { RouteFallback } from '../../shared/components/RouteFallback'
+import { useAuth } from '../features/auth/auth.context'
+import { RouteFallback } from '../components/RouteFallback'
 
 /** Solo rol administrador (Supabase + cuenta institucional). El visitante es redirigido al login interno. */
 export default function RequireAdmin({ children }: { children: React.JSX.Element }) {

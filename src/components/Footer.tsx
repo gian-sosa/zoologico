@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { LeafIcon, LockIcon, MapPinIcon } from './icons'
-import { SITE } from '../shared/config/site'
+import { SITE } from '../shared/site'
 
 const footerLinks = [
   { to: '/explora', label: 'Explora el zoológico' },

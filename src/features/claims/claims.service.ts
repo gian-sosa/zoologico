@@ -1,4 +1,4 @@
-import { getSupabase } from '../../shared/lib/supabase'
+import { getSupabase } from '../../shared/supabase'
 import type { ClaimFields, ClaimErrors } from '../../../shared/claims.mjs'
 
 export interface ClaimsProvider {

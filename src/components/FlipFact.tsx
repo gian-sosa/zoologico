@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { FunFact } from '../data/animals'
+import type { FunFact } from '../features/animals/animals.data'
 
 export default function FlipFact({ fact, accentHex, index }: { fact: FunFact; accentHex: string; index: number }) {
   const [flipped, setFlipped] = useState(false)

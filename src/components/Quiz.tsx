@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { QuizQuestion } from '../data/animals'
+import type { QuizQuestion } from '../features/animals/animals.data'
 import { CheckIcon, RefreshIcon, XIcon } from './icons'
 
 interface Props {

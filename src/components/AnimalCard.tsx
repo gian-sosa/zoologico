@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Link } from 'react-router-dom'
-import type { Animal } from '../data/animals'
+import type { Animal } from '../features/animals/animals.data'
 import { ArrowRightIcon, PawIcon } from './icons'
 
 function AnimalCard({ animal }: { animal: Animal }) {

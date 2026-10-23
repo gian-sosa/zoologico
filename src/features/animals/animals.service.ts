@@ -1,5 +1,5 @@
-import { animals } from '../../data/animals'
-import type { Animal } from '../../data/animals'
+import { animals } from './animals.data'
+import type { Animal } from './animals.data'
 
 const bySlug = new Map(animals.map((a) => [a.slug, a]))
 

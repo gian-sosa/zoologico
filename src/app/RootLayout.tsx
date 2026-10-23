@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom'
-import Navbar from '../../components/Navbar'
-import Footer from '../../components/Footer'
-import ScrollManager from '../../shared/components/ScrollManager'
+import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
+import ScrollManager from './ScrollManager'
 
 /** Layout raíz: chrome persistente (nav/footer) + contenido ruteado. */
 export default function RootLayout() {

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import PageHeader from '../shared/components/PageHeader'
+import PageHeader from '../components/PageHeader'
 import { useAuth } from '../features/auth/auth.context'
-import { ADMIN_EMAIL_DOMAIN } from '../shared/lib/supabase'
+import { ADMIN_EMAIL_DOMAIN } from '../shared/supabase'
 
 function GoogleIcon() {
   return (

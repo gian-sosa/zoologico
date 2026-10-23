@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
-import PageHeader from '../shared/components/PageHeader'
+import PageHeader from '../components/PageHeader'
 import { MapPinIcon, PawIcon } from '../components/icons'
 import { useTariffs, formatTariff } from '../features/tickets/prices.store'
 import { VISITOR_RULES } from '../features/zoo/visitor-rules'
-import { SITE } from '../shared/config/site'
+import { SITE } from '../shared/site'
 
 const steps = [
   {

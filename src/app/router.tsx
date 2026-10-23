@@ -1,8 +1,8 @@
 import { Suspense, lazy } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
-import RootLayout from './layouts/RootLayout'
-import RequireAdmin from './guards/RequireAdmin'
-import { RouteFallback } from '../shared/components/RouteFallback'
+import RootLayout from './RootLayout'
+import RequireAdmin from './RequireAdmin'
+import { RouteFallback } from '../components/RouteFallback'
 
 // Code-splitting por ruta: el bundle inicial solo trae Home; el resto se carga bajo demanda.
 const HomePage = lazy(() => import('../pages/HomePage'))

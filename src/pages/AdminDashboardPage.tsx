@@ -7,7 +7,7 @@ import { attachmentUrl, clearRequests, deleteRequest, listRequests } from '../fe
 import type { DocumentRequest } from '../features/requests/requests.store'
 import { useAuth } from '../features/auth/auth.context'
 import ClaimsInbox from '../features/claims/ClaimsInbox'
-import { formatDateES } from '../shared/lib/format'
+import { formatDateES } from '../shared/format'
 
 type Tab = 'resumen' | 'entradas' | 'solicitudes' | 'reclamaciones' | 'comunidad' | 'animales' | 'cuenta'
 

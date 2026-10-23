@@ -316,41 +316,36 @@ flowchart TB
 | `presentacion` | 3. Presentación / adaptadores de interfaz | Páginas, componentes React, hooks, rutas y protección de rutas. | Inicio, Fauna, Información, Comunidad, Panel de administración. |
 | `infraestructura` | 4. Infraestructura / frameworks y drivers | Implementaciones concretas de los puertos: persistencia, autenticación y archivos. | `TarifaLocalStorageRepository`, `TarifaSupabaseRepository`, `SupabaseAuthService`, `SupabaseStorageAdapter`. |
 
-## Estructura de carpetas propuesta
+## Estructura de carpetas actual
+
+La implementación usa una organización modular sencilla. Las capas anteriores
+son una referencia conceptual, no una obligación de crear una carpeta por capa,
+repositorios, interfaces o casos de uso para cada operación.
 
 ```text
 src/
-├── dominio/
-│   ├── entidades/            # Especie, Tarifa, Fotografia, Administrador
-│   └── objetos-valor/        # EstadoConservacion, Habitat, CategoriaTarifa
-│
-├── aplicacion/
-│   ├── casos-de-uso/
-│   │   ├── fauna/            # ListarEspecies, ObtenerFichaEspecie, ResolverCuestionario
-│   │   ├── informacion/      # ConsultarInformacionGeneral, ConsultarTarifas
-│   │   ├── comunidad/        # PublicarFotografia, ListarFotografias
-│   │   └── administracion/   # IniciarSesionAdmin, ActualizarTarifas, RestablecerTarifas,
-│   │                         # ModerarFotografias, ConsultarCatalogoEspecies
-│   ├── puertos/              # FaunaRepository, TarifaRepository,
-│   │                         # FotografiaRepository, AuthService
-│   └── dto/
-│
-├── presentacion/
-│   ├── paginas/              # Inicio, Fauna, Informacion, Comunidad, Admin
-│   ├── componentes/
-│   ├── hooks/                # presentadores que invocan los casos de uso
-│   └── rutas/                # React Router + RutaProtegida
-│
-├── infraestructura/
-│   ├── local-storage/        # adaptadores del prototipo
-│   └── supabase/             # adaptadores de escalamiento (datos, auth, storage)
-│
-└── app/
-    ├── contenedor.ts         # raíz de composición: decide qué adaptador usa cada puerto
-    └── main.tsx
+├── app/                     # Router, layout, protección y navegación
+├── components/              # Componentes visuales reutilizables
+├── features/                # Datos y lógica agrupados por funcionalidad
+│   ├── animals/             # animals.data.ts y consultas de especies
+│   ├── auth/                # Sesiones y autorización administrativa
+│   ├── claims/              # Reclamaciones y bandeja del personal
+│   ├── community/           # Fotos, compresión y moderación
+│   ├── requests/            # Mesa de Partes y validación
+│   ├── tickets/             # Tarifas de entradas y estacionamiento
+│   └── zoo/                 # Mapa, historia y normas de visita
+├── pages/                   # Páginas asociadas a las rutas
+├── shared/                  # Supabase, datos del sitio y utilidades comunes
+├── App.tsx
+├── index.css
+└── main.tsx
 ```
 
-> **Acceso a datos:** el cliente Supabase compartido se configura en `src/shared/lib/supabase.ts`; los servicios de cada funcionalidad están en `src/features/`.
+Los componentes comunes se ubican únicamente en `components/`. `app/` y `shared/`
+no tienen subdivisiones para archivos aislados. Los módulos de `features/` acceden
+al cliente común sin depender de los servicios de otra funcionalidad.
+
+> **Acceso a datos:** el cliente Supabase compartido se configura en `src/shared/supabase.ts`; los servicios de cada funcionalidad están en `src/features/`.
 
 ## Diagrama del enfoque (Clean Architecture)
 

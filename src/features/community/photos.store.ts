@@ -1,4 +1,4 @@
-import { getSupabase } from '../../shared/lib/supabase'
+import { getSupabase } from '../../shared/supabase'
 
 export interface VisitorPhoto {
   id: string
@@ -9,7 +9,7 @@ export interface VisitorPhoto {
   deletion_requested: boolean
 }
 
-export function photosClient() {
+function photosClient() {
   const db = getSupabase()
   if (!db) throw new Error('Falta configurar Supabase para el muro de fotos.')
   return db

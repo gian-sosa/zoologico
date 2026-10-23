@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import PageHeader from '../shared/components/PageHeader'
+import PageHeader from '../components/PageHeader'
 import { ArrowRightIcon, MapPinIcon, XIcon } from '../components/icons'
 import { MAP_ENCLOSURES } from '../features/zoo/map.data'
 import { MAP_ANIMALS, matchesMapAnimal } from '../features/zoo/map-animals'
