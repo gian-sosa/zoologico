@@ -84,8 +84,4 @@ Los documentos C4 incluyen una imagen y su fuente Mermaid desplegable. El SVG es
 | Nivel 4 · Contratos | [PNG](04-modelo-c4/diagramas/nivel4-contratos.png) | [SVG](04-modelo-c4/diagramas/nivel4-contratos.svg) |
 | Nivel 4 · Secuencia | [PNG](04-modelo-c4/diagramas/nivel4-secuencia.png) | [SVG](04-modelo-c4/diagramas/nivel4-secuencia.svg) |
 
-## 6. Verificación de esta entrega
 
-Se comprobaron los enlaces locales de los 20 documentos Markdown y la sintaxis de sus 25 diagramas mediante Mermaid 11.12.0. Las exportaciones se generaron con Chrome sin añadir dependencias al proyecto. Si se modifica un bloque Mermaid, se debe actualizar también su SVG/PNG correspondiente.
-
-Además se ejecutaron 33 pruebas Node de reclamaciones, documentos, mapa y fotos, todas satisfactorias. Esta comprobación no incluye ejecución de las pruebas SQL contra una base remota, pruebas de carga, auditoría WCAG ni entrega real de correo. No se cambió código de ejecución de la aplicación.
