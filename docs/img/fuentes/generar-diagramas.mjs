@@ -111,9 +111,9 @@ function pipeline(name, section, title, subtitle, items, result, footer, feedbac
   right.forEach((a,i)=>{d.card(1400,ys[i],440,210,...a,i===2?'amber':'green');d.arrow([[1220,595],[1310,595],[1310,ys[i]+105],[1390,ys[i]+105]],'',i===2?'amber':'green')})
 }
 {
-  const d=make('02-historias-del-usuario-1','Análisis · Historias de usuario','Cinco objetivos que organizan el sistema','Las 14 historias describen necesidades del visitante, del consumidor y del personal.','La consulta es pública; presentar archivos requiere sesión. Registrar una reclamación no exige una cuenta.')
+  const d=make('02-historias-del-usuario-1','Análisis · Historias de usuario','Cinco objetivos que organizan el sistema','Las 15 historias describen necesidades del visitante, del consumidor y del personal.','HU15: QR por especie → infografía directa. Requisito incorporado; cobertura y señalización pendientes.')
   d.band(80,265,1760,'Necesidades del usuario → funcionalidades verificables','El alcance se conecta con criterios de aceptación y requisitos funcionales.')
-  const items=[['HU01–HU04','Informarse y aprender','Horarios y tarifas\nMapa y fichas\nSonidos y cuestionarios','green'],['HU05–HU06','Participar','Enviar fotografías\nSolicitar retirada\nEsperar moderación','green'],['HU07–HU09','Administrar','Acceso del personal\nModificar tarifas\nAprobar fotografías','blue'],['HU10–HU11','Presentar documentos','Mesa de Partes\nPDF opcional\nRevisión privada','blue'],['HU12–HU14','Ejercer derechos','Registrar hoja\nImprimir constancia\nConsultar bandeja','amber']]
+  const items=[['HU01–HU04 · HU15','Informarse y aprender','Horarios y tarifas\nQR e infografías\nSonidos y cuestionarios','green'],['HU05–HU06','Participar','Enviar fotografías\nSolicitar retirada\nEsperar moderación','green'],['HU07–HU09','Administrar','Acceso del personal\nModificar tarifas\nAprobar fotografías','blue'],['HU10–HU11','Presentar documentos','Mesa de Partes\nPDF opcional\nRevisión privada','blue'],['HU12–HU14','Ejercer derechos','Registrar hoja\nImprimir constancia\nConsultar bandeja','amber']]
   items.forEach((a,i)=>{const x=80+i*360;d.card(x,440,320,370,...a);d.arrow([[x+160,357],[x+160,428]],'',a[3])})
   d.band(80,865,1760,'Un sistema con permisos distintos','Las historias no implican venta de entradas, CMS de especies ni respuestas administrativas automáticas.','gray')
 }

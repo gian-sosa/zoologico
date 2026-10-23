@@ -59,7 +59,7 @@ Vercel se detalla en despliegue y contenedores; es infraestructura de ejecución
 | Tema | Estado |
 |---|---|
 | Entradas y estacionamiento | Información de tarifas; no hay pasarela de pago. |
-| QR en jaulas | Puede apuntar a una URL de especie existente; no hay sistema de inventario/generación QR. |
+| QR por especie · HU15 / RF21 | Requisito: cada especie debe tener un QR en su señalización que abra directamente su infografía pública. Las rutas existentes son la base; falta completar y verificar la cobertura de todas las especies y la instalación física. No se requiere un generador interno. |
 | Contenido de especies | Mantenido por código y recursos; no hay CMS externo. |
 | Operación institucional | Responsables legales, retención y plazos deben definirse fuera de este diagrama. |
 | Sistemas que no existen aquí | ERP, courier, vendedores, carrito, facturación y Redis del ejemplo no se trasladan al zoológico. |

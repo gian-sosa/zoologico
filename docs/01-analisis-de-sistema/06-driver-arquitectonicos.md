@@ -17,7 +17,7 @@ Un driver es una necesidad con suficiente impacto para condicionar la estructura
 | DA05 | Evolucionar funcionalidades con una estructura comprensible. | AC04; módulos de mapa, comunidad, documentos y reclamaciones. | Organizar por responsabilidad, no multiplicar capas vacías. | `features/`, componentes comunes y API específicas. |
 | DA06 | Reducir operación y coste de infraestructura. | AC05; RC01–RC04. | Delegar hosting, identidad y almacenamiento; no administrar servidores completos. | Vercel y Supabase gestionados. |
 | DA07 | Comunicar errores y recuperar fallos parciales. | AC02, AC08; subidas y correo externos. | No confundir un fallo de correo con un registro inexistente; prever mantenimiento de reservas. | Códigos HTTP, scripts de limpieza/reintento y claves de idempotencia. |
-| DA08 | Uso desde móviles, enlaces de especies y teclado. | HU02–HU04; AC07. | Rutas estables, controles accesibles y visualización responsive. | React Router, mapa desplazable, foco y movimiento reducido. |
+| DA08 | Uso desde móviles, acceso por QR a las infografías y teclado. | HU02–HU04, HU15; RF21; AC07. | Rutas públicas estables por especie, controles accesibles y visualización responsive. | React Router, fichas públicas, mapa desplazable, foco y movimiento reducido; cobertura de QR por especie pendiente. |
 
 ## 3. De la necesidad a la decisión
 
@@ -34,7 +34,7 @@ Un driver es una necesidad con suficiente impacto para condicionar la estructura
 | DA05 | ADR-002 | Servicios por tema y `shared/supabase.ts`. | Cambios localizados y ausencia de dependencias innecesarias entre funcionalidades. |
 | DA06 | ADR-001, ADR-003 | `vercel.json`, SDK y endpoints Node. | Variables correctas por entorno y funciones operativas; no asumir recursos ilimitados. |
 | DA07 | ADR-007, ADR-008 | Scripts de `server/` y respuestas de API. | Recuperación verificable sin exponer secretos ni borrar evidencia válida. |
-| DA08 | ADR-005 | Componentes, rutas, estilos y recursos multimedia. | Revisión con teclado y móviles, sin prometer instalación física de QR. |
+| DA08 | ADR-005 | Componentes, rutas públicas, estilos y recursos multimedia. | Revisión con teclado y móviles; para HU15/RF21, escanear cada QR y verificar su infografía y señalización antes de darlo por cumplido. |
 
 ## 5. Priorización y exclusiones
 
