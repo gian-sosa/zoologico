@@ -1,43 +1,13 @@
-.claim-input {
-  width: 100%;
-  min-height: 48px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 12px 14px;
-  background: var(--color-background);
-  color: var(--color-foreground);
-  font-size: 14px;
-}
-textarea.claim-input { resize: vertical; }
-.claim-input[aria-invalid='true'] { border-color: #b91c1c; }
-.claim-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  border-radius: 999px;
-  padding: 12px 24px;
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.claim-primary:hover:not(:disabled) { background: var(--color-jungle-deep); }
-.claim-primary:disabled { opacity: .5; cursor: not-allowed; }
-.claim-page :is(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid var(--color-primary) !important;
-  outline-offset: 4px;
-}
-.claim-receipt, .claim-receipt * { user-select: text; }
+/* La impresión depende del comprobante y de elementos externos a esta página.
+   Sin capa para que estas reglas prevalezcan sobre las utilidades responsive. */
 @media print {
   body:has(.claim-receipt) { background: white; color: black; }
   body:has(.claim-receipt) header,
   body:has(.claim-receipt) footer,
-  body:has(.claim-receipt) .claim-no-print { display: none !important; }
+  body:has(.claim-receipt) .claim-no-print { display: none; }
   body:has(.claim-receipt) #root > div > .grow { padding-top: 0; }
   .claim-page { max-width: none; padding: 0; }
   .claim-receipt { border: 0; padding: 0; background: white; color: black; font-size: 11pt; }
   .claim-receipt-row { break-inside: avoid; }
-  .claim-receipt * { color: black !important; }
+  .claim-receipt * { color: black; }
 }

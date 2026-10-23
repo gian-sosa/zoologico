@@ -6,7 +6,21 @@ export async function fileToCompressedWebP(file: File): Promise<Blob> {
   if (file.size === 0 || file.size > 10 * 1024 * 1024) {
     throw new Error('Cada original debe pesar como máximo 10 MB.')
   }
-  const bitmap = await createImageBitmap(file)
+  // `accept` y file.type son orientativos: verificar también la firma real.
+  const header = new Uint8Array(await file.slice(0, 12).arrayBuffer())
+  const signatures: Record<string, boolean> = {
+    'image/jpeg': header[0] === 0xff && header[1] === 0xd8 && header[2] === 0xff,
+    'image/png': [137, 80, 78, 71, 13, 10, 26, 10].every((byte, i) => header[i] === byte),
+    'image/webp': String.fromCharCode(...header.slice(0, 4)) === 'RIFF'
+      && String.fromCharCode(...header.slice(8, 12)) === 'WEBP',
+  }
+  if (!signatures[file.type]) throw new Error('El archivo no es una imagen JPG, PNG o WebP válida.')
+  let bitmap: ImageBitmap
+  try {
+    bitmap = await createImageBitmap(file)
+  } catch {
+    throw new Error('No se pudo leer la imagen. Elige una foto JPG, PNG o WebP válida.')
+  }
   try {
     if (bitmap.width * bitmap.height > 40_000_000) {
       throw new Error('La imagen supera el límite de 40 megapíxeles.')

@@ -1,9 +1,0 @@
-/* Restablece el foco de teclado solo en esta página, sin alterar el resto del sitio. */
-.community-page :is(a, button, input, summary):focus-visible {
-  outline: 3px solid var(--color-primary) !important;
-  outline-offset: 4px;
-}
-
-.community-page #fotos button:focus-visible {
-  outline-color: var(--color-sun) !important;
-}

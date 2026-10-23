@@ -9,20 +9,17 @@ export default function FlipFact({ fact, accentHex, index }: { fact: FunFact; ac
       type="button"
       onClick={() => setFlipped((v) => !v)}
       aria-pressed={flipped}
-      className="relative h-40 w-full cursor-pointer text-left transition-transform duration-200 active:scale-[0.98]"
-      style={{ perspective: '1000px' }}
+      className="relative h-40 w-full cursor-pointer text-left perspective-[1000px] transition-transform duration-200 active:scale-[0.98]"
     >
       <span
-        className="absolute inset-0 grid place-items-center rounded-3xl border border-border p-6 text-center transition-transform duration-500"
+        className="absolute inset-0 grid transform-3d place-items-center rounded-3xl border border-border p-6 text-center transition-transform duration-500"
         style={{
-          transformStyle: 'preserve-3d',
           transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
         }}
       >
         <span
           aria-hidden={flipped}
-          className="absolute inset-0 grid place-items-center rounded-3xl bg-card p-6"
-          style={{ backfaceVisibility: 'hidden' }}
+          className="absolute inset-0 grid place-items-center rounded-3xl bg-card p-6 backface-hidden"
         >
           <span>
             <span
@@ -38,12 +35,9 @@ export default function FlipFact({ fact, accentHex, index }: { fact: FunFact; ac
 
         <span
           aria-hidden={!flipped}
-          className="absolute inset-0 grid place-items-center rounded-3xl p-6 text-sm leading-relaxed"
+          className="absolute inset-0 grid place-items-center rounded-3xl p-6 text-sm leading-relaxed text-foreground backface-hidden [transform:rotateY(180deg)]"
           style={{
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
             backgroundColor: `${accentHex}14`,
-            color: '#1c241e',
           }}
         >
           {fact.detail}

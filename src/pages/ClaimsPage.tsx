@@ -8,6 +8,8 @@ import { CLAIM_LABELS, emptyClaim, validateClaim, claimEmail, claimSheetEntries 
 import type { ClaimFields, ClaimErrors } from '../../shared/claims.mjs'
 import './ClaimsPage.css'
 
+const primaryButton = 'inline-flex min-h-12 cursor-pointer items-center justify-center rounded-full bg-primary px-6 py-3 text-[14px] font-bold text-on-primary hover:not-disabled:bg-jungle-deep disabled:cursor-not-allowed disabled:opacity-50'
+
 type TextField = Exclude<keyof ClaimFields, 'is_minor' | 'conformity'>
 const dateLabel = (value: string) => new Date(value).toLocaleString('es-PE', { timeZone: 'America/Lima' })
 const legalNote = 'La formulación del reclamo no impide acudir a otras vías de solución de controversias ni es requisito previo para interponer una denuncia ante el Indecopi.'
@@ -37,7 +39,7 @@ export default function ClaimsPage() {
   function control(key: TextField, options: { optional?: boolean; type?: string; choices?: string[]; rows?: number; max?: number } = {}) {
     const props = {
       id: `claim-${key}`, name: key, required: !options.optional, value: fields[key],
-      className: 'claim-input', 'aria-invalid': Boolean(errors[key]),
+      className: 'min-h-12 w-full rounded-xl border border-border bg-background px-3.5 py-3 text-[14px] text-foreground aria-invalid:border-[#b91c1c] [&:is(textarea)]:resize-y', 'aria-invalid': Boolean(errors[key]),
       'aria-describedby': errors[key] ? `claim-${key}-error` : undefined,
       onChange: (event: { target: { value: string } }) => setFields((previous) => ({ ...previous, [key]: event.target.value })),
       onBlur: () => setErrors((previous) => ({ ...previous, [key]: validateClaim(fields).errors[key] })),
@@ -86,7 +88,7 @@ export default function ClaimsPage() {
           : receipt.receipt_email_status === 'pending' ? 'Tu hoja está registrada. La copia por correo está pendiente de envío; el personal deberá verificar su entrega. Conserva ahora la copia imprimible.'
             : 'No indicaste correo electrónico para la copia. Imprime o guarda esta hoja como PDF.'}</p>
       </div>
-      <article className="claim-receipt rounded-2xl border border-border bg-card p-5 sm:p-8">
+      <article className="claim-receipt rounded-2xl border border-border bg-card p-5 select-text sm:p-8 [&_*]:select-text">
         <p className="text-xs font-bold tracking-widest text-primary uppercase">Libro de Reclamaciones · Consumidor</p>
         <h2 className="mt-2 font-heading text-2xl font-semibold">Hoja de Reclamación {receipt.code}</h2>
         <p className="mt-3 text-sm">Fecha y hora: {dateLabel(receipt.created_at)} · Lima, Perú</p>
@@ -101,7 +103,7 @@ export default function ClaimsPage() {
         <p className="mt-6 text-xs leading-relaxed">Plazo máximo de respuesta: 15 días hábiles improrrogables. {legalNote}</p>
       </article>
       <div className="claim-no-print mt-6 flex flex-wrap gap-3">
-        <button type="button" onClick={() => window.print()} className="claim-primary">Imprimir / Guardar como PDF</button>
+        <button type="button" onClick={() => window.print()} className={primaryButton}>Imprimir / Guardar como PDF</button>
         <Link to="/" className="inline-flex min-h-12 items-center rounded-full border border-border px-5 text-sm font-semibold">Volver al inicio</Link>
       </div>
     </main>
@@ -160,7 +162,7 @@ export default function ClaimsPage() {
             <p className="text-sm leading-relaxed text-muted-foreground">Revisa la información antes de registrar. {legalNote}</p>
             <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed"><input id="claim-conformity" type="checkbox" required className="mt-1 size-5 shrink-0 accent-primary" checked={fields.conformity} aria-invalid={Boolean(errors.conformity)} aria-describedby={errors.conformity ? 'claim-conformity-error' : undefined} onChange={(event) => setFields((previous) => ({ ...previous, conformity: event.target.checked }))} />He revisado el contenido de esta hoja y expreso mi conformidad con el reclamo o queja y el pedido que registro.</label>
             {errors.conformity && <p id="claim-conformity-error" className="text-sm text-red-700">{errors.conformity}</p>}
-            <button type="submit" disabled={sending || !settings?.ready} className="claim-primary w-full sm:w-auto">{sending ? 'Registrando hoja…' : 'Registrar reclamación'}</button>
+            <button type="submit" disabled={sending || !settings?.ready} className={`${primaryButton} w-full sm:w-auto`}>{sending ? 'Registrando hoja…' : 'Registrar reclamación'}</button>
             <p role="status" className="text-xs text-muted-foreground">{sending ? 'No cierres esta página. Se está generando tu hoja de reclamación.' : 'Tras el registro podrás imprimir la hoja completa o guardarla como PDF.'}</p>
           </fieldset>
         </form>

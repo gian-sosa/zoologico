@@ -20,8 +20,15 @@
   --color-border: #e4e8df;
 }
 
-html {
-  scroll-behavior: smooth;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Base común de teclado; las utilidades locales pueden ajustar el indicador. */
+  :focus-visible {
+    @apply outline-2 outline-offset-4 outline-primary;
+  }
 }
 
 /* Evita el sombreado azul al seleccionar contenido y el resaltado táctil en móvil. */
@@ -29,20 +36,7 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Quita el borde / anillo de foco que aparece al navegar con TAB. */
-*:focus,
-*:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
 ::selection {
-  background: transparent;
-  color: inherit;
-  text-shadow: none;
-}
-
-::-moz-selection {
   background: transparent;
   color: inherit;
   text-shadow: none;
@@ -52,8 +46,6 @@ html,
 body {
   user-select: none;
   -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
 }
 
 /* Mantiene seleccionable el texto editable (inputs, formularios, contenido editable). */
@@ -63,16 +55,12 @@ select,
 [contenteditable='true'] {
   user-select: text;
   -webkit-user-select: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
 }
 
 /* Deshabilita el arrastre y el guardado por presión prolongada en imágenes. */
 img {
   user-select: none;
   -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   -webkit-user-drag: none;
   -webkit-touch-callout: none;
 }
@@ -84,7 +72,8 @@ img {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
   }
 }

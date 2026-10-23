@@ -48,14 +48,14 @@ export default async function handler(req, res) {
         if (!requested.length) return fail(409, 'El estado cambió. Actualiza el muro.')
         return res.status(200).json({ id })
       }
-      if (!admin) return fail(403, 'Esta decisión requiere un administrador autorizado.')
+      if (!admin || user.is_anonymous) return fail(403, 'Esta decisión requiere un administrador autorizado.')
       const updates = {
         approve: { status: 'published', reviewed_by: user.id, reviewed_at: new Date().toISOString() },
         reject: { status: 'rejected', reviewed_by: user.id, reviewed_at: new Date().toISOString() },
         'reject-delete': { deletion_requested: false, deletion_requested_at: null },
         'approve-delete': { status: 'deleting' },
       }
-      if (!updates[action]) return fail(400, 'Acción inválida.')
+      if (!Object.hasOwn(updates, action)) return fail(400, 'Acción inválida.')
       if (['approve', 'reject'].includes(action) && photo.status !== 'pending') return fail(409, 'Esta foto ya fue revisada.')
       if (action === 'reject-delete' && (!photo.deletion_requested || photo.status === 'deleting')) return fail(409, 'No hay solicitud de eliminación que pueda rechazarse.')
       if (action === 'approve-delete' && photo.status === 'uploading') return fail(409, 'La subida sigue en curso.')
@@ -98,17 +98,19 @@ export default async function handler(req, res) {
     // La reserva aplica cuotas con bloqueo transaccional antes de escribir el objeto.
     const { error: reserveError } = await db.from('visitor_photos').insert({
       id, owner_id: user.id, last_actor_id: user.id, author: author || 'Visitante anónimo', object_path: path,
-      width: output.info.width, height: output.info.height, byte_size: output.data.length,
+      width: output.info.width, height: output.info.height, byte_size: output.data.length, status: 'uploading',
     })
-    if (reserveError?.code === 'P0001') return fail(429, 'Alcanzaste el límite de fotos. Inténtalo mañana o elimina alguna.')
+    if (reserveError?.code === 'P0001') return fail(429, 'Alcanzaste el límite diario de fotos. Inténtalo mañana.')
     if (reserveError) throw reserveError
     const { error: uploadError } = await db.storage.from(BUCKET).upload(path, output.data, { contentType: 'image/webp', upsert: false, cacheControl: '3600' })
     if (uploadError) {
       // Mantener la reserva uploading: un timeout puede haber escrito el objeto.
       throw uploadError
     }
-    const { error: publishError } = await db.from('visitor_photos').update({ status: 'pending' }).eq('id', id).eq('status', 'uploading')
-    if (publishError) throw publishError
+    const { data: pending, error: pendingError } = await db.from('visitor_photos')
+      .update({ status: 'pending' }).eq('id', id).eq('status', 'uploading').select('id').maybeSingle()
+    if (pendingError) throw pendingError
+    if (!pending) return fail(409, 'La subida no pudo confirmarse para revisión. Contacta con el administrador antes de reenviarla.')
     return res.status(201).json({ id })
   } catch (error) {
     console.error('Photo operation failed', error?.code ?? 'unknown')

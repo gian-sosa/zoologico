@@ -76,7 +76,7 @@ export default function AdminLoginPage() {
         )}
         {unauthorizedEmail && (
           <p role="alert" className="mt-4 rounded-2xl bg-cream px-4 py-3 text-sm font-medium text-red-600">
-            {unauthorizedEmail} no es una cuenta institucional autorizada (@{ADMIN_EMAIL_DOMAIN}).
+            No se pudo autorizar a {unauthorizedEmail}. Se requiere una cuenta @{ADMIN_EMAIL_DOMAIN} y un alta explícita del responsable del sistema.
           </p>
         )}
         {error && (

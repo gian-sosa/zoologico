@@ -5,10 +5,11 @@ import { ArrowRightIcon, MapPinIcon, XIcon } from '../components/icons'
 import { MAP_ENCLOSURES } from '../features/zoo/map.data'
 import { MAP_ANIMALS, matchesMapAnimal } from '../features/zoo/map-animals'
 import type { MapAnimal } from '../features/zoo/map-animals'
-import './MapaPage.css'
 
 const MIN_ZOOM = 1
 const MAX_ZOOM = 3
+const controlBase = 'inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-[999px] border disabled:cursor-not-allowed disabled:opacity-40'
+const mapControl = `${controlBase} border-border text-foreground hover:not-disabled:bg-muted aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-on-primary aria-pressed:hover:bg-jungle-deep`
 
 export default function MapaPage() {
   const [zoom, setZoom] = useState(1)
@@ -60,14 +61,14 @@ export default function MapaPage() {
           Croquis interactivo
         </p>
         <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Controles del mapa">
-          <button type="button" disabled={zoom <= MIN_ZOOM} aria-label="Reducir zoom" onClick={() => setZoom((z) => Math.max(MIN_ZOOM, z - 0.5))} className="map-control">−</button>
+          <button type="button" disabled={zoom <= MIN_ZOOM} aria-label="Reducir zoom" onClick={() => setZoom((z) => Math.max(MIN_ZOOM, z - 0.5))} className={mapControl}>−</button>
           <output aria-live="polite" className="w-16 text-center text-sm font-bold">{zoom * 100} %</output>
-          <button type="button" disabled={zoom >= MAX_ZOOM} aria-label="Aumentar zoom" onClick={() => setZoom((z) => Math.min(MAX_ZOOM, z + 0.5))} className="map-control">+</button>
-          <button type="button" onClick={() => setZoom(MIN_ZOOM)} className="map-control px-3 text-sm">Ajustar</button>
-          <button type="button" onClick={() => setFullscreen(!expanded)} className="map-control px-3 text-sm">
+          <button type="button" disabled={zoom >= MAX_ZOOM} aria-label="Aumentar zoom" onClick={() => setZoom((z) => Math.min(MAX_ZOOM, z + 0.5))} className={mapControl}>+</button>
+          <button type="button" onClick={() => setZoom(MIN_ZOOM)} className={`${mapControl} px-3 text-sm`}>Ajustar</button>
+          <button type="button" onClick={() => setFullscreen(!expanded)} className={`${mapControl} px-3 text-sm`}>
             {expanded ? 'Cerrar' : 'Ampliar pantalla'}
           </button>
-          <a href="/maps.png" download="mapa-zoologico-la-totorilla.png" className="map-control px-3 text-sm">Descargar</a>
+          <a href="/maps.png" download="mapa-zoologico-la-totorilla.png" className={`${mapControl} px-3 text-sm`}>Descargar</a>
         </div>
       </div>
     )
@@ -75,8 +76,8 @@ export default function MapaPage() {
 
   function renderMap(expanded = false) {
     return (
-      <div ref={expanded ? undefined : mapRef} className="map-scroll scroll-mt-28 overflow-auto bg-cream" tabIndex={0} aria-label="Mapa desplazable. Usa las flechas para recorrerlo y Tab para elegir un recinto.">
-        <div className="relative" style={{ width: `${zoom * 100}%`, minWidth: 760 }}>
+      <div ref={expanded ? undefined : mapRef} className={`${expanded ? 'max-h-[70dvh]' : 'max-h-[70vh]'} scroll-mt-28 overflow-auto overscroll-contain bg-cream`} tabIndex={0} aria-label="Mapa desplazable. Usa las flechas para recorrerlo y Tab para elegir un recinto.">
+        <div className="relative min-w-190" style={{ width: `${zoom * 100}%` }}>
           <img src="/maps.png" width={1920} height={1080} alt="Nuevo croquis del Parque Zoológico La Totorilla: recintos numerados, senderos, herpetario y zona recreativa." draggable={false} className="block h-auto w-full select-none" />
           {MAP_ENCLOSURES.map((enclosure) => {
             if (!enclosure.position) return null
@@ -91,7 +92,7 @@ export default function MapaPage() {
                 }}
                 aria-label={`Recinto ${enclosure.n}: ${enclosure.name}. ${enclosure.href === '/404' ? 'Ver en la lista de animales.' : 'Ver ficha del animal.'}`}
                 title={`${enclosure.n}. ${enclosure.name}`}
-                className={`map-hotspot ${highlighted ? 'map-hotspot-match' : ''}`}
+                className={`absolute aspect-square w-[1.65%] min-w-5 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full border-2 transition-[background-color,border-color] duration-150 ease-[ease] hover:z-1 hover:border-jungle-deep hover:bg-white/20 hover:shadow-[0_0_0_3px_white] focus-visible:z-1 focus-visible:border-jungle-deep focus-visible:bg-white/20 focus-visible:shadow-[0_0_0_3px_white] ${highlighted ? 'z-1 border-jungle-deep bg-white/20 shadow-[0_0_0_3px_white]' : 'border-transparent'}`}
                 style={{ left: `${enclosure.position[0] / 1920 * 100}%`, top: `${enclosure.position[1] / 1080 * 100}%` }}
               >
                 <span className="sr-only">{enclosure.n}. {enclosure.name}</span>
@@ -104,12 +105,12 @@ export default function MapaPage() {
   }
 
   return (
-    <main className="zoo-map-page mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 [&_:focus-visible]:outline-3 [&_:focus-visible]:outline-offset-3">
       <PageHeader eyebrow="Tu recorrido empieza aquí" title="Explora Totorilla" description="Encuentra a tus animales favoritos y descubre dónde viven en el zoológico." />
 
       <nav aria-label="Secciones del mapa" className="mt-6 flex flex-wrap gap-2">
-        <Link to="#croquis" className="map-control gap-2 bg-card px-5 text-sm font-semibold hover:bg-muted"><MapPinIcon className="size-4" />Ver mapa</Link>
-        <Link to="#fauna" className="map-control explore-primary px-5 text-sm font-semibold">Buscar un animal<ArrowRightIcon className="ml-2 size-4" /></Link>
+        <Link to="#croquis" className={`${mapControl} gap-2 bg-card px-5 text-sm font-semibold`}><MapPinIcon className="size-4" />Ver mapa</Link>
+        <Link to="#fauna" className={`${controlBase} border-primary bg-primary px-5 text-sm font-semibold text-on-primary hover:bg-jungle-deep`}>Buscar un animal<ArrowRightIcon className="ml-2 size-4" /></Link>
       </nav>
 
       <section id="croquis" aria-label="Croquis interactivo del zoológico" className="mt-6 scroll-mt-28 overflow-hidden rounded-3xl border border-border bg-card">
@@ -129,15 +130,15 @@ export default function MapaPage() {
           <div className="w-full md:max-w-sm">
             <label htmlFor="map-search" className="mb-2 block text-sm font-semibold">Buscar por nombre o número</label>
             <div className="relative">
-              <input id="map-search" type="search" value={query} onChange={(event) => { setQuery(event.target.value); setSelected([]) }} placeholder="Ej. vizcacha, puma o 12" className="min-h-12 w-full rounded-2xl border border-border bg-card py-3 pr-12 pl-4 text-sm text-foreground" />
+              <input id="map-search" type="search" value={query} onChange={(event) => { setQuery(event.target.value); setSelected([]) }} placeholder="Ej. vizcacha, puma o 12" className="min-h-12 w-full rounded-2xl border border-border bg-card py-3 pr-12 pl-4 text-sm text-foreground [&::-webkit-search-cancel-button]:hidden" />
               {query && <button type="button" onClick={() => setQuery('')} aria-label="Limpiar búsqueda" className="absolute inset-y-0 right-0 flex w-12 cursor-pointer items-center justify-center rounded-xl text-muted-foreground hover:text-primary"><XIcon className="size-4" /></button>}
             </div>
           </div>
         </div>
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
           <div className="flex gap-2" role="group" aria-label="Filtrar animales">
-            <button type="button" onClick={() => setOnlyProfiles(false)} aria-pressed={!onlyProfiles} className={`map-control px-4 text-sm font-semibold ${!onlyProfiles ? 'border-primary bg-primary text-on-primary' : 'bg-card'}`}>Todos</button>
-            <button type="button" onClick={() => setOnlyProfiles(true)} aria-pressed={onlyProfiles} className={`map-control px-4 text-sm font-semibold ${onlyProfiles ? 'border-primary bg-primary text-on-primary' : 'bg-card'}`}>Con ficha educativa</button>
+            <button type="button" onClick={() => setOnlyProfiles(false)} aria-pressed={!onlyProfiles} className={`${mapControl} bg-card px-4 text-sm font-semibold`}>Todos</button>
+            <button type="button" onClick={() => setOnlyProfiles(true)} aria-pressed={onlyProfiles} className={`${mapControl} bg-card px-4 text-sm font-semibold`}>Con ficha educativa</button>
           </div>
           <p role="status" className="text-sm text-muted-foreground">{results.length} {results.length === 1 ? 'animal encontrado' : 'animales encontrados'}</p>
         </div>
@@ -165,7 +166,7 @@ export default function MapaPage() {
         ) : <div className="mt-5 rounded-2xl border border-dashed border-border bg-card p-8 text-center"><p className="font-semibold">No encontramos animales con esos filtros.</p><button type="button" onClick={() => { setQuery(''); setOnlyProfiles(false) }} className="mt-3 min-h-11 cursor-pointer rounded-full bg-primary px-5 text-sm font-semibold text-on-primary">Ver todos los animales</button></div>}
       </section>
 
-      <dialog ref={dialogRef} onClose={() => setFullscreen(false)} onCancel={() => setFullscreen(false)} onClick={(event) => { if (event.target === event.currentTarget) setFullscreen(false) }} aria-label="Mapa interactivo en pantalla ampliada" className="map-dialog zoo-map-page">
+      <dialog ref={dialogRef} onClose={() => setFullscreen(false)} onCancel={() => setFullscreen(false)} onClick={(event) => { if (event.target === event.currentTarget) setFullscreen(false) }} aria-label="Mapa interactivo en pantalla ampliada" className="m-auto max-h-[calc(100dvh-24px)] w-[calc(100vw-24px)] max-w-[1800px] overflow-auto rounded-[20px] border border-border bg-card p-0 text-foreground backdrop:bg-black/80">
         {renderControls(true)}
         {renderMap(true)}
         <p className="border-t border-border p-3 text-center text-xs text-muted-foreground">Pulsa Escape o Cerrar para volver. Los puntos numerados también son interactivos aquí.</p>

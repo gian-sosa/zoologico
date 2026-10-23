@@ -5,7 +5,8 @@ import { ArrowRightIcon, CheckIcon, LockIcon } from '../components/icons'
 import { saveRequest } from '../features/requests/requests.store'
 import { DOCUMENT_TYPES, validateDocument } from '../features/requests/documents'
 import type { DocumentDetails, DocumentErrors } from '../features/requests/documents'
-import './MesaDePartesPage.css'
+
+const primaryButton = 'inline-flex min-h-12 cursor-pointer items-center justify-center gap-3 rounded-full bg-primary px-6 py-3 text-[14px] font-bold text-on-primary transition-[background-color] duration-150 ease-[ease] hover:bg-jungle-deep disabled:cursor-wait disabled:opacity-60'
 
 const INITIAL: DocumentDetails = {
   name: '', institution: '', email: '', phone: '', document_type: 'Solicitud',
@@ -45,7 +46,7 @@ export default function MesaDePartesPage() {
     return {
       id: `mp-${name}`,
       name,
-      className: 'mp-input',
+      className: 'min-h-12 w-full rounded-xl border border-border bg-background px-3.5 py-3 text-[14px] text-foreground placeholder:text-muted-foreground aria-invalid:border-[#b91c1c] [&:is(textarea)]:resize-y',
       'aria-invalid': Boolean(errors[name]),
       'aria-describedby': errors[name] ? `mp-${name}-error` : undefined,
       onBlur: () => {
@@ -88,20 +89,20 @@ export default function MesaDePartesPage() {
   }
 
   if (requestId) return (
-    <main className="mp-page mx-auto max-w-3xl px-5 py-16 sm:py-20">
+    <main className="mx-auto max-w-3xl px-5 py-16 sm:py-20">
       <section className="rounded-3xl border border-border bg-card p-6 sm:p-10">
         <span className="grid size-14 place-items-center rounded-full bg-primary-soft text-primary"><CheckIcon className="size-7" /></span>
         <p className="mt-6 text-xs font-bold tracking-widest text-primary uppercase">Mesa de Partes</p>
         <h1 ref={successRef} tabIndex={-1} className="mt-2 font-heading text-3xl font-semibold text-foreground">Tu documento fue recibido</h1>
         <p className="mt-4 leading-relaxed text-muted-foreground">Registramos tu presentación y el personal podrá revisarla. El correo de contacto que indicaste es <strong className="break-all text-foreground">{details.email}</strong>.</p>
         <dl className="mt-6 space-y-4 rounded-2xl bg-background p-5 text-sm">
-          <div><dt className="text-muted-foreground">Código de registro</dt><dd className="mp-reference mt-1 break-all font-mono font-semibold text-foreground">{requestId}</dd></div>
+          <div><dt className="text-muted-foreground">Código de registro</dt><dd className="mt-1 break-all font-mono font-semibold text-foreground select-text">{requestId}</dd></div>
           <div><dt className="text-muted-foreground">Documento</dt><dd className="mt-1 text-foreground">{details.document_type}{details.document_number && ` · ${details.document_number}`}</dd></div>
           <div><dt className="text-muted-foreground">Asunto</dt><dd className="mt-1 break-words text-foreground">{details.subject}</dd></div>
         </dl>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground">Guarda este código para futuras consultas. El registro acredita la recepción, no la aprobación del trámite. No se envía un correo automático de confirmación.</p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <button type="button" onClick={reset} className="mp-primary">Presentar otro documento</button>
+          <button type="button" onClick={reset} className={primaryButton}>Presentar otro documento</button>
           <Link to="/" className="inline-flex min-h-11 items-center rounded-full border border-border px-5 text-sm font-semibold">Volver al inicio</Link>
         </div>
       </section>
@@ -109,7 +110,7 @@ export default function MesaDePartesPage() {
   )
 
   return (
-    <main className="mp-page mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20">
+    <main className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20">
       <header className="max-w-2xl">
         <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">Atención al ciudadano</p>
         <h1 className="mt-3 font-heading text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">Mesa de Partes</h1>
@@ -121,7 +122,7 @@ export default function MesaDePartesPage() {
           <h2 id="mp-form-heading" className="font-heading text-2xl font-semibold text-foreground">Presentar un documento</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Completa los campos indicados. Los campos opcionales están señalados.</p>
 
-          <div ref={summaryRef} tabIndex={-1} className="mp-error-summary">
+          <div ref={summaryRef} tabIndex={-1}>
             {(serverError || Object.values(errors).some(Boolean)) && <div role="alert" className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
               <p className="font-semibold">{serverError || 'Revisa los siguientes campos antes de continuar:'}</p>
               <ul className="mt-2 space-y-1">{Object.entries(errors).filter(([, value]) => value).map(([key, value]) => (
@@ -130,7 +131,7 @@ export default function MesaDePartesPage() {
             </div>}
           </div>
 
-          <fieldset disabled={submitting} className="mt-8 min-w-0 space-y-5 border-t border-border pt-6">
+          <fieldset disabled={submitting} className="mt-8 min-w-0 space-y-5 border-t border-border pt-6 disabled:opacity-70">
             <legend className="pr-3 text-sm font-bold text-primary">01 / Datos del remitente</legend>
             <Field name="name" error={errors.name}><input {...fieldProps('name')} required autoComplete="name" maxLength={150} value={details.name} onChange={(e) => setDetails({ ...details, name: e.target.value })} placeholder="Escribe tus nombres y apellidos" /></Field>
             <Field name="institution" optional error={errors.institution}><input {...fieldProps('institution')} autoComplete="organization" maxLength={250} value={details.institution} onChange={(e) => setDetails({ ...details, institution: e.target.value })} placeholder="Si presentas el documento en representación de una entidad" /></Field>
@@ -140,7 +141,7 @@ export default function MesaDePartesPage() {
             </div>
           </fieldset>
 
-          <fieldset disabled={submitting} className="mt-8 min-w-0 space-y-5 border-t border-border pt-6">
+          <fieldset disabled={submitting} className="mt-8 min-w-0 space-y-5 border-t border-border pt-6 disabled:opacity-70">
             <legend className="pr-3 text-sm font-bold text-primary">02 / Información del documento</legend>
             <div className="grid gap-5 sm:grid-cols-2">
               <Field name="document_type" error={errors.document_type}><select {...fieldProps('document_type')} required value={details.document_type} onChange={(e) => setDetails({ ...details, document_type: e.target.value as DocumentDetails['document_type'] })}>{DOCUMENT_TYPES.map((type) => <option key={type}>{type}</option>)}</select></Field>
@@ -150,12 +151,12 @@ export default function MesaDePartesPage() {
             <Field name="message" error={errors.message}><textarea {...fieldProps('message')} required minLength={20} maxLength={4000} rows={6} value={details.message} onChange={(e) => setDetails({ ...details, message: e.target.value })} placeholder="Describe tu solicitud, comunicación o documentación presentada. Incluye la información necesaria para su revisión." /><p className="mt-2 text-right text-xs text-muted-foreground">{details.message.length} / 4000 caracteres</p></Field>
           </fieldset>
 
-          <fieldset disabled={submitting} className="mt-8 min-w-0 border-t border-border pt-6">
+          <fieldset disabled={submitting} className="mt-8 min-w-0 border-t border-border pt-6 disabled:opacity-70">
             <legend className="pr-3 text-sm font-bold text-primary">03 / Adjunto y envío</legend>
             <label htmlFor="mp-attachment" className="block text-sm font-semibold">Documento adjunto <span className="font-normal text-muted-foreground">(opcional)</span></label>
             <p id="mp-attachment-help" className="mt-2 text-sm text-muted-foreground">Un archivo PDF de hasta 3 MB. Si tiene varias páginas, reúnelas en un solo PDF legible, sin contraseña.</p>
             <div className="mt-3 rounded-2xl border border-dashed border-border bg-background p-4">
-              <input ref={fileRef} id="mp-attachment" type="file" accept="application/pdf,.pdf" aria-invalid={Boolean(errors.attachment)} aria-describedby={`mp-attachment-help${errors.attachment ? ' mp-attachment-error' : ''}`} className="mp-file w-full min-w-0 text-sm text-muted-foreground" onChange={(event) => {
+              <input ref={fileRef} id="mp-attachment" type="file" accept="application/pdf,.pdf" aria-invalid={Boolean(errors.attachment)} aria-describedby={`mp-attachment-help${errors.attachment ? ' mp-attachment-error' : ''}`} className="w-full min-w-0 text-sm text-muted-foreground file:mr-3 file:min-h-11 file:cursor-pointer file:rounded-[10px] file:border file:border-border file:bg-card file:px-3 file:py-2 file:text-primary" onChange={(event) => {
                 const file = event.target.files?.[0] ?? null
                 setAttachment(file)
                 setErrors((previous) => ({ ...previous, attachment: validateDocument(details, file).attachment }))
@@ -168,7 +169,7 @@ export default function MesaDePartesPage() {
               Autorizo el uso de mis datos de contacto y del documento por el personal autorizado para atender esta presentación.
             </label>
             {errors.consent && <p id="mp-consent-error" className="mt-2 text-sm text-red-700">{errors.consent}</p>}
-            <button type="submit" disabled={submitting} className="mp-primary mt-6 w-full sm:w-auto">{submitting ? 'Enviando documento…' : 'Enviar documento'}<ArrowRightIcon className="size-4" /></button>
+            <button type="submit" disabled={submitting} className={`${primaryButton} mt-6 w-full sm:w-auto`}>{submitting ? 'Enviando documento…' : 'Enviar documento'}<ArrowRightIcon className="size-4" /></button>
             <p role="status" className="mt-3 text-xs leading-relaxed text-muted-foreground">{submitting ? 'Espera a que aparezca tu código de registro. No cierres esta página.' : 'Al completar el envío obtendrás un código de registro en esta página.'}</p>
           </fieldset>
         </form>

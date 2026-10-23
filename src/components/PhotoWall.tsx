@@ -185,7 +185,7 @@ export default function PhotoWall({ api }: PhotoWallProps) {
                   disabled={photo.deletion_requested}
                   aria-label={photo.deletion_requested ? 'Eliminación pendiente de revisión' : `Solicitar eliminación de foto de ${photo.author}`}
                   title={photo.deletion_requested ? 'Eliminación pendiente' : 'Solicitar eliminación'}
-                  className="absolute top-2 right-2 grid size-11 cursor-pointer place-items-center rounded-full border border-white/40 bg-black/60 text-white backdrop-blur transition-colors hover:bg-black/80 disabled:cursor-wait disabled:opacity-50"
+                  className="absolute top-2 right-2 grid size-11 cursor-pointer place-items-center rounded-full border border-white/40 bg-black/60 text-white backdrop-blur transition-colors hover:bg-black/80 focus-visible:outline-sun disabled:cursor-wait disabled:opacity-50"
                 >
                   <XIcon className="size-4" />
                 </button>}

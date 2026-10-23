@@ -1,5 +1,0 @@
-/* Recupera el foco por teclado dentro del footer sin alterar el resto del sitio. */
-.site-footer a:focus-visible {
-  outline: 2px solid var(--color-cream) !important;
-  outline-offset: 5px;
-}

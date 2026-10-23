@@ -55,6 +55,9 @@ async function accessToken(): Promise<string> {
   if (data.session) return data.session.access_token
   if (!signingIn) {
     signingIn = db.auth.signInAnonymously().then(({ data: result, error: signInError }) => {
+      if (signInError?.code === 'anonymous_provider_disabled') {
+        throw new Error('La subida de visitantes aún no está habilitada. Contacta con el administrador del sitio.')
+      }
       if (signInError || !result.session) throw new Error('No se pudo iniciar la sesión de visitante. Inténtalo de nuevo.')
       return result.session.access_token
     }).finally(() => { signingIn = null })
@@ -69,6 +72,9 @@ export async function photoRequest(method: 'POST' | 'PATCH', query: URLSearchPar
     headers: { Authorization: `Bearer ${token}`, ...(body ? { 'Content-Type': 'image/webp' } : {}) },
     body,
   })
+  if (!response.headers.get('content-type')?.includes('application/json')) {
+    throw new Error('El servidor de subida no está disponible. En local, reinicia npm run dev; en producción, verifica el despliegue de /api/photos.')
+  }
   if (!response.ok) {
     const result = await response.json().catch(() => null)
     throw new Error(result?.error ?? 'No se pudo completar la operación de fotos.')

@@ -56,35 +56,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false)
       return
     }
+    const client = supabase
     let mounted = true
+    let revision = 0
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return
-      const sessionUser = data.session?.user ?? null
+    async function synchronizeUser(sessionUser: User | null) {
+      const currentRevision = ++revision
       if (sessionUser && !sessionUser.is_anonymous && !isAdminEmail(sessionUser.email)) {
+        if (!mounted) return
         setUnauthorizedEmail(sessionUser.email ?? 'desconocido')
-        void supabase.auth.signOut()
+        void client.auth.signOut()
         setUser(null)
-      } else {
-        setUser(sessionUser)
+        setLoading(false)
+        return
       }
-      setLoading(false)
-    })
+      if (!sessionUser || sessionUser.is_anonymous) {
+        if (!mounted) return
+        setUser(null)
+        setLoading(false)
+        return
+      }
+      // El dominio solo filtra el acceso: los privilegios requieren un alta
+      // explícita en BD. Ante cualquier error se deniega el acceso al panel.
+      try {
+        const { data, error } = await client.from('photo_admins')
+          .select('user_id').eq('user_id', sessionUser.id).maybeSingle()
+        if (!mounted || currentRevision !== revision) return
+        setUser(!error && data ? sessionUser : null)
+        setUnauthorizedEmail(!error && data ? null : sessionUser.email ?? 'desconocido')
+      } catch {
+        if (!mounted || currentRevision !== revision) return
+        setUser(null)
+      }
+      if (mounted && currentRevision === revision) setLoading(false)
+    }
+
+    void supabase.auth.getSession().then(({ data, error }) => {
+      if (mounted) void synchronizeUser(error ? null : data.session?.user ?? null)
+    }).catch(() => { if (mounted) void synchronizeUser(null) })
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return
-      const sessionUser = session?.user ?? null
-      if (event === 'SIGNED_IN' && sessionUser && !sessionUser.is_anonymous && !isAdminEmail(sessionUser.email)) {
-        setUnauthorizedEmail(sessionUser.email ?? 'desconocido')
-        void supabase.auth.signOut()
-        setUser(null)
-        return
-      }
       if (event === 'SIGNED_OUT') {
+        revision++
         setUser(null)
+        setLoading(false)
         return
       }
-      setUser(sessionUser)
+      // No ejecutar consultas Supabase dentro del bloqueo del callback Auth.
+      window.setTimeout(() => { if (mounted) void synchronizeUser(session?.user ?? null) }, 0)
     })
 
     return () => {

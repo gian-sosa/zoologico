@@ -218,7 +218,7 @@ export default function AdminDashboardPage() {
                     step={0.5}
                     value={prices[t.id] ?? ''}
                     onChange={(e) => setPrices((p) => ({ ...p, [t.id]: e.target.value }))}
-                    className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/30"
                   />
                 </div>
               ))}
@@ -238,7 +238,7 @@ export default function AdminDashboardPage() {
                     step={0.5}
                     value={prices[t.id] ?? ''}
                     onChange={(e) => setPrices((p) => ({ ...p, [t.id]: e.target.value }))}
-                    className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/30"
                   />
                 </div>
               ))}

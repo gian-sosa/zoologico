@@ -2,13 +2,12 @@ import { Link } from 'react-router-dom'
 import PhotoWall from '../components/PhotoWall'
 import { ArrowRightIcon } from '../components/icons'
 import { useVisitorPhotos } from '../features/community/useVisitorPhotos'
-import './CommunityPage.css'
 
 export default function CommunityPage() {
   const api = useVisitorPhotos()
 
   return (
-    <main className="community-page bg-background">
+    <main className="bg-background [&_:focus-visible]:outline-3">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
         <header className="mb-7 sm:mb-9">
           <p className="text-xs font-extrabold tracking-[0.16em] text-primary uppercase">

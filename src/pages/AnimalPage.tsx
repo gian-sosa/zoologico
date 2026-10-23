@@ -22,13 +22,11 @@ export default function AnimalPage() {
       </div>
       {/* Hero de la infografía */}
       <section
-        className="relative max-w-[2560px] m-auto overflow-hidden"
+        className="relative max-w-[2560px] m-auto overflow-hidden bg-cover bg-top"
         style={
           animal.heroImage
             ? {
                 backgroundImage: `url(${animal.heroImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'top',
               }
             : { backgroundColor: animal.accentSoftHex }
         }
@@ -128,8 +126,8 @@ export default function AnimalPage() {
               {animal.habitat.map((item) => (
                 <li
                   key={item}
-                  className="rounded-full px-4 py-1.5 text-sm font-medium"
-                  style={{ backgroundColor: animal.accentSoftHex, color: '#1c241e' }}
+                  className="rounded-full px-4 py-1.5 text-sm font-medium text-foreground"
+                  style={{ backgroundColor: animal.accentSoftHex }}
                 >
                   {item}
                 </li>
@@ -142,8 +140,8 @@ export default function AnimalPage() {
               {animal.diet.map((item) => (
                 <li
                   key={item}
-                  className="rounded-full px-4 py-1.5 text-sm font-medium"
-                  style={{ backgroundColor: animal.accentSoftHex, color: '#1c241e' }}
+                  className="rounded-full px-4 py-1.5 text-sm font-medium text-foreground"
+                  style={{ backgroundColor: animal.accentSoftHex }}
                 >
                   {item}
                 </li>
