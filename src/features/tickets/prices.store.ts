@@ -1,61 +1,42 @@
-import { load, save } from '../../shared/lib/storage'
+import { useEffect, useState } from 'react'
+import { photosClient } from '../community/photos.store'
 import { PARKING_TYPES, TICKET_TYPES } from './tickets.config'
 import type { TicketType } from './tickets.config'
 
-const PRICE_KEY = 'totorilla-ticket-prices'
-const PARKING_PRICE_KEY = 'totorilla-parking-prices'
-
-export type PriceOverrides = Record<string, number>
-
-export function loadPriceOverrides(): PriceOverrides {
-  return load<PriceOverrides>(PRICE_KEY, {})
+let overrides: Record<string, number> = {}
+export async function refreshPrices(): Promise<void> {
+  const { data, error } = await photosClient().from('tariff_overrides').select('id,price')
+  if (error) throw error
+  overrides = Object.fromEntries((data ?? []).map((r) => [r.id, Number(r.price)]))
 }
-
-export function savePriceOverride(id: string, price: number): PriceOverrides {
-  const next = { ...loadPriceOverrides(), [id]: price }
-  save(PRICE_KEY, next)
-  return next
+export async function savePriceOverride(id: string, price: number): Promise<void> {
+  const { error } = await photosClient().from('tariff_overrides').upsert({ id, price })
+  if (error) throw error
+  overrides = { ...overrides, [id]: price }
 }
-
-export function resetPriceOverrides(): void {
-  save(PRICE_KEY, {})
+export const saveParkingOverride = savePriceOverride
+async function reset(ids: string[]): Promise<void> {
+  const { error } = await photosClient().from('tariff_overrides').delete().in('id', ids)
+  if (error) throw error
+  await refreshPrices()
 }
-
-/** Tarifas vigentes: base del config + ajustes del administrador. */
-export function getTicketTypes(): TicketType[] {
-  const overrides = loadPriceOverrides()
-  return TICKET_TYPES.map((t) =>
-    typeof overrides[t.id] === 'number' && overrides[t.id] >= 0
-      ? { ...t, price: overrides[t.id] }
-      : t,
-  )
+export const resetPriceOverrides = () => reset(TICKET_TYPES.map((t) => t.id))
+export const resetParkingOverrides = () => reset(PARKING_TYPES.map((t) => t.id))
+const apply = (types: TicketType[]) => types.map((t) => ({ ...t, price: overrides[t.id] ?? t.price }))
+export const getTicketTypes = () => apply(TICKET_TYPES)
+export const getParkingTypes = () => apply(PARKING_TYPES)
+export function useTariffs() {
+  const [tariffs, setTariffs] = useState(getTicketTypes)
+  const [parking, setParking] = useState(getParkingTypes)
+  useEffect(() => {
+    let active = true
+    void refreshPrices().then(() => {
+      if (active) { setTariffs(getTicketTypes()); setParking(getParkingTypes()) }
+    }).catch(() => { /* Sin conexión, mostrar las tarifas base publicadas. */ })
+    return () => { active = false }
+  }, [])
+  return { tariffs, parking }
 }
-
-export function loadParkingOverrides(): PriceOverrides {
-  return load<PriceOverrides>(PARKING_PRICE_KEY, {})
-}
-
-export function saveParkingOverride(id: string, price: number): PriceOverrides {
-  const next = { ...loadParkingOverrides(), [id]: price }
-  save(PARKING_PRICE_KEY, next)
-  return next
-}
-
-export function resetParkingOverrides(): void {
-  save(PARKING_PRICE_KEY, {})
-}
-
-/** Tarifas de parqueo vigentes: base del config + ajustes del administrador. */
-export function getParkingTypes(): TicketType[] {
-  const overrides = loadParkingOverrides()
-  return PARKING_TYPES.map((t) =>
-    typeof overrides[t.id] === 'number' && overrides[t.id] >= 0
-      ? { ...t, price: overrides[t.id] }
-      : t,
-  )
-}
-
-/** Etiqueta de precio: la tarifa de S/ 0 se muestra como GRATIS. */
 export function formatTariff(price: number): string {
   return price === 0 ? 'GRATIS' : `S/ ${price.toFixed(2)}`
 }

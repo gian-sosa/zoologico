@@ -1,18 +1,21 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { animals } from '../features/animals/animals.service'
-import { getParkingTypes, getTicketTypes, resetParkingOverrides, resetPriceOverrides, saveParkingOverride, savePriceOverride } from '../features/tickets/prices.store'
-import { clearPhotos, deletePhoto, listPhotos } from '../features/community/photos.store'
-import { clearRequests, deleteRequest, listRequests } from '../features/requests/requests.store'
+import { getParkingTypes, getTicketTypes, refreshPrices, resetParkingOverrides, resetPriceOverrides, saveParkingOverride, savePriceOverride } from '../features/tickets/prices.store'
+import { useVisitorPhotos } from '../features/community/useVisitorPhotos'
+import { attachmentUrl, clearRequests, deleteRequest, listRequests } from '../features/requests/requests.store'
+import type { DocumentRequest } from '../features/requests/requests.store'
 import { useAuth } from '../features/auth/auth.context'
+import ClaimsInbox from '../features/claims/ClaimsInbox'
 import { formatDateES } from '../shared/lib/format'
 
-type Tab = 'resumen' | 'entradas' | 'solicitudes' | 'comunidad' | 'animales' | 'cuenta'
+type Tab = 'resumen' | 'entradas' | 'solicitudes' | 'reclamaciones' | 'comunidad' | 'animales' | 'cuenta'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'resumen', label: 'Resumen' },
   { id: 'entradas', label: 'Tarifas' },
   { id: 'solicitudes', label: 'Solicitudes' },
+  { id: 'reclamaciones', label: 'Reclamaciones' },
   { id: 'comunidad', label: 'Blog' },
   { id: 'animales', label: 'Fauna' },
   { id: 'cuenta', label: 'Cuenta' },
@@ -32,8 +35,10 @@ export default function AdminDashboardPage() {
   const { username, logout } = useAuth()
   const navigate = useNavigate()
   const [tab, setTab] = useState<Tab>('resumen')
-  const [photos, setPhotos] = useState(listPhotos)
-  const [requests, setRequests] = useState(listRequests)
+  const { photos, moderatePhoto, error: photosError, notice: photosNotice, refresh: refreshPhotos,
+    page: photosPage, hasMore: morePhotos, changePage: changePhotosPage, loading: photosLoading } = useVisitorPhotos(true)
+  const [requests, setRequests] = useState<DocumentRequest[]>([])
+  const [downloading, setDownloading] = useState<string | null>(null)
   const [prices, setPrices] = useState<Record<string, string>>(() =>
     Object.fromEntries(
       [...getTicketTypes(), ...getParkingTypes()].map((t) => [t.id, String(t.price)]),
@@ -42,6 +47,12 @@ export default function AdminDashboardPage() {
   const [notice, setNotice] = useState('')
   const [confirmClearPhotos, setConfirmClearPhotos] = useState(false)
   const [confirmClearRequests, setConfirmClearRequests] = useState(false)
+  useEffect(() => {
+    void listRequests().then(setRequests).catch(() => setNotice('No se pudieron cargar las solicitudes.'))
+    void refreshPrices().then(() => setPrices(Object.fromEntries(
+      [...getTicketTypes(), ...getParkingTypes()].map((t) => [t.id, String(t.price)]),
+    ))).catch(() => setNotice('No se pudieron cargar las tarifas.'))
+  }, [])
 
   const quizCount = useMemo(() => animals.reduce((a, an) => a + an.quiz.length, 0), [])
   const tariffCount = useMemo(() => getTicketTypes().length + getParkingTypes().length, [])
@@ -52,36 +63,52 @@ export default function AdminDashboardPage() {
   }
 
   function handleDeletePhoto(id: string) {
-    setPhotos(deletePhoto(id))
-    flash('Foto eliminada del muro.')
+    void moderatePhoto(id, 'approve-delete')
   }
 
-  function handleClearPhotos() {
+  async function handleClearPhotos() {
     if (!confirmClearPhotos) {
       setConfirmClearPhotos(true)
       return
     }
-    setPhotos(clearPhotos())
+    let removed = 0
+    for (const photo of photos) {
+      if (await moderatePhoto(photo.id, 'approve-delete')) removed++
+    }
     setConfirmClearPhotos(false)
-    flash('Muro de fotos vaciado.')
+    flash(`${removed} foto(s) eliminada(s); ${photos.length - removed} operación(es) fallida(s).`)
   }
 
-  function handleDeleteRequest(id: string) {
-    setRequests(deleteRequest(id))
-    flash('Solicitud eliminada.')
+  async function handleDeleteRequest(id: string) {
+    try { setRequests(await deleteRequest(id)); flash('Solicitud eliminada.') }
+    catch { flash('No se pudo eliminar la solicitud.') }
   }
 
-  function handleClearRequests() {
+  async function handleDownloadDocument(id: string, path: string) {
+    setDownloading(id)
+    try {
+      const url = await attachmentUrl(path)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'documento.pdf'
+      link.rel = 'noopener noreferrer'
+      link.click()
+    } catch { flash('No se pudo descargar el adjunto.') }
+    finally { setDownloading(null) }
+  }
+
+  async function handleClearRequests() {
     if (!confirmClearRequests) {
       setConfirmClearRequests(true)
       return
     }
-    setRequests(clearRequests())
+    try { setRequests(await clearRequests()) }
+    catch { flash('No se pudieron eliminar las solicitudes.'); return }
     setConfirmClearRequests(false)
     flash('Bandeja de solicitudes vaciada.')
   }
 
-  function handleSavePrices() {
+  async function handleSavePrices() {
     for (const raw of Object.values(prices)) {
       const v = Number(raw)
       if (!Number.isFinite(v) || v < 0 || v > 999) {
@@ -89,16 +116,18 @@ export default function AdminDashboardPage() {
         return
       }
     }
-    for (const [id, raw] of Object.entries(prices)) {
-      if (id.startsWith('park-')) saveParkingOverride(id, Number(raw))
-      else savePriceOverride(id, Number(raw))
-    }
+    try {
+      for (const [id, raw] of Object.entries(prices)) {
+        if (id.startsWith('park-')) await saveParkingOverride(id, Number(raw))
+        else await savePriceOverride(id, Number(raw))
+      }
+    } catch { flash('No se pudieron guardar todas las tarifas.'); return }
     flash('Tarifas actualizadas. Ya se reflejan en el tarifario público.')
   }
 
-  function handleResetPrices() {
-    resetPriceOverrides()
-    resetParkingOverrides()
+  async function handleResetPrices() {
+    try { await resetPriceOverrides(); await resetParkingOverrides() }
+    catch { flash('No se pudieron restablecer las tarifas.'); return }
     setPrices(
       Object.fromEntries(
         [...getTicketTypes(), ...getParkingTypes()].map((t) => [t.id, String(t.price)]),
@@ -239,10 +268,10 @@ export default function AdminDashboardPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="font-heading text-lg font-semibold text-foreground">
-                Descuentos educativos ({requests.length})
+                Mesa de Partes ({requests.length})
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Solicitudes enviadas desde la mesa de partes. Responde por correo o teléfono.
+                Documentos recibidos. Los adjuntos son privados; descárgalos solo si confías en su procedencia.
               </p>
             </div>
             <button
@@ -251,7 +280,7 @@ export default function AdminDashboardPage() {
               disabled={requests.length === 0}
               className="cursor-pointer rounded-full border border-red-300 bg-background px-5 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {confirmClearRequests ? 'Confirma: eliminar todas' : 'Eliminar todas'}
+              {confirmClearRequests ? 'Confirma: eliminar cargados' : 'Eliminar documentos cargados'}
             </button>
           </div>
           {requests.length === 0 ? (
@@ -263,16 +292,19 @@ export default function AdminDashboardPage() {
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <p className="font-semibold text-foreground">
-                        {r.institution} <span className="font-normal text-muted-foreground">· {r.id}</span>
+                         {r.subject} <span className="font-normal text-muted-foreground">· {r.document_type}{r.document_number ? ` ${r.document_number}` : ''}</span>
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        {r.name} · {r.email}{r.phone ? ` · ${r.phone}` : ''} · Visita: {formatDateES(r.visitDate)} · {r.students} {r.students === 1 ? 'estudiante' : 'estudiantes'}
-                      </p>
+                         {r.name}{r.institution ? ` · ${r.institution}` : ''} · {r.email}{r.phone ? ` · ${r.phone}` : ''}
+                       </p>
+                       <p className="mt-1 break-all text-xs text-muted-foreground">Registro: {r.id} · Recibido: {formatDateES(r.createdAt)}</p>
+                       {r.visitDate && <p className="mt-1 text-xs text-muted-foreground">Presentación educativa anterior · Visita: {formatDateES(r.visitDate)}{r.students ? ` · ${r.students} estudiantes` : ''}</p>}
                       {r.message && (
-                        <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                         <p className="mt-1.5 whitespace-pre-wrap break-words text-xs leading-relaxed text-muted-foreground">
                           “{r.message}”
                         </p>
-                      )}
+                       )}
+                       {r.attachment_path && <button type="button" disabled={downloading !== null} onClick={() => { void handleDownloadDocument(r.id, r.attachment_path!) }} className="mt-3 min-h-11 cursor-pointer rounded-full border border-border px-4 text-xs font-semibold text-primary disabled:opacity-50">{downloading === r.id ? 'Preparando descarga…' : 'Descargar documento PDF'}</button>}
                     </div>
                     <button
                       type="button"
@@ -294,7 +326,7 @@ export default function AdminDashboardPage() {
         <section aria-label="Moderación del muro" className="mt-6 rounded-3xl border border-border bg-card p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-heading text-lg font-semibold text-foreground">
-              Fotos de visitantes ({photos.length})
+               Fotos de visitantes · página {photosPage + 1} ({photos.length})
             </h2>
             <button
               type="button"
@@ -302,25 +334,43 @@ export default function AdminDashboardPage() {
               disabled={photos.length === 0}
               className="cursor-pointer rounded-full border border-red-300 bg-background px-5 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {confirmClearPhotos ? 'Confirma: eliminar todas' : 'Eliminar todas'}
+              {confirmClearPhotos ? 'Confirma: eliminar cargadas' : 'Eliminar fotos cargadas'}
             </button>
           </div>
+          <button type="button" onClick={() => { void refreshPhotos() }} className="mt-3 cursor-pointer text-sm font-semibold text-primary">Actualizar revisión</button>
+          {photosError && <p role="alert" className="mt-4 text-sm text-red-600">{photosError}</p>}
+          {photosNotice && <p role="status" className="mt-3 text-sm text-primary">{photosNotice}</p>}
+          <nav aria-label="Páginas de moderación" className="mt-4 flex gap-4 text-sm">
+            <button type="button" disabled={photosPage === 0 || photosLoading} onClick={() => changePhotosPage(photosPage - 1)} className="cursor-pointer text-primary disabled:opacity-40">Anterior</button>
+            <button type="button" disabled={!morePhotos || photosLoading} onClick={() => changePhotosPage(photosPage + 1)} className="cursor-pointer text-primary disabled:opacity-40">Siguiente</button>
+          </nav>
           {photos.length === 0 ? (
             <p className="mt-4 text-sm text-muted-foreground">El muro está vacío.</p>
           ) : (
             <ul className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
               {photos.map((p) => (
                 <li key={p.id} className="overflow-hidden rounded-2xl border border-border bg-background">
-                  <img src={p.dataUrl} alt={`Foto de ${p.author}`} loading="lazy" className="aspect-square w-full object-cover" />
-                  <div className="flex items-center justify-between gap-2 px-3 py-2">
+                  {p.url ? <img src={p.url} alt={`Foto de ${p.author}`} loading="lazy" className="aspect-square w-full object-cover" />
+                    : <p className="grid aspect-square place-items-center p-4 text-sm text-muted-foreground">Archivo no disponible; reintenta su eliminación.</p>}
+                  <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
                     <span className="truncate text-xs text-muted-foreground">{p.author}</span>
+                    <span className="text-xs font-semibold">{({ pending: 'Pendiente', published: 'Publicada', rejected: 'Rechazada', deleting: 'Eliminación en curso' })[p.status]}</span>
+                    {p.status === 'pending' && <div className="flex gap-2">
+                      <button type="button" onClick={() => { void moderatePhoto(p.id, 'approve') }} className="cursor-pointer rounded-full bg-primary px-3 py-2 text-xs text-white">Aprobar</button>
+                      <button type="button" onClick={() => { void moderatePhoto(p.id, 'reject') }} className="cursor-pointer rounded-full border border-border px-3 py-2 text-xs text-red-600">Rechazar</button>
+                    </div>}
+                    {p.deletion_requested && <div className="w-full text-xs">
+                      <p className="mb-2 font-semibold">El propietario solicita eliminar esta foto.</p>
+                      <button type="button" onClick={() => { void moderatePhoto(p.id, 'approve-delete') }} className="mr-2 cursor-pointer text-red-600">Aprobar eliminación</button>
+                      <button type="button" onClick={() => { void moderatePhoto(p.id, 'reject-delete') }} className="cursor-pointer text-primary">Rechazar eliminación</button>
+                    </div>}
                     <button
                       type="button"
                       onClick={() => handleDeletePhoto(p.id)}
-                      aria-label={`Eliminar foto de ${p.author}`}
+                      aria-label={`Aprobar eliminación de foto de ${p.author}`}
                       className="shrink-0 cursor-pointer rounded-full px-3 py-1 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50"
                     >
-                      Quitar
+                      Eliminar como administrador
                     </button>
                   </div>
                 </li>
@@ -329,6 +379,8 @@ export default function AdminDashboardPage() {
           )}
         </section>
       )}
+
+      {tab === 'reclamaciones' && <ClaimsInbox />}
 
       {tab === 'animales' && (
         <section aria-label="Catálogo de animales" className="mt-6 rounded-3xl border border-border bg-card p-6 sm:p-8">

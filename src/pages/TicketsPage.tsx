@@ -1,8 +1,7 @@
-import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import PageHeader from '../shared/components/PageHeader'
 import { MapPinIcon, PawIcon } from '../components/icons'
-import { getParkingTypes, getTicketTypes, formatTariff } from '../features/tickets/prices.store'
+import { useTariffs, formatTariff } from '../features/tickets/prices.store'
 import { VISITOR_RULES } from '../features/zoo/visitor-rules'
 import { SITE } from '../shared/config/site'
 
@@ -25,8 +24,7 @@ const steps = [
 ]
 
 export default function TicketsPage() {
-  const tariffs = useMemo(getTicketTypes, [])
-  const parking = useMemo(getParkingTypes, [])
+  const { tariffs, parking } = useTariffs()
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
@@ -74,7 +72,7 @@ export default function TicketsPage() {
               to="/mesadepartes"
               className="group mt-3 inline-flex items-center gap-2 rounded-full bg-[#2c5c42] px-6 py-2.5 font-heading text-sm font-semibold text-white shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep"
             >
-              Solicitar descuento
+              Presentar solicitud en Mesa de Partes
             </Link>
           </div>
         </section>
@@ -105,7 +103,7 @@ export default function TicketsPage() {
                 Cómo llegar
               </a>
               <Link
-                to="/mapa"
+                to="/explora"
                 className="group inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/40 px-6 py-2.5 font-heading text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:border-white"
               >
                 <MapPinIcon className="size-4" />

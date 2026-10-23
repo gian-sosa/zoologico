@@ -1,0 +1,48 @@
+.mp-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-size: 14px;
+}
+
+textarea.mp-input { resize: vertical; }
+.mp-input[aria-invalid='true'] { border-color: #b91c1c; }
+.mp-input::placeholder { color: var(--color-muted-foreground); }
+
+.mp-primary {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 999px;
+  padding: 12px 24px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 150ms;
+}
+.mp-primary:hover { background: var(--color-jungle-deep); }
+.mp-primary:disabled { opacity: .6; cursor: wait; }
+.mp-file::file-selector-button {
+  min-height: 44px;
+  margin-right: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: var(--color-card);
+  color: var(--color-primary);
+  cursor: pointer;
+}
+.mp-page :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-primary) !important;
+  outline-offset: 4px;
+}
+.mp-page .mp-reference { user-select: text; }
+.mp-page fieldset:disabled { opacity: .7; }

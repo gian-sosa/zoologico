@@ -1,56 +1,94 @@
-import { useState } from 'react'
-import { listPhotos, persistPhotos } from './photos.store'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { listPhotos, photoRequest } from './photos.store'
 import type { VisitorPhoto } from './photos.store'
-import { fileToCompressedDataUrl } from './image'
+import { fileToCompressedWebP } from './image'
 
 export type { VisitorPhoto }
 
-const MAX_BATCH = 6
-
-export function useVisitorPhotos() {
-  const [photos, setPhotos] = useState<VisitorPhoto[]>(listPhotos)
+export function useVisitorPhotos(moderation = false) {
+  const [photos, setPhotos] = useState<VisitorPhoto[]>([])
   const [uploading, setUploading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
+  const [page, setPage] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
+  const busy = useRef(false)
+  const readVersion = useRef(0)
+  const refresh = useCallback(async () => {
+    const version = ++readVersion.current
+    try {
+      const result = await listPhotos(moderation, moderation ? page : 0)
+      if (version !== readVersion.current) return
+      setPhotos(result.photos)
+      setHasMore(result.hasMore)
+    } catch (cause) {
+      if (version === readVersion.current) setError(cause instanceof Error ? cause.message : 'No se pudieron cargar las fotos.')
+    } finally {
+      if (version === readVersion.current) setLoading(false)
+    }
+  }, [moderation, page])
+  const cancelReads = useCallback(() => { readVersion.current++ }, [])
+
+  useEffect(() => {
+    void Promise.resolve().then(refresh)
+    // Renovar las URL firmadas antes de su vencimiento, incluso en pestañas abiertas.
+    const interval = window.setInterval(() => { void refresh() }, 5 * 60 * 1000)
+    const onVisible = () => { if (document.visibilityState === 'visible') void refresh() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      cancelReads()
+      window.clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [refresh, cancelReads])
 
   async function addFiles(files: File[], author: string) {
-    const images = files.filter((f) => f.type.startsWith('image/'))
-    if (images.length === 0) return
+    if (busy.current || !files.length) return
+    if (files.length > 6) {
+      setError('Selecciona como máximo 6 fotos por vez.')
+      return
+    }
+    busy.current = true
     setUploading(true)
     setError('')
+    setNotice('')
+    let added = 0
     try {
-      const added: VisitorPhoto[] = []
-      for (const file of images.slice(0, MAX_BATCH)) {
-        const dataUrl = await fileToCompressedDataUrl(file)
-        added.push({
-          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          author: author.trim() || 'Visitante anónimo',
-          dataUrl,
-        })
+      for (const file of files) {
+        const blob = await fileToCompressedWebP(file)
+        await photoRequest('POST', new URLSearchParams({ author }), blob)
+        added++
       }
-      setPhotos((prev) => {
-        const next = [...added, ...prev]
-        persistPhotos(next)
-        return next
-      })
-    } catch {
-      setError('No se pudo procesar la imagen. Intenta con otro archivo.')
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'No se pudo subir la imagen.')
     } finally {
+      if (added) setNotice(`${added} foto(s) enviada(s). Se publicarán después de la aprobación del administrador.`)
+      await refresh()
+      busy.current = false
       setUploading(false)
     }
   }
 
-  function removePhoto(id: string) {
-    setPhotos((prev) => {
-      const next = prev.filter((p) => p.id !== id)
-      persistPhotos(next)
-      return next
-    })
+  async function moderatePhoto(id: string, action: string) {
+    setError('')
+    setNotice('')
+    try {
+      await photoRequest('PATCH', new URLSearchParams({ id, action }))
+      setNotice(action === 'request-delete' ? 'Solicitud de eliminación enviada al administrador.' : 'Decisión guardada.')
+      await refresh()
+      return true
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'No se pudo completar la acción.')
+      await refresh()
+      return false
+    }
   }
 
-  /** Releer desde storage (lo usa el panel admin tras moderar). */
-  function refresh() {
-    setPhotos(listPhotos())
+  const removePhoto = (id: string) => moderatePhoto(id, 'request-delete')
+  function changePage(next: number) {
+    setLoading(true)
+    setPage(Math.max(0, next))
   }
-
-  return { photos, uploading, error, addFiles, removePhoto, refresh }
+  return { photos, loading, uploading, error, notice, page, hasMore, changePage, addFiles, removePhoto, moderatePhoto, refresh }
 }

@@ -1,28 +1,76 @@
-import { load, save } from '../../shared/lib/storage'
+import { getSupabase } from '../../shared/lib/supabase'
 
 export interface VisitorPhoto {
   id: string
   author: string
-  dataUrl: string
+  url: string
+  canDelete: boolean
+  status: 'pending' | 'published' | 'rejected' | 'deleting'
+  deletion_requested: boolean
 }
 
-export const PHOTOS_KEY = 'totorilla-visitor-photos'
-
-export function listPhotos(): VisitorPhoto[] {
-  return load<VisitorPhoto[]>(PHOTOS_KEY, [])
+export function photosClient() {
+  const db = getSupabase()
+  if (!db) throw new Error('Falta configurar Supabase para el muro de fotos.')
+  return db
 }
 
-export function persistPhotos(photos: VisitorPhoto[]): void {
-  save(PHOTOS_KEY, photos)
+export async function listPhotos(moderation = false, page = 0): Promise<{ photos: VisitorPhoto[]; hasMore: boolean }> {
+  const db = photosClient()
+  const { data: sessionData, error: sessionError } = await db.auth.getSession()
+  if (sessionError) throw sessionError
+  const userId = sessionData.session?.user.id
+  const { data: admin, error: adminError } = userId
+    ? await db.from('photo_admins').select('user_id').eq('user_id', userId).maybeSingle()
+    : { data: null, error: null }
+  if (adminError) throw adminError
+  let query = db.from('visitor_photos')
+    .select('id,author,owner_id,object_path,status,deletion_requested')
+    .order('created_at', { ascending: false }).order('id', { ascending: false })
+    .range(page * 100, page * 100 + 100)
+  if (moderation) query = query.neq('status', 'uploading')
+  if (!moderation) query = query.eq('status', 'published')
+  const { data, error } = await query
+  if (error) throw error
+  if (!data?.length) return { photos: [], hasMore: false }
+  const rows = data.slice(0, 100)
+  const { data: urls, error: urlError } = await db.storage.from('visitor-photos')
+    .createSignedUrls(rows.map((p) => p.object_path), 3600)
+  if (urlError) throw urlError
+  const signed = new Map(urls?.map((p) => [p.path, p.signedUrl]))
+  const photos = rows.map((p) => {
+    const url = signed.get(p.object_path)
+    if (!url && p.status !== 'deleting') throw new Error('No se pudo obtener acceso a una foto. Recarga la página.')
+    return { id: p.id, author: p.author, url: url ?? '', status: p.status, deletion_requested: p.deletion_requested, canDelete: Boolean(admin) || p.owner_id === userId }
+  })
+  return { photos, hasMore: data.length > 100 }
 }
 
-export function deletePhoto(id: string): VisitorPhoto[] {
-  const next = listPhotos().filter((p) => p.id !== id)
-  persistPhotos(next)
-  return next
+let signingIn: Promise<string> | null = null
+
+async function accessToken(): Promise<string> {
+  const db = photosClient()
+  const { data, error } = await db.auth.getSession()
+  if (error) throw error
+  if (data.session) return data.session.access_token
+  if (!signingIn) {
+    signingIn = db.auth.signInAnonymously().then(({ data: result, error: signInError }) => {
+      if (signInError || !result.session) throw new Error('No se pudo iniciar la sesión de visitante. Inténtalo de nuevo.')
+      return result.session.access_token
+    }).finally(() => { signingIn = null })
+  }
+  return signingIn
 }
 
-export function clearPhotos(): VisitorPhoto[] {
-  persistPhotos([])
-  return []
+export async function photoRequest(method: 'POST' | 'PATCH', query: URLSearchParams, body?: Blob): Promise<void> {
+  const token = await accessToken()
+  const response = await fetch(`/api/photos?${query}`, {
+    method,
+    headers: { Authorization: `Bearer ${token}`, ...(body ? { 'Content-Type': 'image/webp' } : {}) },
+    body,
+  })
+  if (!response.ok) {
+    const result = await response.json().catch(() => null)
+    throw new Error(result?.error ?? 'No se pudo completar la operación de fotos.')
+  }
 }

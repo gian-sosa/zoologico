@@ -16,12 +16,12 @@ export interface ZooValue {
 }
 
 export const ZOO_HISTORY = {
-  foundedYear: 2001,
-  affiliation: 'Escuela Profesional de Biología · UNSCH',
+  foundedYear: 2000,
+  affiliation: 'Facultad de Ciencias Biológicas - UNSCH',
   affiliationShort: 'UNSCH · Biología',
   title: 'Una historia andina de rescate y aprendizaje',
   paragraphs: [
-    'El Parque Zoológico La Totorilla nace en 2001 como un espacio académico de la Escuela Profesional de Biología de la Universidad Nacional de San Cristóbal de Huamanga (UNSCH). Lo que empezó como un área de estudio y práctica para estudiantes, creció con un propósito mayor: dar una segunda oportunidad a la fauna silvestre.',
+    'El Parque Zoológico La Totorilla nace en 2000 como un espacio académico de la Facultad de Ciencias Biológicas de la Universidad Nacional de San Cristóbal de Huamanga (UNSCH). Lo que empezó como un área de estudio y práctica para estudiantes, creció con un propósito mayor: dar una segunda oportunidad a la fauna silvestre.',
     'Hoy, la mayoría de nuestros animales proviene del rescate del tráfico ilegal y de situaciones de riesgo. Aquí reciben cuidado veterinario, rehabilitación y un hogar digno, mientras la comunidad aprende a protegerlos.',
   ],
   mission:
@@ -35,17 +35,17 @@ export const ZOO_HISTORY = {
   ] as ZooValue[],
   milestones: [
     {
-      year: '2001',
+      year: '2000',
       title: 'Nace en la UNSCH',
       text: 'La Escuela de Biología crea un espacio de estudio y conservación en La Totorilla.',
     },
     {
-      year: '2008',
+      year: '2001',
       title: 'Refugio de rescates',
       text: 'Empiezan a llegar animales rescatados del tráfico ilegal para su rehabilitación.',
     },
     {
-      year: '2015',
+      year: '2002',
       title: 'Puertas a la comunidad',
       text: 'Se abre el circuito educativo y las visitas guiadas para colegios y familias.',
     },

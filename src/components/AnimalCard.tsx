@@ -18,7 +18,7 @@ function AnimalCard({ animal }: { animal: Animal }) {
         <PawIcon className="size-7" />
       </span>
 
-      <h2 className="mt-6 font-heading text-2xl font-semibold text-foreground">{animal.name}</h2>
+      <h3 className="mt-6 font-heading text-2xl font-semibold text-foreground">{animal.name}</h3>
       <p className="mt-1 text-sm italic text-muted-foreground">{animal.scientificName}</p>
       <p className="mt-4 grow text-sm leading-relaxed text-muted-foreground">{animal.tagline}</p>
 

@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data }) => {
       if (!mounted) return
       const sessionUser = data.session?.user ?? null
-      if (sessionUser && !isAdminEmail(sessionUser.email)) {
+      if (sessionUser && !sessionUser.is_anonymous && !isAdminEmail(sessionUser.email)) {
         setUnauthorizedEmail(sessionUser.email ?? 'desconocido')
         void supabase.auth.signOut()
         setUser(null)
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return
       const sessionUser = session?.user ?? null
-      if (event === 'SIGNED_IN' && sessionUser && !isAdminEmail(sessionUser.email)) {
+      if (event === 'SIGNED_IN' && sessionUser && !sessionUser.is_anonymous && !isAdminEmail(sessionUser.email)) {
         setUnauthorizedEmail(sessionUser.email ?? 'desconocido')
         void supabase.auth.signOut()
         setUser(null)

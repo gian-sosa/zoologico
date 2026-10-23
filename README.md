@@ -29,7 +29,7 @@ El proyecto consiste en desarrollar una plataforma web para el **Parque Zoológi
 
 El sistema dispone además de una sección de **comunidad**, donde los visitantes pueden compartir fotografías de su visita, y de un **panel de administración** para gestionar las tarifas, moderar las fotografías y revisar el catálogo de especies.
 
-La solución se plantea inicialmente como una aplicación web de tipo SPA, con almacenamiento local en el navegador como parte del prototipo académico. Su arquitectura debe permitir evolucionar hacia una infraestructura centralizada basada en **Supabase**, de manera que el sistema pueda crecer, compartir información entre usuarios y soportar una mayor cantidad de operaciones.
+La solución es una aplicación web SPA con persistencia centralizada en **Supabase** (PostgreSQL, Auth y Storage). El esquema, los permisos y el despliegue de la API de imágenes se documentan en [BD.md](BD.md).
 
 ## Problema y objetivos del negocio
 
@@ -52,7 +52,7 @@ La solución se plantea inicialmente como una aplicación web de tipo SPA, con a
 | A02 | Administrador | Humano | Gestionar tarifas, moderar fotografías de visitantes y consultar el catálogo de especies. |
 | A03 | Supabase | Sistema externo / Plataforma | Proporcionar autenticación, base de datos y almacenamiento centralizado para la aplicación. |
 
-> **Nota:** En el prototipo actual las tarifas, fotografías y sesión administrativa utilizan `localStorage`. En la arquitectura propuesta se considera **Supabase como infraestructura de persistencia y servicios para la etapa de escalamiento**.
+> **Persistencia:** tarifas y solicitudes se almacenan en PostgreSQL; las fotos WebP en Storage privado. Las publicaciones y eliminaciones requieren revisión administrativa. Las credenciales de Supabase Auth se mantienen en `sessionStorage`.
 
 ---
 
@@ -166,7 +166,7 @@ Un driver arquitectónico es un requisito, atributo de calidad o restricción qu
 | DA01 – Escalabilidad | Aumentará la cantidad de visitantes en feriados y campañas. | Monolito modular + Supabase (ADR-001, ADR-003). |
 | DA02 – Seguridad | Existe un panel administrativo que modifica tarifas y contenido. | Supabase Auth, políticas RLS y rutas protegidas (ADR-005). |
 | DA03 – Rendimiento | Muchos visitantes consultarán fauna e información a la vez. | Carga diferida, caché de lectura y recursos estáticos en CDN (ADR-006). |
-| DA04 – Supabase | Hoy se usa `localStorage`; luego se usará una base central. | Patrón Repositorio con adaptadores intercambiables (ADR-003, ADR-004). |
+| DA04 – Supabase | Persistencia centralizada, compartida y protegida por RLS. | Servicios de datos Supabase (ADR-003, ADR-004). |
 | DA05 – Separación admin/público | Las funciones de gestión no deben ser accesibles al público. | Autenticación, autorización y rutas protegidas (ADR-005). |
 | DA06 – Mantenibilidad | Un cambio en un módulo no debe romper los demás. | Modularidad + Clean Architecture (ADR-001, ADR-002). |
 | DA07 – Servicios definidos | La interfaz no debe conocer cómo se guardan los datos. | Casos de uso y puertos (ADR-002, ADR-004). |
@@ -181,9 +181,9 @@ Un **ADR (Architecture Decision Record)** documenta las decisiones importantes d
 |---|---|---|---|---|---|
 | ADR-001 | **Monolito modular** (una sola aplicación SPA desplegable, dividida en módulos independientes). | DA01 – Escalabilidad; DA06 – Mantenibilidad | Microservicios; aplicación monolítica sin módulos. | El alcance del proyecto no justifica la complejidad operativa de los microservicios, pero sí requiere módulos con responsabilidades separadas. | Módulos de **Fauna, Información, Comunidad, Autenticación y Administración**; un único despliegue. |
 | ADR-002 | **Clean Architecture** como enfoque de organización interna. | DA06 – Mantenibilidad; DA07 – Servicios definidos | Arquitectura en capas tradicional; MVC; Hexagonal. | Separa las reglas del negocio de React y Supabase, y hace que las dependencias apunten hacia el dominio. | Carpetas `dominio`, `aplicacion`, `presentacion` e `infraestructura`; casos de uso independientes del framework. |
-| ADR-003 | **Supabase** como plataforma de persistencia y servicios (PostgreSQL, Auth y Storage) en la etapa de escalamiento. | DA01 – Escalabilidad; DA04 – Supabase; DA02 – Seguridad | `localStorage` únicamente; backend propio (Node.js + base de datos). | Evita construir y operar un backend propio, y permite compartir datos entre usuarios, autenticar administradores y almacenar fotografías. | Migración gradual: el prototipo usa `localStorage` y luego se cambia el adaptador a Supabase sin tocar el negocio. |
-| ADR-004 | **Patrón Repositorio** con puertos y adaptadores para el acceso a datos. | DA04 – Supabase; DA07 – Servicios definidos; DA06 – Mantenibilidad | Acceder a `localStorage` o Supabase directamente desde los componentes. | Desacopla los casos de uso de la tecnología de persistencia y facilita las pruebas. | Interfaces `FaunaRepository`, `TarifaRepository` y `FotografiaRepository`, con implementaciones `LocalStorage*` y `Supabase*`. |
-| ADR-005 | **Autenticación y autorización** con Supabase Auth, políticas RLS y rutas protegidas en React Router. | DA02 – Seguridad; DA05 – Separación admin/público | Contraseña fija en el cliente; sesión en `localStorage` sin validación en servidor. | Protege las funciones de gestión tanto en la interfaz como en la base de datos. | Rutas `/admin/*` protegidas; solo usuarios autorizados modifican tarifas y moderan fotografías. |
+| ADR-003 | **Supabase** como plataforma de persistencia (PostgreSQL, Auth y Storage). | DA01 – Escalabilidad; DA04 – Supabase; DA02 – Seguridad | Backend y base autogestionados. | Comparte información y aplica permisos centralizados. | Tablas y bucket privado descritos en BD.md; API Node para sanitizar fotos. |
+| ADR-004 | Servicios de acceso a datos separados de los componentes. | DA04 – Supabase; DA07 – Servicios definidos; DA06 – Mantenibilidad | Consultas repartidas por los componentes. | Facilita mantenimiento y pruebas. | Servicios de fotos, solicitudes y tarifas en `src/features/`. |
+| ADR-005 | **Autenticación y autorización** con Supabase Auth, RLS y rutas protegidas. | DA02 – Seguridad; DA05 – Separación admin/público | Autorización únicamente visual. | Protege operaciones desde el servidor y la base. | Administradores autorizados explícitamente en `photo_admins`; revisión de publicación y eliminación. |
 | ADR-006 | **Estrategia de rendimiento**: carga diferida de rutas (*lazy loading*), caché de consulta para fauna e información y recursos estáticos servidos desde CDN. | DA03 – Rendimiento | Cargar toda la aplicación al inicio; consultar la base de datos en cada visita. | Reduce el tiempo de carga inicial y las consultas repetitivas de información que casi no cambia. | Mejor tiempo de respuesta en Inicio, Fauna e Información; menor carga sobre Supabase. |
 | ADR-007 | **Despliegue como aplicación estática en Vercel** con versionamiento en GitHub. | DA01 – Escalabilidad; RC04 – Git y GitHub | Servidor propio; otro proveedor de hosting. | Despliegue continuo desde GitHub, CDN incluido y sin administrar servidores. | Cada cambio en la rama principal puede publicarse automáticamente. |
 
@@ -198,7 +198,7 @@ Un **ADR (Architecture Decision Record)** documenta las decisiones importantes d
 - **Cliente-servidor:** una SPA en el navegador consume los servicios de Supabase.
 - **Monolito modular:** toda la aplicación se construye y despliega como una sola unidad, dividida internamente en módulos de negocio (Fauna, Información, Comunidad, Autenticación, Administración).
 - **Capas:** presentación, lógica de negocio y datos, con dependencias controladas.
-- **BaaS:** la persistencia, autenticación y almacenamiento se delegan a Supabase; en el prototipo actual, al `localStorage` del navegador.
+- **BaaS:** persistencia, autenticación y almacenamiento se delegan a Supabase.
 
 > **Capas = organización lógica; monolito = unidad de despliegue.** Ambos conceptos coexisten.
 
@@ -217,7 +217,7 @@ Un **ADR (Architecture Decision Record)** documenta las decisiones importantes d
 
 | Etapa | Persistencia | Autenticación | Archivos |
 |---|---|---|---|
-| Prototipo académico | `localStorage` | Sesión local simulada | Fotografías en el navegador |
+| Implementación actual | PostgreSQL de Supabase | Supabase Auth | WebP en Storage privado, con revisión |
 | Escalamiento | Supabase (PostgreSQL) | Supabase Auth + RLS | Supabase Storage |
 
 ## Diagrama del estilo arquitectónico
@@ -245,7 +245,7 @@ flowchart TB
 
             subgraph D["3. CAPA DE DATOS"]
                 REPO["Repositorios y servicios de datos"]
-                LS["Adaptador localStorage<br/>prototipo"]
+                LS["Servicios de datos<br/>Supabase"]
                 SB["Adaptador Supabase<br/>escalamiento"]
             end
         end
@@ -292,7 +292,7 @@ flowchart TB
 1. Cada capa solo invoca a la capa inmediatamente inferior.
 2. Un módulo no accede a los datos de otro módulo; se comunican mediante sus servicios.
 3. Toda la aplicación se construye y despliega como una sola unidad.
-4. Cambiar de `localStorage` a Supabase solo modifica la capa de datos.
+4. El acceso a Supabase se concentra en la capa de datos.
 
 ---
 
@@ -302,10 +302,10 @@ flowchart TB
 |---|---|
 | Patrón / enfoque arquitectónico | Clean Architecture (Arquitectura Limpia). |
 | Objetivo | Separar responsabilidades y controlar las dependencias hacia el dominio. |
-| ¿Qué problema resuelve? | Evita el acoplamiento entre la interfaz React, las reglas del negocio (fauna, tarifas, fotografías) y las tecnologías externas como `localStorage` y Supabase. |
+| ¿Qué problema resuelve? | Evita el acoplamiento entre la interfaz React, las reglas del negocio y los servicios externos de persistencia. |
 | Capas definidas | Dominio, Aplicación, Presentación e Infraestructura. |
 | Regla de dependencia | Las dependencias del código solo apuntan hacia el interior: Infraestructura y Presentación → Aplicación → Dominio. |
-| Beneficios | • Facilita el mantenimiento y las pruebas unitarias.<br>• Permite cambiar `localStorage` por Supabase sin modificar las reglas del negocio.<br>• Mejora la organización y separación de responsabilidades del código. |
+| Beneficios | • Facilita el mantenimiento y las pruebas.<br>• Centraliza el acceso a Supabase.<br>• Mejora la separación de responsabilidades. |
 
 ## Responsabilidades por capa
 
@@ -350,7 +350,7 @@ src/
     └── main.tsx
 ```
 
-> **Raíz de composición (`app/contenedor.ts`):** es el único lugar que conoce qué adaptador concreto se usa. Cambiar de `localStorage` a Supabase equivale a cambiar una línea en este archivo; el dominio y los casos de uso no se modifican.
+> **Acceso a datos:** el cliente Supabase compartido se configura en `src/shared/lib/supabase.ts`; los servicios de cada funcionalidad están en `src/features/`.
 
 ## Diagrama del enfoque (Clean Architecture)
 
@@ -366,7 +366,7 @@ src/
 | Construcción | Vite |
 | Estilos | Tailwind CSS |
 | Enrutamiento | React Router |
-| Persistencia (prototipo) | `localStorage` |
+| Persistencia | Supabase PostgreSQL + Storage |
 | Persistencia (escalamiento) | Supabase (PostgreSQL, Auth, Storage) |
 | Calidad de código | Oxlint |
 | Métricas | Vercel Analytics y Speed Insights |

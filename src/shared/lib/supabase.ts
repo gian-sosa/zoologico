@@ -18,7 +18,9 @@ let client: SupabaseClient | null = null
 export function getSupabase(): SupabaseClient | null {
   if (!supabaseUrl || !supabaseAnonKey) return null
   if (!client) {
-    client = createClient(supabaseUrl, supabaseAnonKey)
+    client = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: { storage: typeof window !== 'undefined' ? window.sessionStorage : undefined },
+    })
   }
   return client
 }

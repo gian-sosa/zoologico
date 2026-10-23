@@ -1,7 +1,6 @@
-import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { LeafIcon, MapPinIcon } from '../components/icons'
-import { getParkingTypes, getTicketTypes, formatTariff } from '../features/tickets/prices.store'
+import { useTariffs, formatTariff } from '../features/tickets/prices.store'
 import { VISITOR_RULES } from '../features/zoo/visitor-rules'
 import { ZOO_HISTORY } from '../features/zoo/history.data'
 
@@ -82,8 +81,7 @@ const experiencePoints = [
 const visitorRules = VISITOR_RULES
 
 export default function HomePage() {
-  const tariffs = useMemo(getTicketTypes, [])
-  const parking = useMemo(getParkingTypes, [])
+  const { tariffs, parking } = useTariffs()
 
   return (
     <main className="bg-cream">
@@ -245,7 +243,7 @@ export default function HomePage() {
 
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
-            to="/fauna"
+            to="/explora#fauna"
             className="group inline-flex w-full items-center justify-center gap-2 rounded-full border border-jungle/40 px-7 py-3 font-heading text-sm font-semibold text-jungle transition-all hover:-translate-y-0.5 hover:border-jungle hover:bg-white sm:w-auto"
           >
             Conoce nuestra fauna
@@ -300,13 +298,13 @@ export default function HomePage() {
             </ul>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
-                to="/fauna"
+                to="/explora#fauna"
                 className="inline-flex w-full items-center justify-center rounded-full bg-[#2c5c42] px-6 py-3 font-heading text-sm font-semibold text-white shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep sm:w-auto"
               >
                 Descubre la fauna
               </Link>
               <Link
-                to="/mapa"
+                to="/explora"
                 className="inline-flex w-full items-center justify-center rounded-full border border-jungle/40 px-6 py-3 font-heading text-sm font-semibold text-jungle transition-all duration-200 hover:-translate-y-0.5 hover:border-jungle hover:bg-white sm:w-auto"
               >
                 Ver mapa del zoo
@@ -438,7 +436,7 @@ export default function HomePage() {
                 to="/mesadepartes"
                 className="group mt-3 inline-flex items-center gap-2 rounded-full bg-[#2c5c42] px-6 py-2.5 font-heading text-sm font-semibold text-white shadow transition-all duration-200 hover:-translate-y-0.5 hover:bg-jungle-deep"
               >
-                Solicitar descuento
+                Presentar solicitud en Mesa de Partes
               </Link>
             </div>
           </div>
@@ -462,7 +460,7 @@ export default function HomePage() {
               Planifica tu visita
             </Link>
             <Link
-              to="/fauna"
+              to="/explora#fauna"
               className="inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/40 px-8 py-3 font-heading text-[15px] font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-white sm:w-auto"
             >
               Ver especies

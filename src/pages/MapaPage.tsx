@@ -1,80 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import PageHeader from '../shared/components/PageHeader'
-import { MapPinIcon } from '../components/icons'
-
-/** Leyenda de especies numeradas según el croquis oficial del zoológico. */
-const speciesLegend: { n: string; name: string }[] = [
-  { n: '17', name: 'Margay' },
-  { n: '18', name: 'Margay' },
-  { n: '19', name: 'Mono nocturno' },
-  { n: '20', name: 'León africano' },
-  { n: '21', name: 'Chosna' },
-  { n: '22', name: 'Mono choro' },
-  { n: '23', name: 'Hurón plateado' },
-  { n: '24', name: 'Ardilla ploma' },
-  { n: '25', name: 'Maquisapa negro' },
-  { n: '26', name: 'Tortuga motelo' },
-  { n: '27', name: 'Isla de monos' },
-  { n: '28', name: 'Aguilucho caminero' },
-  { n: '29', name: 'Pato crestón' },
-  { n: '30', name: 'Pato media luna' },
-  { n: '31', name: 'Tortugas / lagartos' },
-  { n: '32', name: 'Emú / gansos africanos' },
-  { n: '33', name: 'Pava puca cunca' },
-  { n: '34', name: 'Huallpata' },
-  { n: '35', name: 'Aguilucho caminero' },
-  { n: '36', name: 'Mono frayle' },
-  { n: '37', name: 'Buitre' },
-  { n: '38', name: 'Halcón peregrino' },
-  { n: '39', name: 'Loro frente roja' },
-  { n: '40', name: 'Mono aullador' },
-  { n: '41', name: 'Sajino' },
-  { n: '42', name: 'Guacamayo escarlata' },
-  { n: '43', name: 'Pacarana' },
-  { n: '44', name: 'Puerco esín' },
-  { n: '45', name: 'Mono barba blanca' },
-  { n: '46', name: 'Boas' },
-  { n: '47', name: 'Pavo real' },
-  { n: '48', name: 'Paujíl' },
-  { n: '49', name: 'Cernícalo' },
-  { n: '50', name: 'Sihua' },
-  { n: '51', name: 'Loro mercenaria coronada' },
-  { n: '52', name: 'Loro frente roja' },
-  { n: '53', name: 'Loro amazona amazónica' },
-  { n: '54', name: 'Guacamayo azul amarillo' },
-  { n: '55', name: 'Guacamayo escarlata' },
-  { n: '56', name: 'Guacamayo rojo' },
-  { n: '57', name: 'Guacamayo frente castaña' },
-  { n: '58', name: 'Pichico barba blanca' },
-  { n: '59', name: 'Pava curunculada' },
-  { n: '60', name: 'Perico australiano' },
-  { n: '61', name: 'Cóndor andino' },
-  { n: '62–65', name: 'Herpetario' },
-  { n: '66', name: 'Capi z' },
-  { n: '67', name: 'Venado' },
-]
-
-const circuitLegend = [
-  {
-    label: 'Acceso vehicular',
-    swatch: 'bg-[repeating-linear-gradient(90deg,#d42b2b_0_5px,#ffffff_5px_9px)]',
-  },
-  { label: 'Acceso peatonal', swatch: 'bg-[#0e7d3a]' },
-  { label: 'Circuito Chapu Quichca', swatch: 'bg-[#8fd19a]' },
-]
-
-const pointsOfInterest = [
-  'Inicio del circuito',
-  'Final del circuito',
-  'Zona de parqueo',
-  'Área de souvenir',
-  'Miradores y gruta Tan Francisco',
-  'Intihuasi y área de descanso',
-  'Andenería y área de compostaje',
-  'Acuamundo y casona',
-  'Puente del amor y SS.HH.',
-  'Campo deportivo público',
-]
+import { ArrowRightIcon, MapPinIcon, XIcon } from '../components/icons'
+import { MAP_ENCLOSURES } from '../features/zoo/map.data'
+import { MAP_ANIMALS, matchesMapAnimal } from '../features/zoo/map-animals'
+import type { MapAnimal } from '../features/zoo/map-animals'
+import './MapaPage.css'
 
 const MIN_ZOOM = 1
 const MAX_ZOOM = 3
@@ -83,204 +14,162 @@ export default function MapaPage() {
   const [zoom, setZoom] = useState(1)
   const [fullscreen, setFullscreen] = useState(false)
   const [query, setQuery] = useState('')
+  const [onlyProfiles, setOnlyProfiles] = useState(false)
+  const [selected, setSelected] = useState<number[]>([])
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const mapRef = useRef<HTMLDivElement>(null)
+  const results = useMemo(() => MAP_ANIMALS.filter((animal) => (
+    matchesMapAnimal(animal, query) && (!onlyProfiles || animal.href !== null)
+  )), [query, onlyProfiles])
+  const matches = new Set(query.trim() || onlyProfiles
+    ? results.flatMap((animal) => animal.enclosures.map(({ n }) => n))
+    : selected)
 
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return speciesLegend
-    return speciesLegend.filter(
-      (s) => s.name.toLowerCase().includes(q) || s.n.toLowerCase().includes(q),
-    )
-  }, [query])
+  function locateAnimal(animal: MapAnimal) {
+    const enclosure = animal.enclosures.find(({ position }) => position)
+    if (!enclosure?.position || !mapRef.current) return
+    setQuery('')
+    setOnlyProfiles(false)
+    setSelected(animal.enclosures.map(({ n }) => n))
+    const viewport = mapRef.current
+    viewport.scrollIntoView({ block: 'start' })
+    viewport.scrollTo({
+      left: enclosure.position[0] / 1920 * viewport.scrollWidth - viewport.clientWidth / 2,
+      top: enclosure.position[1] / 1080 * viewport.scrollHeight - viewport.clientHeight / 2,
+    })
+    viewport.focus({ preventScroll: true })
+  }
 
-  // Cerrar pantalla completa con Escape y bloquear scroll del fondo
   useEffect(() => {
     if (!fullscreen) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setFullscreen(false)
-    }
-    window.addEventListener('keydown', onKey)
-    const prev = document.body.style.overflow
+    const dialog = dialogRef.current
+    dialog?.showModal()
+    const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
-      window.removeEventListener('keydown', onKey)
-      document.body.style.overflow = prev
+      dialog?.close()
+      document.body.style.overflow = previousOverflow
     }
   }, [fullscreen])
 
-  return (
-    <main className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20">
-      <PageHeader
-        eyebrow="Visita"
-        title="Mapa del zoológico"
-        description="Guíate con el croquis oficial: sigue el circuito verde, ubica cada especie por su número y no te pierdas ningún punto de interés."
-      />
+  function renderControls(expanded = false) {
+    return (
+      <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card p-3 sm:px-5">
+        <p className="mr-auto flex items-center gap-2 text-sm font-bold text-foreground">
+          <MapPinIcon className="size-4 text-primary" />
+          Croquis interactivo
+        </p>
+        <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Controles del mapa">
+          <button type="button" disabled={zoom <= MIN_ZOOM} aria-label="Reducir zoom" onClick={() => setZoom((z) => Math.max(MIN_ZOOM, z - 0.5))} className="map-control">−</button>
+          <output aria-live="polite" className="w-16 text-center text-sm font-bold">{zoom * 100} %</output>
+          <button type="button" disabled={zoom >= MAX_ZOOM} aria-label="Aumentar zoom" onClick={() => setZoom((z) => Math.min(MAX_ZOOM, z + 0.5))} className="map-control">+</button>
+          <button type="button" onClick={() => setZoom(MIN_ZOOM)} className="map-control px-3 text-sm">Ajustar</button>
+          <button type="button" onClick={() => setFullscreen(!expanded)} className="map-control px-3 text-sm">
+            {expanded ? 'Cerrar' : 'Ampliar pantalla'}
+          </button>
+          <a href="/maps.png" download="mapa-zoologico-la-totorilla.png" className="map-control px-3 text-sm">Descargar</a>
+        </div>
+      </div>
+    )
+  }
 
-      {/* VISOR DEL CROQUIS */}
-      <section aria-label="Croquis del zoológico" className="mt-10 overflow-hidden rounded-3xl border border-black/5 bg-white shadow-sm">
-        <div className="flex flex-wrap items-center gap-2 border-b border-stone-100 px-4 py-3 sm:px-5">
-          <p className="mr-auto flex items-center gap-1.5 text-sm font-bold text-stone-700">
-            <MapPinIcon className="size-4 text-jungle" />
-            Croquis oficial
-          </p>
-          <div className="flex items-center gap-1.5" role="group" aria-label="Controles de zoom">
-            <button
-              type="button"
-              onClick={() => setZoom((z) => Math.max(MIN_ZOOM, +(z - 0.5).toFixed(1)))}
-              disabled={zoom <= MIN_ZOOM}
-              aria-label="Reducir zoom"
-              className="grid size-9 cursor-pointer place-items-center rounded-full border border-border text-lg font-bold text-stone-700 transition-colors hover:bg-cream disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              −
-            </button>
-            <span aria-live="polite" className="w-14 text-center font-heading text-sm font-bold text-stone-900">
-              {Math.round(zoom * 100)} %
-            </span>
-            <button
-              type="button"
-              onClick={() => setZoom((z) => Math.min(MAX_ZOOM, +(z + 0.5).toFixed(1)))}
-              disabled={zoom >= MAX_ZOOM}
-              aria-label="Aumentar zoom"
-              className="grid size-9 cursor-pointer place-items-center rounded-full border border-border text-lg font-bold text-stone-700 transition-colors hover:bg-cream disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              +
-            </button>
-            {zoom > MIN_ZOOM && (
-              <button
-                type="button"
-                onClick={() => setZoom(MIN_ZOOM)}
-                className="cursor-pointer rounded-full border border-border px-4 py-2 text-xs font-bold text-stone-700 transition-colors hover:bg-cream"
+  function renderMap(expanded = false) {
+    return (
+      <div ref={expanded ? undefined : mapRef} className="map-scroll scroll-mt-28 overflow-auto bg-cream" tabIndex={0} aria-label="Mapa desplazable. Usa las flechas para recorrerlo y Tab para elegir un recinto.">
+        <div className="relative" style={{ width: `${zoom * 100}%`, minWidth: 760 }}>
+          <img src="/maps.png" width={1920} height={1080} alt="Nuevo croquis del Parque Zoológico La Totorilla: recintos numerados, senderos, herpetario y zona recreativa." draggable={false} className="block h-auto w-full select-none" />
+          {MAP_ENCLOSURES.map((enclosure) => {
+            if (!enclosure.position) return null
+            const highlighted = matches.has(enclosure.n)
+            return (
+              <Link
+                key={enclosure.n}
+                to={enclosure.href === '/404' ? '/explora#fauna' : enclosure.href}
+                onClick={() => {
+                  setFullscreen(false)
+                  if (enclosure.href === '/404') { setQuery(String(enclosure.n)); setOnlyProfiles(false) }
+                }}
+                aria-label={`Recinto ${enclosure.n}: ${enclosure.name}. ${enclosure.href === '/404' ? 'Ver en la lista de animales.' : 'Ver ficha del animal.'}`}
+                title={`${enclosure.n}. ${enclosure.name}`}
+                className={`map-hotspot ${highlighted ? 'map-hotspot-match' : ''}`}
+                style={{ left: `${enclosure.position[0] / 1920 * 100}%`, top: `${enclosure.position[1] / 1080 * 100}%` }}
               >
-                Ajustar
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => setFullscreen(true)}
-              aria-label="Ver croquis en pantalla completa"
-              className="grid size-9 cursor-pointer place-items-center rounded-full bg-jungle text-white transition-colors hover:bg-jungle-deep"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="size-4">
-                <path d="M8 3H5a2 2 0 0 0-2 2v3" />
-                <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
-                <path d="M3 16v3a2 2 0 0 0 2 2h3" />
-                <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
-              </svg>
-            </button>
-            <a
-              href="/croquis.png"
-              download="croquis-zoologico-la-totorilla.png"
-              aria-label="Descargar croquis"
-              className="grid size-9 place-items-center rounded-full border border-border text-stone-700 transition-colors hover:bg-cream"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="size-4">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <path d="m7 10 5 5 5-5" />
-                <path d="M12 15V3" />
-              </svg>
-            </a>
-          </div>
+                <span className="sr-only">{enclosure.n}. {enclosure.name}</span>
+              </Link>
+            )
+          })}
         </div>
+      </div>
+    )
+  }
 
-        <div className="overflow-auto bg-cream/60">
-          <img
-            src="/croquis.png"
-            alt="Croquis del Zoológico La Totorilla con el circuito de visita, las zonas y la leyenda de especies numeradas"
-            loading="eager"
-            onClick={() => setFullscreen(true)}
-            style={{ width: `${zoom * 100}%` }}
-            className="mx-auto min-w-full max-w-none cursor-zoom-in select-none"
-          />
-        </div>
-        <p className="border-t border-stone-100 px-4 py-2.5 text-center text-xs font-medium text-stone-400 sm:px-5">
-          Toca la imagen para ampliar · Desliza para recorrer el mapa con zoom
+  return (
+    <main className="zoo-map-page mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+      <PageHeader eyebrow="Tu recorrido empieza aquí" title="Explora Totorilla" description="Encuentra a tus animales favoritos y descubre dónde viven en el zoológico." />
+
+      <nav aria-label="Secciones del mapa" className="mt-6 flex flex-wrap gap-2">
+        <Link to="#croquis" className="map-control gap-2 bg-card px-5 text-sm font-semibold hover:bg-muted"><MapPinIcon className="size-4" />Ver mapa</Link>
+        <Link to="#fauna" className="map-control explore-primary px-5 text-sm font-semibold">Buscar un animal<ArrowRightIcon className="ml-2 size-4" /></Link>
+      </nav>
+
+      <section id="croquis" aria-label="Croquis interactivo del zoológico" className="mt-6 scroll-mt-28 overflow-hidden rounded-3xl border border-border bg-card">
+        {renderControls()}
+        {renderMap()}
+        <p className="border-t border-border px-5 py-3 text-center text-xs text-muted-foreground">
+          Toca un número para conocer sus animales. Amplía o desliza el mapa para recorrerlo.
         </p>
       </section>
 
-      {/* LEYENDA + PUNTOS */}
-      <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1fr]">
-        <section aria-label="Leyenda del circuito" className="rounded-3xl border border-black/5 bg-white p-7 shadow-sm sm:p-8">
-          <h2 className="font-heading text-xl font-bold text-stone-900">Leyenda del circuito</h2>
-          <ul className="mt-4 space-y-3">
-            {circuitLegend.map((l) => (
-              <li key={l.label} className="flex items-center gap-3">
-                <span aria-hidden="true" className={`h-4 w-14 shrink-0 rounded-full border border-black/10 ${l.swatch}`} />
-                <span className="text-sm font-bold text-stone-800">{l.label}</span>
-              </li>
-            ))}
-          </ul>
-          <h3 className="mt-6 font-heading text-[15px] font-bold text-stone-900">Puntos de interés</h3>
-          <ul className="mt-2 grid gap-x-4 sm:grid-cols-2">
-            {pointsOfInterest.map((p, i) => (
-              <li key={p} className="flex items-start gap-2 py-1 text-sm font-medium text-stone-600">
-                <span aria-hidden="true" className="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-primary-soft font-heading text-[10px] font-bold text-primary">
-                  {i + 1}
-                </span>
-                {p}
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section aria-label="Buscar especie en el mapa" className="rounded-3xl bg-[#2c5c42] p-7 text-white sm:p-8">
-          <h2 className="font-heading text-xl font-bold">¿Dónde está cada especie?</h2>
-          <p className="mt-1 text-sm font-medium text-white/70">
-            Busca por nombre o número y ubícalo en el croquis.
-          </p>
-          <label htmlFor="map-search" className="sr-only">Buscar especie por nombre o número</label>
-          <input
-            id="map-search"
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ej. cóndor, jaguar o 61…"
-            className="mt-4 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-medium text-white placeholder:text-white/40 focus:border-[#d9f99d] focus:ring-2 focus:ring-[#d9f99d]/30 focus:outline-none"
-          />
-          <ul className="mt-4 max-h-72 space-y-1 overflow-y-auto pr-1">
-            {results.length === 0 && (
-              <li className="rounded-2xl bg-white/5 px-4 py-3 text-sm font-medium text-white/60">
-                Sin resultados. Prueba con otro nombre o número.
-              </li>
-            )}
-            {results.map((s) => (
-              <li key={`${s.n}-${s.name}`} className="flex items-center gap-3 rounded-2xl bg-white/5 px-4 py-2.5">
-                <span aria-hidden="true" className="grid size-8 shrink-0 place-items-center rounded-full bg-[#d9f99d] font-heading text-xs font-bold text-[#0e3d24]">
-                  {s.n}
-                </span>
-                <span className="text-sm font-semibold">{s.name}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
-
-      {/* PANTALLA COMPLETA */}
-      {fullscreen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Croquis del zoológico en pantalla completa"
-          onClick={() => setFullscreen(false)}
-          className="fixed inset-0 z-70 flex items-center justify-center bg-black/92 p-3 sm:p-6"
-        >
-          <button
-            type="button"
-            onClick={() => setFullscreen(false)}
-            aria-label="Cerrar pantalla completa"
-            className="absolute top-4 right-4 grid size-11 cursor-pointer place-items-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/25"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true" className="size-5">
-              <path d="M18 6 6 18" />
-              <path d="m6 6 12 12" />
-            </svg>
-          </button>
-          <img
-            src="/croquis.png"
-            alt="Croquis del Zoológico La Totorilla en pantalla completa"
-            onClick={(e) => e.stopPropagation()}
-            className="max-h-full max-w-full cursor-zoom-out rounded-xl object-contain"
-          />
+      <section id="fauna" aria-labelledby="map-fauna-heading" className="mt-12 scroll-mt-28 sm:mt-16">
+        <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+          <div>
+            <h2 id="map-fauna-heading" className="font-heading text-3xl font-semibold text-foreground">Nuestros animales</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Cada animal, una sola vez. Los números indican sus recintos.</p>
+          </div>
+          <div className="w-full md:max-w-sm">
+            <label htmlFor="map-search" className="mb-2 block text-sm font-semibold">Buscar por nombre o número</label>
+            <div className="relative">
+              <input id="map-search" type="search" value={query} onChange={(event) => { setQuery(event.target.value); setSelected([]) }} placeholder="Ej. vizcacha, puma o 12" className="min-h-12 w-full rounded-2xl border border-border bg-card py-3 pr-12 pl-4 text-sm text-foreground" />
+              {query && <button type="button" onClick={() => setQuery('')} aria-label="Limpiar búsqueda" className="absolute inset-y-0 right-0 flex w-12 cursor-pointer items-center justify-center rounded-xl text-muted-foreground hover:text-primary"><XIcon className="size-4" /></button>}
+            </div>
+          </div>
         </div>
-      )}
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex gap-2" role="group" aria-label="Filtrar animales">
+            <button type="button" onClick={() => setOnlyProfiles(false)} aria-pressed={!onlyProfiles} className={`map-control px-4 text-sm font-semibold ${!onlyProfiles ? 'border-primary bg-primary text-on-primary' : 'bg-card'}`}>Todos</button>
+            <button type="button" onClick={() => setOnlyProfiles(true)} aria-pressed={onlyProfiles} className={`map-control px-4 text-sm font-semibold ${onlyProfiles ? 'border-primary bg-primary text-on-primary' : 'bg-card'}`}>Con ficha educativa</button>
+          </div>
+          <p role="status" className="text-sm text-muted-foreground">{results.length} {results.length === 1 ? 'animal encontrado' : 'animales encontrados'}</p>
+        </div>
+        <p className="mt-4 text-xs text-muted-foreground">Imágenes provisionales. Las fichas de los recintos 1, 2 y 3 ya están disponibles.</p>
+        {results.length ? (
+          <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {results.map((animal) => (
+              <li key={animal.id} className="flex gap-4 rounded-2xl border border-border bg-card p-4 transition-colors focus-within:border-primary hover:border-primary/40">
+                <img src={animal.image} alt="" width={88} height={88} loading="lazy" className="size-20 shrink-0 rounded-xl object-cover sm:size-22" />
+                <div className="min-w-0 flex-1">
+                  <p className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
+                    <span>{animal.enclosures.length === 1 ? 'Recinto' : 'Recintos'}</span>
+                    {animal.enclosures.map(({ n }) => <span key={n} className="inline-flex min-w-6 items-center justify-center rounded-md bg-primary-soft px-1.5 py-0.5 font-bold text-primary">{n}</span>)}
+                  </p>
+                  <h3 className="mt-1 font-heading text-lg leading-snug font-semibold text-foreground">{animal.name}</h3>
+                  {animal.href ? (
+                    <Link to={animal.href} className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-primary hover:underline">Ver ficha<ArrowRightIcon /></Link>
+                  ) : animal.enclosures.some(({ position }) => position) ? (
+                    <button type="button" onClick={() => locateAnimal(animal)} className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-lg text-sm font-semibold text-primary hover:underline"><MapPinIcon className="size-4" />Ubicar en mapa</button>
+                  ) : <p className="mt-2 text-xs text-muted-foreground">Solo en la leyenda del mapa</p>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : <div className="mt-5 rounded-2xl border border-dashed border-border bg-card p-8 text-center"><p className="font-semibold">No encontramos animales con esos filtros.</p><button type="button" onClick={() => { setQuery(''); setOnlyProfiles(false) }} className="mt-3 min-h-11 cursor-pointer rounded-full bg-primary px-5 text-sm font-semibold text-on-primary">Ver todos los animales</button></div>}
+      </section>
+
+      <dialog ref={dialogRef} onClose={() => setFullscreen(false)} onCancel={() => setFullscreen(false)} onClick={(event) => { if (event.target === event.currentTarget) setFullscreen(false) }} aria-label="Mapa interactivo en pantalla ampliada" className="map-dialog zoo-map-page">
+        {renderControls(true)}
+        {renderMap(true)}
+        <p className="border-t border-border p-3 text-center text-xs text-muted-foreground">Pulsa Escape o Cerrar para volver. Los puntos numerados también son interactivos aquí.</p>
+      </dialog>
     </main>
   )
 }

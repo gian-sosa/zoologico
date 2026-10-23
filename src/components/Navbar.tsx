@@ -5,9 +5,8 @@ import { MapPinIcon } from './icons'
 
 const links = [
   { to: '/', label: 'Inicio', match: (p: string) => p === '/' },
-  { to: '/fauna', label: 'Fauna', match: (p: string) => p.startsWith('/fauna') },
   { to: '/entradas', label: 'Entradas', match: (p: string) => p.startsWith('/entradas') },
-  { to: '/mapa', label: 'Mapa', match: (p: string) => p.startsWith('/mapa') || p.startsWith('/croquis') },
+  { to: '/explora', label: 'Explora', match: (p: string) => p.startsWith('/explora') || p.startsWith('/mapa') || p.startsWith('/croquis') || p.startsWith('/fauna') },
   { to: '/blog', label: 'Blog', match: (p: string) => p.startsWith('/blog') },
 ]
 

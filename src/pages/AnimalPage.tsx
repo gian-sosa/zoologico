@@ -1,4 +1,4 @@
-import { Navigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import { getAnimalBySlug } from '../features/animals/animals.service'
 import AnimalSound from '../components/AnimalSound'
 import FlipFact from '../components/FlipFact'
@@ -15,6 +15,11 @@ export default function AnimalPage() {
 
   return (
     <main>
+      <div className="mx-auto max-w-5xl px-6 py-3">
+        <Link to="/explora#fauna" className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-primary underline-offset-4 hover:underline">
+          <span aria-hidden="true">←</span> Volver a Explora
+        </Link>
+      </div>
       {/* Hero de la infografía */}
       <section
         className="relative max-w-[2560px] m-auto overflow-hidden"
@@ -70,7 +75,7 @@ export default function AnimalPage() {
                   <AnimalSound
                     key={animal.slug}
                     src={animal.soundFile}
-                    label={animal.soundLabel ?? `Escuchar el sonido del ${animal.name.toLowerCase()}`}
+                    label={animal.soundLabel ?? `Sonido de ${animal.name.toLowerCase()}`}
                     accentHex={animal.accentHex}
                   />
                 </span>
@@ -168,7 +173,7 @@ export default function AnimalPage() {
             Pon a prueba lo aprendido
           </h2>
           <p className="mb-6 mt-2 text-sm text-muted-foreground">
-            Responde {animal.quiz.length} preguntas sobre el {animal.name.toLowerCase()}.
+            Responde {animal.quiz.length} preguntas sobre esta especie.
           </p>
           <Quiz questions={animal.quiz} accentHex={animal.accentHex} />
         </section>

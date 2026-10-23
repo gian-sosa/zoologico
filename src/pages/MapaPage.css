@@ -1,0 +1,92 @@
+.map-control {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-foreground);
+  cursor: pointer;
+}
+
+.map-control:hover:not(:disabled) {
+  background: var(--color-muted);
+}
+
+.map-control:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.map-control.explore-primary,
+.map-control[aria-pressed='true'] {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.map-control.explore-primary:hover,
+.map-control[aria-pressed='true']:hover {
+  background: var(--color-jungle-deep);
+}
+
+.zoo-map-page input[type='search']::-webkit-search-cancel-button {
+  display: none;
+}
+
+.map-scroll {
+  max-height: 70vh;
+  overscroll-behavior: contain;
+}
+
+.map-hotspot {
+  position: absolute;
+  width: 1.65%;
+  min-width: 20px;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 150ms, border-color 150ms;
+}
+
+.map-hotspot:hover,
+.map-hotspot:focus-visible,
+.map-hotspot-match {
+  z-index: 1;
+  border-color: var(--color-jungle-deep);
+  background: rgb(255 255 255 / 20%);
+  box-shadow: 0 0 0 3px white;
+}
+
+/* La hoja global desactiva el foco; se recupera solo dentro de este visor. */
+.zoo-map-page a:focus-visible,
+.zoo-map-page button:focus-visible,
+.zoo-map-page input:focus-visible,
+.zoo-map-page [tabindex]:focus-visible {
+  outline: 3px solid var(--color-primary) !important;
+  outline-offset: 3px;
+}
+
+.map-dialog {
+  width: calc(100vw - 24px);
+  max-width: 1800px;
+  max-height: calc(100dvh - 24px);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: var(--color-card);
+  color: var(--color-foreground);
+}
+
+.map-dialog::backdrop {
+  background: rgb(0 0 0 / 80%);
+}
+
+.map-dialog .map-scroll {
+  max-height: 70dvh;
+}
