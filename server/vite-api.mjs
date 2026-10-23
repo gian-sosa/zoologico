@@ -8,7 +8,11 @@ const handlers = new Map([
   ['/api/claims', claims],
 ])
 
-/** Ejecuta las API Node existentes en desarrollo, sin añadirlas al bundle web. */
+/**
+ * Ejecuta las API Node existentes en desarrollo, sin añadirlas al bundle web.
+ * @param {Record<string, string>} env
+ * @returns {import('vite').Plugin}
+ */
 export function localApiPlugin(env) {
   // Vite no carga variables privadas en process.env automáticamente. Copiar solo
   // las que utilizan nuestras API; nunca usar `define` ni enviarlas al cliente.
